@@ -165,6 +165,19 @@ body[data-view="face"] .skinonly{display:none}
 .tip ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:5px}
 .tip li{font-size:13px;line-height:1.45;color:#ddd5c8;padding-left:14px;position:relative}
 .tip li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.fact{display:flex;gap:8px;flex-wrap:wrap}
+.chip.act{border-color:var(--gold);color:var(--gold)}
+.simrow{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.simrow label{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
+.fnote{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;line-height:1.5}
+.fnote #photoStatus{color:var(--gold)}
+.fnote #photoStatus:empty{display:none}
+.simbadge{display:none;position:fixed;top:84px;left:50%;transform:translateX(-50%);padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);background:rgba(20,18,16,.66);pointer-events:none;z-index:3;white-space:nowrap}
+body.hasphoto[data-view="face"]:not(.clean) .simbadge{display:block}
+.cam{position:fixed;inset:0;z-index:20;background:rgba(10,9,8,.88);display:grid;place-items:center;align-content:center;gap:18px}
+.cam video{max-width:min(92vw,720px);max-height:66vh;border-radius:14px;border:1px solid var(--line);transform:scaleX(-1);background:#000}
+.cam div{display:flex;gap:10px}
 .note{position:fixed;right:30px;bottom:8px;font-size:10px;letter-spacing:.08em;color:rgba(169,160,147,.6);pointer-events:none}
 
 .lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
@@ -216,6 +229,8 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
   .scene,html[lang="ka"] .scene{flex:1;font-size:14px;padding:6px 8px;justify-content:center}
   .scene em{display:none}
   .agetop{grid-template-columns:auto 1fr;gap:14px}
+  .simrow{grid-template-columns:1fr;gap:8px}
+  .simbadge{top:auto;bottom:8px;font-size:9px}
   .agenum b{font-size:40px}
   .meters{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
   .meter{grid-template-columns:auto 1fr 34px}
@@ -336,9 +351,28 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
 
 <section class="bar glass facebar" aria-label="Face map">
   <button class="min" aria-label="Collapse or expand this panel"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg></button>
-  <div class="eyebrow" data-i18n="f_hint">Choose an area of concern</div>
+  <div class="frow">
+    <span class="eyebrow" data-i18n="f_hint">Choose an area of concern</span>
+    <span class="fact">
+      <button class="chip act" id="btnPhoto" data-i18n="f_upload">Use my photo</button>
+      <button class="chip act" id="btnCam" data-i18n="f_camera">Camera</button>
+      <button class="chip" id="btnPhotoX" data-i18n="f_remove" hidden>Remove photo</button>
+    </span>
+  </div>
   <div class="chips x" id="zoneChips"></div>
+  <div class="simrow x" id="simRow" hidden>
+    <label><span data-i18n="f_split">Before · After</span><input type="range" class="range" id="simSplit" min="0" max="100" value="50" step="1"></label>
+    <label><span data-i18n="f_strength">Effect strength</span><input type="range" class="range" id="simStrength" min="0" max="100" value="60" step="1"></label>
+  </div>
+  <div class="fnote x"><span id="photoStatus" aria-live="polite"></span><span data-i18n="f_priv">Your photo is processed on this device only and is never uploaded.</span></div>
+  <input type="file" id="photoFile" accept="image/*" hidden>
 </section>
+
+<div class="simbadge" data-i18n="f_sim">Simulation · not a guaranteed result</div>
+<div class="cam" id="cam" hidden>
+  <video playsinline autoplay muted></video>
+  <div><button class="chip act" id="camSnap" data-i18n="c_snap">Capture</button><button class="chip" id="camX" data-i18n="c_cancel">Cancel</button></div>
+</div>
 
 <aside class="consult glass" id="consult">
   <div class="eyebrow" data-i18n="c_eyebrow">By appointment</div>
@@ -779,6 +813,8 @@ var KA = {
   v_treat:'პროცედურები', v_age:'კანის ასაკი', v_face:'სახის რუკა', t_help:'რა შველის',
   a_years:'წელი', a_col:'კოლაგენი', a_hyd:'ტენი', a_life:'ცხოვრების წესი', a_sun:'მზე SPF-ის გარეშე', a_smoke:'მოწევა', a_sleep:'უძილობა',
   f_hint:'აირჩიეთ ზონა, რომელიც გაწუხებთ',
+  f_upload:'ჩემი ფოტო', f_camera:'კამერა', f_remove:'ფოტოს წაშლა', f_split:'მანამდე · შემდეგ', f_strength:'ეფექტის სიძლიერე',
+  f_priv:'ფოტო მუშავდება მხოლოდ ამ მოწყობილობაზე და არსად იტვირთება.', f_sim:'სიმულაცია · არ არის გარანტირებული შედეგი', c_snap:'გადაღება', c_cancel:'გაუქმება',
   l_title:'ფერების განმარტება', l_collagen:'კოლაგენი, სქელი ბოჭკოები', l_elastin:'ელასტინი, წვრილი ბოჭკოები', l_artery:'არტერიოლები', l_vein:'ვენულები', l_water:'წყლის მოლეკულები', l_fat:'ცხიმოვანი წილაკები', l_follicle:'თმა და ფოლიკული', l_gland:'ცხიმოვანი ჯირკვალი'
 };
 var EN = {};
@@ -891,12 +927,14 @@ function openPin(p){
   if (p.xray && !xrayOn){ setXray(true); autoXray = true; }
   block.updateMatrixWorld(true);
   var w = p.anchor.getWorldPosition(new V3());
-  flyTo(w.clone().addScaledVector(p.off, 1.8), w);
+  if (!(photo && p.view === 'face')) flyTo(w.clone().addScaledVector(p.off, 1.8), w);
+  schedulePhoto();
 }
 function closePin(){
   if (!activePin) return;
   activePin.el.classList.remove('on'); activePin = null; tip.classList.remove('open');
   Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.setAttribute('aria-pressed', false); });
+  schedulePhoto();
   if (autoXray){ autoXray = false; if (!(playing || T > 0)) setXray(false); }
 }
 $('tipClose').addEventListener('click', closePin);
@@ -1026,7 +1064,7 @@ function applyLang(l, fromHash){
   Array.prototype.forEach.call(document.querySelectorAll('.lang button'), function(b){ b.setAttribute('aria-pressed', b.dataset.lang === lang); });
   PINS.forEach(function(p){ p.el.querySelector('.lab').textContent = pinText(p,'label'); p.el.setAttribute('aria-label', pinText(p,'label')); });
   if (activePin) fillTip(activePin);
-  lastPhase = ''; lastRead = ''; syncUI(); updateAgeUI();
+  lastPhase = ''; lastRead = ''; syncUI(); updateAgeUI(); if (phKey) setPhotoStatus(phKey);
   Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.textContent = pinText(c._pin,'label'); });
   if (!fromHash) writeHash();
 }
@@ -1041,7 +1079,7 @@ function setView(v, fromHash){
   view = v; document.body.dataset.view = v;
   Array.prototype.forEach.call(document.querySelectorAll('.scene'), function(b){ b.setAttribute('aria-pressed', b.dataset.view === v); });
   block.visible = v !== 'face'; face.visible = v === 'face';
-  controls.minAzimuthAngle = v === 'face' ? -1.7 : -Infinity; controls.maxAzimuthAngle = v === 'face' ? 1.7 : Infinity;
+  applyOrbitLimits();
   if (v !== 'treat'){ setExplode(false); if (v === 'age') setXray(false); }
   var h = homePose(v); flyTo(h.pos, h.target);
   if (!fromHash) writeHash();
@@ -1085,6 +1123,191 @@ PINS.forEach(function(p){ if (p.view !== 'face') return; var c = document.create
 var h0 = readHash();
 applyLang(h0 ? h0.lang : (/^ka/i.test(navigator.language || '') ? 'ka' : 'en'), true);
 if (h0 && h0.view !== 'treat'){ setView(h0.view, true); tween = null; var hp0 = homePose(view); camera.position.copy(hp0.pos); controls.target.copy(hp0.target); }
+
+/* ---------- face photo: landmarks, 3D mask and a simulated result ---------- */
+var photo = null, visionMod = null, flPromise = null, photoBusy = false, phKey = null, photoDirty = false;
+var PH = {
+  en:{load:'Analysing the photo…', noface:'No face found. Try a front-facing photo in good light.', fail:'Photo analysis could not start here. Open the hosted version of this page.', cam:'The camera is not available. Upload a photo instead.'},
+  ka:{load:'ფოტო მუშავდება…', noface:'სახე ვერ მოიძებნა. სცადეთ პირდაპირ გადაღებული ფოტო კარგ განათებაზე.', fail:'ფოტოს ანალიზი აქ ვერ ჩაირთო. გახსენით გვერდის ჰოსტირებული ვერსია.', cam:'კამერა მიუწვდომელია. ატვირთეთ ფოტო.'}
+};
+function setPhotoStatus(k){ phKey = k; $('photoStatus').textContent = k ? PH[lang][k] : ''; }
+function applyOrbitLimits(){
+  var f = view === 'face', ph = f && !!photo;
+  controls.minAzimuthAngle = ph ? -.6 : (f ? -1.7 : -Infinity); controls.maxAzimuthAngle = ph ? .6 : (f ? 1.7 : Infinity);
+  controls.minPolarAngle = ph ? Math.PI/2-.45 : 0; controls.maxPolarAngle = ph ? Math.PI/2+.35 : Math.PI*.62;
+}
+function loadScript(src){ return new Promise(function(res, rej){ var el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = function(){ rej(new Error('script '+src)); }; document.head.appendChild(el); }); }
+function getLandmarker(){
+  if (!flPromise){
+    flPromise = Promise.all([import('./vendor/mediapipe/vision_bundle.mjs'), window.Delaunator ? null : loadScript('./vendor/delaunator.min.js')]).then(function(r){
+      var v = visionMod = r[0];
+      return v.FilesetResolver.forVisionTasks('./vendor/mediapipe/wasm').then(function(fs){
+        return v.FaceLandmarker.createFromOptions(fs, {baseOptions:{modelAssetPath:'./vendor/mediapipe/face_landmarker.task'}, runningMode:'IMAGE', numFaces:1});
+      });
+    });
+    flPromise.catch(function(){ flPromise = null; });
+  }
+  return flPromise;
+}
+function fitCanvas(src, w, h, maxSide){ var k = Math.min(1, maxSide/Math.max(w,h)), c = document.createElement('canvas'); c.width = Math.round(w*k); c.height = Math.round(h*k); c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c; }
+function blurOf(src, f){
+  var cur = src, w = src.width, h = src.height, steps = Math.max(1, Math.round(Math.log(f)/Math.LN2));
+  for (var i=0;i<steps;i++){ var n = document.createElement('canvas'); n.width = Math.max(1, cur.width>>1); n.height = Math.max(1, cur.height>>1); var nc = n.getContext('2d'); nc.imageSmoothingQuality = 'high'; nc.drawImage(cur, 0, 0, n.width, n.height); cur = n; }
+  var o = document.createElement('canvas'); o.width = w; o.height = h; var oc = o.getContext('2d'); oc.imageSmoothingQuality = 'high'; oc.drawImage(cur, 0, 0, w, h); return o;
+}
+/* zones as soft ellipses in texture pixels, derived from MediaPipe face-mesh landmarks */
+function zonesFor(Q){
+  function add(a,b,k){ return {x:a.x+b.x*k, y:a.y+b.y*k}; }
+  function mid(a,b,t){ t = t === undefined ? .5 : t; return {x:a.x+(b.x-a.x)*t, y:a.y+(b.y-a.y)*t}; }
+  function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+  var up = {x:Q[10].x-Q[152].x, y:Q[10].y-Q[152].y}, fh = Math.hypot(up.x, up.y); up.x /= fh; up.y /= fh;
+  var rt = {x:-up.y, y:up.x}, fw = dist(Q[234], Q[454]), rot = Math.atan2(rt.y, rt.x);
+  var eyeR = dist(Q[33], Q[133]), eyeL = dist(Q[263], Q[362]), brow = mid(Q[105], Q[334]), Z = {};
+  Z.forehead = [{c:mid(brow, Q[10], .5), rx:.3*fw, ry:.42*dist(brow, Q[10]), rot:rot, smooth:.8}];
+  Z.frown = [{c:add(mid(Q[107], Q[336]), up, .005*fh), rx:.085*fw, ry:.075*fh, rot:rot, smooth:.85}];
+  Z.crow = [[263,eyeL,1],[33,eyeR,-1]].map(function(a){ return {c:add(Q[a[0]], rt, a[2]*.38*a[1]), rx:.42*a[1], ry:.55*a[1], rot:rot, smooth:.8}; });
+  Z.undereye = [[33,133,eyeR],[263,362,eyeL]].map(function(a){ return {c:add(mid(Q[a[0]], Q[a[1]]), up, -.52*a[2]), rx:.68*a[2], ry:.26*a[2], rot:rot, smooth:.6, light:.14}; });
+  Z.nasolabial = [[291,1],[61,-1]].map(function(a){ var A = add(add(Q[1], rt, a[1]*.125*fw), up, .01*fh), M = add(add(Q[a[0]], rt, a[1]*.045*fw), up, -.025*fh), d = dist(A, M); return {c:mid(A, M), rx:.62*d, ry:.05*fw, rot:Math.atan2(M.y-A.y, M.x-A.x), smooth:.75, light:.07}; });
+  Z.lips = [{c:mid(Q[0], Q[17]), rx:.72*dist(Q[61], Q[291]), ry:1.15*dist(Q[0], Q[17]), rot:rot, bloat:[.035,.12]}];
+  Z.jaw = [[61,-1],[291,1]].map(function(a){ return {c:add(add(Q[a[0]], rt, a[1]*.1*fw), up, -.14*fh), rx:.17*fw, ry:.15*fh, rot:rot, push:{x:-a[1]*rt.x*.014*fw+up.x*.02*fh, y:-a[1]*rt.y*.014*fw+up.y*.02*fh}}; });
+  return Z;
+}
+function warpZone(dst, src, w, h, e, k){
+  var cr = Math.cos(e.rot), sr = -Math.sin(e.rot), R = Math.max(e.rx, e.ry);
+  var x0 = Math.max(0, Math.floor(e.c.x-R)), x1 = Math.min(w-2, Math.ceil(e.c.x+R)), y0 = Math.max(0, Math.floor(e.c.y-R)), y1 = Math.min(h-2, Math.ceil(e.c.y+R));
+  for (var y=y0; y<=y1; y++) for (var x=x0; x<=x1; x++){
+    var dx = x-e.c.x, dy = y-e.c.y, lx = (dx*cr-dy*sr)/e.rx, ly = (dx*sr+dy*cr)/e.ry, d2 = lx*lx+ly*ly;
+    if (d2 >= 1) continue;
+    var wg = (1-d2)*(1-d2), sx, sy;
+    if (e.bloat){ var ux = lx*(1-e.bloat[0]*k*wg)*e.rx, uy = ly*(1-e.bloat[1]*k*wg)*e.ry; sx = e.c.x+ux*cr+uy*sr; sy = e.c.y-ux*sr+uy*cr; }
+    else { sx = x-e.push.x*k*wg; sy = y-e.push.y*k*wg; }
+    sx = clamp(sx, 0, w-1.001); sy = clamp(sy, 0, h-1.001);
+    var ix = sx|0, iy = sy|0, fx = sx-ix, fy = sy-iy, a = (iy*w+ix)*4, b = a+4, c = a+w*4, d = c+4, o = (y*w+x)*4;
+    for (var ch=0; ch<3; ch++) dst[o+ch] = (src[a+ch]*(1-fx)+src[b+ch]*fx)*(1-fy)+(src[c+ch]*(1-fx)+src[d+ch]*fx)*fy;
+  }
+}
+function softEllipse(c2, e, rgb, alpha){
+  c2.save(); c2.translate(e.c.x, e.c.y); c2.rotate(e.rot); c2.scale(e.rx, e.ry);
+  var g = c2.createRadialGradient(0,0,0,0,0,1); g.addColorStop(0,'rgba('+rgb+','+alpha+')'); g.addColorStop(.55,'rgba('+rgb+','+alpha+')'); g.addColorStop(1,'rgba('+rgb+',0)');
+  c2.fillStyle = g; c2.fillRect(-1,-1,2,2); c2.restore();
+}
+function computeAfter(){
+  var ph = photo; if (!ph) return;
+  var w = ph.before.width, h = ph.before.height, ctx = ph.after.getContext('2d'), k = ph.strength, els = [];
+  (ph.only ? [ph.only] : Object.keys(ph.zones)).forEach(function(z){ ph.zones[z].forEach(function(e){ els.push(e); }); });
+  ctx.globalCompositeOperation = 'source-over'; ctx.clearRect(0,0,w,h); ctx.drawImage(ph.before, 0, 0);
+  var sm = els.filter(function(e){ return e.smooth; });
+  if (sm.length && k > 0){
+    var mc = ph.mask.getContext('2d'); mc.clearRect(0,0,w,h); sm.forEach(function(e){ softEllipse(mc, e, '0,0,0', Math.min(1, e.smooth*k)); });
+    var lc = ph.layer.getContext('2d'); lc.globalCompositeOperation = 'source-over'; lc.clearRect(0,0,w,h); lc.drawImage(ph.blur, 0, 0);
+    lc.globalCompositeOperation = 'destination-in'; lc.drawImage(ph.mask, 0, 0); lc.globalCompositeOperation = 'source-over';
+    ctx.drawImage(ph.layer, 0, 0);
+  }
+  ctx.globalCompositeOperation = 'screen'; els.forEach(function(e){ if (e.light) softEllipse(ctx, e, '255,232,214', e.light*k); }); ctx.globalCompositeOperation = 'source-over';
+  var wp = els.filter(function(e){ return e.bloat || e.push; });
+  if (wp.length && k > 0){ var id = ctx.getImageData(0,0,w,h), src = new Uint8ClampedArray(id.data); wp.forEach(function(e){ warpZone(id.data, src, w, h, e, k); }); ctx.putImageData(id, 0, 0); }
+  if (window.__zoneDebug) els.forEach(function(e){ ctx.save(); ctx.translate(e.c.x, e.c.y); ctx.rotate(e.rot); ctx.scale(e.rx, e.ry); ctx.beginPath(); ctx.arc(0,0,1,0,7); ctx.restore(); ctx.strokeStyle = '#3f6'; ctx.lineWidth = 2; ctx.stroke(); });
+  ph.texB.needsUpdate = true;
+}
+function schedulePhoto(){
+  if (!photo) return;
+  photo.only = (activePin && activePin.view === 'face') ? activePin.key : null;
+  if (photoDirty) return; photoDirty = true;
+  requestAnimationFrame(function(){ photoDirty = false; computeAfter(); });
+}
+function clearPhoto(){
+  if (photo){ face.remove(photo.mesh); photo.mesh.geometry.dispose(); photo.mesh.material.dispose(); photo.texA.dispose(); photo.texB.dispose(); photo = null; }
+  face.children.forEach(function(c){ if (c.isMesh) c.visible = true; });
+  PINS.forEach(function(p){ if (p.view === 'face' && p.at0){ p.at.copy(p.at0); p.anchor.position.copy(p.at0); } });
+  document.body.classList.remove('hasphoto'); $('btnPhotoX').hidden = true; $('simRow').hidden = true; applyOrbitLimits();
+}
+function buildPhoto(img, L){
+  clearPhoto();
+  var W = img.width, H = img.height, minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+  L.forEach(function(l){ var x = l.x*W, y = l.y*H; if (x<minX) minX=x; if (x>maxX) maxX=x; if (y<minY) minY=y; if (y>maxY) maxY=y; });
+  var bw = maxX-minX, bh = maxY-minY, cx0 = Math.max(0, minX-bw*.2), cy0 = Math.max(0, minY-bh*.26), cx1 = Math.min(W, maxX+bw*.2), cy1 = Math.min(H, maxY+bh*.2);
+  var cw = cx1-cx0, ch = cy1-cy0, k = Math.min(1, 1024/Math.max(cw, ch));
+  var before = document.createElement('canvas'); before.width = Math.round(cw*k); before.height = Math.round(ch*k);
+  before.getContext('2d').drawImage(img, cx0, cy0, cw, ch, 0, 0, before.width, before.height);
+  var tw = before.width, th = before.height, Q = L.map(function(l){ return {x:(l.x*W-cx0)*k, y:(l.y*H-cy0)*k, z:l.z*W*k}; });
+  function blank(){ var c = document.createElement('canvas'); c.width = tw; c.height = th; return c; }
+  var fh = Math.hypot(Q[10].x-Q[152].x, Q[10].y-Q[152].y), fw = Math.hypot(Q[234].x-Q[454].x, Q[234].y-Q[454].y);
+  var cx = (Q[10].x+Q[152].x)/2, cy = (Q[10].y+Q[152].y)/2, roll = Math.atan2(Q[263].y-Q[33].y, Q[263].x-Q[33].x), cr = Math.cos(-roll), sr = Math.sin(-roll), sc = 2.25/fh, mz = 0;
+  Q.forEach(function(q){ mz += q.z; }); mz /= Q.length;
+  var N = Q.length, pos = new Float32Array(N*3), uv = new Float32Array(N*2), edge = new Float32Array(N), flat = new Float64Array(N*2), u0 = 1, u1 = 0;
+  for (var i=0;i<N;i++){
+    var dx = Q[i].x-cx, dy = Q[i].y-cy, rx = dx*cr-dy*sr, ry = dx*sr+dy*cr;
+    pos[i*3] = rx*sc; pos[i*3+1] = -ry*sc-.18; pos[i*3+2] = -(Q[i].z-mz)*sc+.42;
+    uv[i*2] = Q[i].x/tw; uv[i*2+1] = 1-Q[i].y/th; edge[i] = 1; flat[i*2] = rx; flat[i*2+1] = ry;
+    if (uv[i*2] < u0) u0 = uv[i*2]; if (uv[i*2] > u1) u1 = uv[i*2];
+  }
+  var del = new window.Delaunator(flat); for (var hI=0; hI<del.hull.length; hI++) edge[del.hull[hI]] = 0;
+  ((visionMod && visionMod.FaceLandmarker.FACE_LANDMARKS_FACE_OVAL) || []).forEach(function(c){ edge[c.start] = 0; edge[c.end] = 0; });
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv,2)); geo.setAttribute('edge', new THREE.BufferAttribute(edge,1));
+  geo.setIndex(new THREE.BufferAttribute(new Uint32Array(del.triangles),1));
+  var after = blank(), texA = new THREE.CanvasTexture(before), texB = new THREE.CanvasTexture(after);
+  [texA, texB].forEach(function(t){ t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; });
+  var mat = new THREE.ShaderMaterial({
+    uniforms:{tA:{value:texA}, tB:{value:texB}, uSplit:{value:.5}},
+    vertexShader:'attribute float edge; varying vec2 vUv; varying float vE; void main(){ vUv = uv; vE = edge; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader:'uniform sampler2D tA; uniform sampler2D tB; uniform float uSplit; varying vec2 vUv; varying float vE; void main(){ vec3 a = texture2D(tA,vUv).rgb; vec3 b = texture2D(tB,vUv).rgb; vec3 c = mix(a, b, step(uSplit, vUv.x)); float ln = 1.0-smoothstep(0.0, 0.0035, abs(vUv.x-uSplit)); c = mix(c, vec3(0.85,0.73,0.51), ln*0.9); gl_FragColor = vec4(c, smoothstep(0.0, 0.9, vE)); }',
+    transparent:true, side:THREE.DoubleSide
+  });
+  var mesh = new THREE.Mesh(geo, mat);
+  face.children.forEach(function(c){ if (c.isMesh) c.visible = false; });
+  face.add(mesh);
+  photo = {mesh:mesh, texA:texA, texB:texB, before:before, after:after, mask:blank(), layer:blank(), blur:blurOf(before, clamp(fw/55, 4, 16)), zones:zonesFor(Q), strength:$('simStrength').value/100, only:null, u0:u0, u1:u1};
+  PINS.forEach(function(p){
+    if (p.view !== 'face' || !photo.zones[p.key]) return;
+    if (!p.at0) p.at0 = p.at.clone();
+    var c = photo.zones[p.key][0].c, best = 0, bd = 1e12;
+    for (var j=0;j<N;j++){ var d = (Q[j].x-c.x)*(Q[j].x-c.x)+(Q[j].y-c.y)*(Q[j].y-c.y); if (d < bd){ bd = d; best = j; } }
+    var ddx = c.x-cx, ddy = c.y-cy;
+    p.at.set((ddx*cr-ddy*sr)*sc, -(ddx*sr+ddy*cr)*sc-.18, pos[best*3+2]+.04); p.anchor.position.copy(p.at);
+  });
+  mat.uniforms.uSplit.value = lerp(u0, u1, $('simSplit').value/100);
+  document.body.classList.add('hasphoto'); $('btnPhotoX').hidden = false; $('simRow').hidden = false;
+  applyOrbitLimits(); closePin(); computeAfter();
+  var hp = homePose('face'); flyTo(hp.pos, hp.target);
+}
+function usePhoto(source, w, h){
+  if (photoBusy || !w || !h) return;
+  photoBusy = true; setPhotoStatus('load');
+  var img = fitCanvas(source, w, h, 1280);
+  getLandmarker().then(function(fl){
+    var res = fl.detect(img), L = res.faceLandmarks && res.faceLandmarks[0];
+    if (!L || L.length < 468){ setPhotoStatus('noface'); return; }
+    buildPhoto(img, L); setPhotoStatus(null);
+  }).catch(function(err){ if (window.console) console.error(err); setPhotoStatus('fail'); }).then(function(){ photoBusy = false; });
+}
+function setRangeFill(el){ el.style.setProperty('--p', ((el.value-el.min)/(el.max-el.min)*100)+'%'); }
+$('btnPhoto').addEventListener('click', function(){ $('photoFile').click(); });
+$('photoFile').addEventListener('change', function(){
+  var f = this.files && this.files[0]; this.value = ''; if (!f) return;
+  var url = URL.createObjectURL(f), im = new Image();
+  im.onload = function(){ URL.revokeObjectURL(url); usePhoto(im, im.naturalWidth, im.naturalHeight); };
+  im.onerror = function(){ URL.revokeObjectURL(url); setPhotoStatus('noface'); };
+  im.src = url;
+});
+$('btnPhotoX').addEventListener('click', function(){ closePin(); clearPhoto(); setPhotoStatus(null); });
+$('simSplit').addEventListener('input', function(){ setRangeFill(this); if (photo) photo.mesh.material.uniforms.uSplit.value = lerp(photo.u0, photo.u1, this.value/100); });
+$('simStrength').addEventListener('input', function(){ setRangeFill(this); if (photo){ photo.strength = this.value/100; schedulePhoto(); } });
+setRangeFill($('simSplit')); setRangeFill($('simStrength'));
+var camEl = $('cam'), camVideo = camEl.querySelector('video'), camStream = null;
+function stopCam(){ if (camStream){ camStream.getTracks().forEach(function(t){ t.stop(); }); camStream = null; } camVideo.srcObject = null; camEl.hidden = true; }
+$('btnCam').addEventListener('click', function(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ setPhotoStatus('cam'); return; }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user', width:{ideal:1280}, height:{ideal:960}}, audio:false}).then(function(st){
+    camStream = st; camVideo.srcObject = st; camEl.hidden = false; return camVideo.play();
+  }).catch(function(){ stopCam(); setPhotoStatus('cam'); });
+});
+$('camSnap').addEventListener('click', function(){
+  var w = camVideo.videoWidth, h = camVideo.videoHeight; if (!w) return;
+  var c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(camVideo, 0, 0, w, h);
+  stopCam(); usePhoto(c, w, h);
+});
+$('camX').addEventListener('click', stopCam);
 
 /* ---------- colour key ---------- */
 var legendHover = null, legendPin = null;
@@ -1258,7 +1481,7 @@ function frame(now){
   else if (mode === 'ha') setRead(ka ? placed+' / 5 რეზერვუარი' : placed+' of 5 reservoirs placed');
   else setRead((ka ? 'დერმა ≈ ' : 'Dermis ≈ ')+Math.round(37+21*rfHeat)+' °C');
 
-  if (activePin && activePin.view === 'face'){ zoneGlow.position.copy(activePin.at); zoneGlow.position.z += .02; zoneGlow.material.opacity = .35+.25*pulse; } else zoneGlow.material.opacity = 0;
+  if (activePin && activePin.view === 'face' && !photo){ zoneGlow.position.copy(activePin.at); zoneGlow.position.z += .02; zoneGlow.material.opacity = .35+.25*pulse; } else zoneGlow.material.opacity = 0;
 
   /* camera */
   if (tween){ var q = clamp((now-tween.start)/1200,0,1), e2 = q<.5 ? 4*q*q*q : 1-Math.pow(-2*q+2,3)/2; camera.position.lerpVectors(tween.p0,tween.p1,e2); controls.target.lerpVectors(tween.t0,tween.t1,e2); if (q >= 1) tween = null; }
@@ -1279,6 +1502,7 @@ function frame(now){
     if (p === activePin && ww > 820){
       var tw = 300, th = tip.offsetHeight, tx = px+26, ty = py-th/2;
       if (tx+tw > ww-16) tx = px-tw-26;
+      if (photo && p.view === 'face'){ tx = ww-tw-30; ty = 84; }
       tip.style.transform = 'translate('+clamp(tx,16,ww-tw-16).toFixed(1)+'px,'+clamp(ty,16,wh-th-16).toFixed(1)+'px)';
     }
   }
