@@ -14,10 +14,11 @@ English and Georgian are both included. Deep links: `#ka`, `#en`, `#ka-age`, `#k
 
 The Face map opens on a default portrait (`assets/model.jpg`). It is AI-generated, not a real person, and the page says so. Its landmarks are precomputed in `assets/model.json`, so the default face needs no model download. To change it, replace the image and regenerate the JSON by uploading the image in the page and running `JSON.stringify(SkinAtlas.landmarks())` in the console.
 
-In the Face map scene a visitor can upload a photo or use the camera. The face is detected in the browser with MediaPipe Face Landmarker, shown as a 3D mask in place of the mannequin, and a before/after slider previews an approximate effect per zone.
+In the Face map scene a visitor can upload a photo or use the camera. The face is detected in the browser with MediaPipe Face Landmarker, shown as a portrait with the face in relief, and the zone pins move onto the real features. A suggestions panel lets the visitor mark which areas bother them and enter an age, and returns a short list of topics to raise at a consultation.
 
 - The photo never leaves the device. Library, WebAssembly and model are served from `vendor/`, so nothing is sent to a third party.
-- The result is a visual simulation, not a clinical prediction. The page labels it as such.
+- Nothing is measured from the photo. An automatic line score was tried and removed after it misread a test portrait. The suggestion rules (`recommend()` in `index.html`) are a draft for the clinic's doctor to review.
+- There is no before/after simulation: it was removed because the result was not reliable enough to show clients.
 - The camera needs HTTPS (or localhost).
 
 ## Run

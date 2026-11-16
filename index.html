@@ -165,6 +165,30 @@ body[data-view="face"] .skinonly{display:none}
 .tip ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:5px}
 .tip li{font-size:13px;line-height:1.45;color:#ddd5c8;padding-left:14px;position:relative}
 .tip li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.analysis{position:fixed;top:84px;right:30px;width:300px;max-height:calc(100% - 106px);overflow-y:auto;padding:18px 18px 16px;background:var(--glass-strong);z-index:4;display:grid;gap:10px}
+.an-sub{margin:0;font-size:11.5px;line-height:1.5;color:var(--muted)}
+.an-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.an-name{padding:6px;border-radius:7px;font-size:12.5px;text-align:left;color:#ddd5c8;transition:color .2s}
+.an-name:hover{color:var(--gold)}
+.an-pick{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;border:1px solid transparent;transition:background .2s,border-color .2s}
+.an-pick:hover{background:rgba(216,185,131,.1);border-color:var(--line)}
+.an-pick em{font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap;min-width:74px;text-align:right}
+.an-pick .on ~ em,.an-pick:has(.on) em{color:var(--gold)}
+.an-dots{display:flex;gap:3px}
+.an-dots i{width:7px;height:7px;border-radius:50%;border:1px solid var(--gold-deep)}
+.an-dots i.on{background:var(--gold);border-color:var(--gold)}
+.an-age{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12.5px;border-top:1px solid var(--line);padding-top:12px}
+.an-age input{width:76px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font:inherit;font-size:14px;text-align:center;font-variant-numeric:tabular-nums}
+.an-age input:focus{outline:1px solid var(--gold)}
+.analysis ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.analysis li{font-size:12.5px;line-height:1.45;color:var(--muted);padding-left:14px;position:relative}
+.analysis li b{display:block;font-weight:400;color:var(--ink);font-size:13.5px}
+.analysis li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.an-disc{margin:0;font-size:11px;line-height:1.5;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+.analysis .go{margin-top:0;justify-self:start}
+body.clean .analysis{visibility:hidden}
+@media (min-width:1100px){body[data-view="face"] .bar{left:auto;right:350px;transform:none;width:min(880px,calc(100% - 700px))}}
+@media (min-width:821px) and (max-width:1099px){.analysis{max-height:calc(100% - 420px)}}
 .frow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .fact{display:flex;gap:8px;flex-wrap:wrap}
 .chip.act{border-color:var(--gold);color:var(--gold)}
@@ -174,7 +198,6 @@ body[data-view="face"] .skinonly{display:none}
 .fnote #photoStatus{color:var(--gold)}
 .fnote #photoStatus:empty{display:none}
 .simbadge{display:none;position:fixed;top:84px;right:30px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);background:rgba(20,18,16,.66);pointer-events:none;z-index:3;white-space:nowrap}
-body.hasphoto[data-view="face"]:not(.clean) .simbadge{display:block}
 .cam{position:fixed;inset:0;z-index:20;background:rgba(10,9,8,.88);display:grid;place-items:center;align-content:center;gap:18px}
 .cam video{max-width:min(92vw,720px);max-height:66vh;border-radius:14px;border:1px solid var(--line);transform:scaleX(-1);background:#000}
 .cam div{display:flex;gap:10px}
@@ -230,6 +253,7 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
   .scene em{display:none}
   .agetop{grid-template-columns:auto 1fr;gap:14px}
   .simrow{grid-template-columns:1fr;gap:8px}
+  .analysis{left:16px;right:16px;top:196px;width:auto;max-height:36vh}
   .simbadge{top:auto;bottom:8px;right:auto;left:50%;transform:translateX(-50%);font-size:9px}
   .agenum b{font-size:40px}
   .meters{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
@@ -360,15 +384,21 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
     </span>
   </div>
   <div class="chips x" id="zoneChips"></div>
-  <div class="simrow x" id="simRow" hidden>
-    <label><span data-i18n="f_split">Before · After</span><input type="range" class="range" id="simSplit" min="0" max="100" value="50" step="1"></label>
-    <label><span data-i18n="f_strength">Effect strength</span><input type="range" class="range" id="simStrength" min="0" max="100" value="60" step="1"></label>
-  </div>
   <div class="fnote x"><span id="photoStatus" aria-live="polite"></span><span id="modelNote" data-i18n="f_ai" hidden>The model face is AI-generated, not a real client.</span><span data-i18n="f_priv">Your photo is processed on this device only and is never uploaded.</span></div>
   <input type="file" id="photoFile" accept="image/*" hidden>
 </section>
 
-<div class="simbadge" data-i18n="f_sim">Simulation · not a guaranteed result</div>
+<aside class="analysis glass" id="analysis" hidden>
+  <div class="eyebrow" data-i18n="an_title">Personal suggestions</div>
+  <p class="an-sub" data-i18n="an_sub">Mark what bothers you, tap a name to read about the area, and enter your age.</p>
+  <div id="anRows"></div>
+  <label class="an-age"><span data-i18n="an_age">Your age</span><input type="number" id="anAge" min="1" max="100" inputmode="numeric" placeholder="–"></label>
+  <div class="eyebrow" data-i18n="an_rec">Worth discussing at a consultation</div>
+  <ul id="anRecs"></ul>
+  <p class="an-disc" data-i18n="an_disc">This is not a medical diagnosis. A doctor confirms what suits you after an in-person assessment.</p>
+  <button class="go" id="anBook" data-i18n="cta">Book consultation</button>
+</aside>
+
 <div class="cam" id="cam" hidden>
   <video playsinline autoplay muted></video>
   <div><button class="chip act" id="camSnap" data-i18n="c_snap">Capture</button><button class="chip" id="camX" data-i18n="c_cancel">Cancel</button></div>
@@ -813,9 +843,11 @@ var KA = {
   v_treat:'პროცედურები', v_age:'კანის ასაკი', v_face:'სახის რუკა', t_help:'რა შველის',
   a_years:'წელი', a_col:'კოლაგენი', a_hyd:'ტენი', a_life:'ცხოვრების წესი', a_sun:'მზე SPF-ის გარეშე', a_smoke:'მოწევა', a_sleep:'უძილობა',
   f_hint:'აირჩიეთ ზონა, რომელიც გაწუხებთ',
+  an_title:'პირადი რეკომენდაცია', an_sub:'მონიშნეთ, რა გაწუხებთ, ზონის სახელზე დაჭერით წაიკითხეთ მის შესახებ და შეიყვანეთ ასაკი.', an_age:'თქვენი ასაკი', an_rec:'რაზე ღირს საუბარი კონსულტაციაზე',
+  an_disc:'ეს არ არის სამედიცინო დიაგნოზი. რა შეგეფერებათ, ექიმი ადგილზე დათვალიერების შემდეგ დაადასტურებს.',
   f_ai:'მოდელის სახე ხელოვნური ინტელექტით არის გენერირებული და არა რეალური კლიენტი.',
-  f_upload:'ჩემი ფოტო', f_camera:'კამერა', f_remove:'ფოტოს წაშლა', f_split:'მანამდე · შემდეგ', f_strength:'ეფექტის სიძლიერე',
-  f_priv:'ფოტო მუშავდება მხოლოდ ამ მოწყობილობაზე და არსად იტვირთება.', f_sim:'სიმულაცია · არ არის გარანტირებული შედეგი', c_snap:'გადაღება', c_cancel:'გაუქმება',
+  f_upload:'ჩემი ფოტო', f_camera:'კამერა', f_remove:'ფოტოს წაშლა',
+  f_priv:'ფოტო მუშავდება მხოლოდ ამ მოწყობილობაზე და არსად იტვირთება.', c_snap:'გადაღება', c_cancel:'გაუქმება',
   l_title:'ფერების განმარტება', l_collagen:'კოლაგენი, სქელი ბოჭკოები', l_elastin:'ელასტინი, წვრილი ბოჭკოები', l_artery:'არტერიოლები', l_vein:'ვენულები', l_water:'წყლის მოლეკულები', l_fat:'ცხიმოვანი წილაკები', l_follicle:'თმა და ფოლიკული', l_gland:'ცხიმოვანი ჯირკვალი'
 };
 var EN = {};
@@ -929,13 +961,13 @@ function openPin(p){
   block.updateMatrixWorld(true);
   var w = p.anchor.getWorldPosition(new V3());
   if (!(photo && p.view === 'face')) flyTo(w.clone().addScaledVector(p.off, 1.8), w);
-  schedulePhoto();
+  syncAnalysis();
 }
 function closePin(){
   if (!activePin) return;
   activePin.el.classList.remove('on'); activePin = null; tip.classList.remove('open');
   Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.setAttribute('aria-pressed', false); });
-  schedulePhoto();
+  syncAnalysis();
   if (autoXray){ autoXray = false; if (!(playing || T > 0)) setXray(false); }
 }
 $('tipClose').addEventListener('click', closePin);
@@ -1065,7 +1097,7 @@ function applyLang(l, fromHash){
   Array.prototype.forEach.call(document.querySelectorAll('.lang button'), function(b){ b.setAttribute('aria-pressed', b.dataset.lang === lang); });
   PINS.forEach(function(p){ p.el.querySelector('.lab').textContent = pinText(p,'label'); p.el.setAttribute('aria-label', pinText(p,'label')); });
   if (activePin) fillTip(activePin);
-  lastPhase = ''; lastRead = ''; syncUI(); updateAgeUI(); if (phKey) setPhotoStatus(phKey);
+  lastPhase = ''; lastRead = ''; syncUI(); updateAgeUI(); if (phKey) setPhotoStatus(phKey); renderAnalysis();
   Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.textContent = pinText(c._pin,'label'); });
   if (!fromHash) writeHash();
 }
@@ -1084,6 +1116,7 @@ function setView(v, fromHash){
   if (v !== 'treat'){ setExplode(false); if (v === 'age') setXray(false); }
   var h = homePose(v); flyTo(h.pos, h.target);
   if (v === 'face') showDefaultFace();
+  syncAnalysis();
   if (!fromHash) writeHash();
 }
 Array.prototype.forEach.call(document.querySelectorAll('.scene'), function(b){ b.addEventListener('click', function(){ if (view !== b.dataset.view) setView(b.dataset.view); }); });
@@ -1152,11 +1185,6 @@ function getLandmarker(){
   return flPromise;
 }
 function fitCanvas(src, w, h, maxSide){ var k = Math.min(1, maxSide/Math.max(w,h)), c = document.createElement('canvas'); c.width = Math.round(w*k); c.height = Math.round(h*k); c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c; }
-function blurOf(src, f){
-  var cur = src, w = src.width, h = src.height, steps = Math.max(1, Math.round(Math.log(f)/Math.LN2));
-  for (var i=0;i<steps;i++){ var n = document.createElement('canvas'); n.width = Math.max(1, cur.width>>1); n.height = Math.max(1, cur.height>>1); var nc = n.getContext('2d'); nc.imageSmoothingQuality = 'high'; nc.drawImage(cur, 0, 0, n.width, n.height); cur = n; }
-  var o = document.createElement('canvas'); o.width = w; o.height = h; var oc = o.getContext('2d'); oc.imageSmoothingQuality = 'high'; oc.drawImage(cur, 0, 0, w, h); return o;
-}
 /* zones as soft ellipses in texture pixels, derived from MediaPipe face-mesh landmarks */
 function zonesFor(Q){
   function add(a,b,k){ return {x:a.x+b.x*k, y:a.y+b.y*k}; }
@@ -1171,57 +1199,15 @@ function zonesFor(Q){
   Z.undereye = [[33,133,eyeR],[263,362,eyeL]].map(function(a){ return {c:add(mid(Q[a[0]], Q[a[1]]), up, -.52*a[2]), rx:.68*a[2], ry:.26*a[2], rot:rot, smooth:.6, light:.14}; });
   Z.nasolabial = [[291,1],[61,-1]].map(function(a){ var A = add(add(Q[1], rt, a[1]*.125*fw), up, .01*fh), M = add(add(Q[a[0]], rt, a[1]*.045*fw), up, -.025*fh), d = dist(A, M); return {c:mid(A, M), rx:.62*d, ry:.05*fw, rot:Math.atan2(M.y-A.y, M.x-A.x), smooth:.75, light:.07}; });
   Z.lips = [{c:mid(Q[0], Q[17]), rx:.72*dist(Q[61], Q[291]), ry:1.15*dist(Q[0], Q[17]), rot:rot, bloat:[.035,.12]}];
+  Z._cheek = [[33,133,eyeR,-1],[263,362,eyeL,1]].map(function(a){ return {c:add(add(mid(Q[a[0]], Q[a[1]]), up, -1.3*a[2]), rt, a[3]*.2*a[2]), rx:.42*a[2], ry:.36*a[2], rot:rot}; });
   Z.jaw = [[61,-1],[291,1]].map(function(a){ return {c:add(add(Q[a[0]], rt, a[1]*.1*fw), up, -.14*fh), rx:.17*fw, ry:.15*fh, rot:rot, push:{x:-a[1]*rt.x*.014*fw+up.x*.02*fh, y:-a[1]*rt.y*.014*fw+up.y*.02*fh}}; });
   return Z;
 }
-function warpZone(dst, src, w, h, e, k){
-  var cr = Math.cos(e.rot), sr = -Math.sin(e.rot), R = Math.max(e.rx, e.ry);
-  var x0 = Math.max(0, Math.floor(e.c.x-R)), x1 = Math.min(w-2, Math.ceil(e.c.x+R)), y0 = Math.max(0, Math.floor(e.c.y-R)), y1 = Math.min(h-2, Math.ceil(e.c.y+R));
-  for (var y=y0; y<=y1; y++) for (var x=x0; x<=x1; x++){
-    var dx = x-e.c.x, dy = y-e.c.y, lx = (dx*cr-dy*sr)/e.rx, ly = (dx*sr+dy*cr)/e.ry, d2 = lx*lx+ly*ly;
-    if (d2 >= 1) continue;
-    var wg = (1-d2)*(1-d2), sx, sy;
-    if (e.bloat){ var ux = lx*(1-e.bloat[0]*k*wg)*e.rx, uy = ly*(1-e.bloat[1]*k*wg)*e.ry; sx = e.c.x+ux*cr+uy*sr; sy = e.c.y-ux*sr+uy*cr; }
-    else { sx = x-e.push.x*k*wg; sy = y-e.push.y*k*wg; }
-    sx = clamp(sx, 0, w-1.001); sy = clamp(sy, 0, h-1.001);
-    var ix = sx|0, iy = sy|0, fx = sx-ix, fy = sy-iy, a = (iy*w+ix)*4, b = a+4, c = a+w*4, d = c+4, o = (y*w+x)*4;
-    for (var ch=0; ch<3; ch++) dst[o+ch] = (src[a+ch]*(1-fx)+src[b+ch]*fx)*(1-fy)+(src[c+ch]*(1-fx)+src[d+ch]*fx)*fy;
-  }
-}
-function softEllipse(c2, e, rgb, alpha){
-  c2.save(); c2.translate(e.c.x, e.c.y); c2.rotate(e.rot); c2.scale(e.rx, e.ry);
-  var g = c2.createRadialGradient(0,0,0,0,0,1); g.addColorStop(0,'rgba('+rgb+','+alpha+')'); g.addColorStop(.55,'rgba('+rgb+','+alpha+')'); g.addColorStop(1,'rgba('+rgb+',0)');
-  c2.fillStyle = g; c2.fillRect(-1,-1,2,2); c2.restore();
-}
-function computeAfter(){
-  var ph = photo; if (!ph) return;
-  var w = ph.before.width, h = ph.before.height, ctx = ph.after.getContext('2d'), k = ph.strength, els = [];
-  (ph.only ? [ph.only] : Object.keys(ph.zones)).forEach(function(z){ ph.zones[z].forEach(function(e){ els.push(e); }); });
-  ctx.globalCompositeOperation = 'source-over'; ctx.clearRect(0,0,w,h); ctx.drawImage(ph.before, 0, 0);
-  var sm = els.filter(function(e){ return e.smooth; });
-  if (sm.length && k > 0){
-    var mc = ph.mask.getContext('2d'); mc.clearRect(0,0,w,h); sm.forEach(function(e){ softEllipse(mc, e, '0,0,0', Math.min(1, e.smooth*k)); });
-    var lc = ph.layer.getContext('2d'); lc.globalCompositeOperation = 'source-over'; lc.clearRect(0,0,w,h); lc.drawImage(ph.blur, 0, 0);
-    lc.globalCompositeOperation = 'destination-in'; lc.drawImage(ph.mask, 0, 0); lc.globalCompositeOperation = 'source-over';
-    ctx.drawImage(ph.layer, 0, 0);
-  }
-  ctx.globalCompositeOperation = 'screen'; els.forEach(function(e){ if (e.light) softEllipse(ctx, e, '255,232,214', e.light*k); }); ctx.globalCompositeOperation = 'source-over';
-  var wp = els.filter(function(e){ return e.bloat || e.push; });
-  if (wp.length && k > 0){ var id = ctx.getImageData(0,0,w,h), src = new Uint8ClampedArray(id.data); wp.forEach(function(e){ warpZone(id.data, src, w, h, e, k); }); ctx.putImageData(id, 0, 0); }
-  if (window.__zoneDebug) els.forEach(function(e){ ctx.save(); ctx.translate(e.c.x, e.c.y); ctx.rotate(e.rot); ctx.scale(e.rx, e.ry); ctx.beginPath(); ctx.arc(0,0,1,0,7); ctx.restore(); ctx.strokeStyle = '#3f6'; ctx.lineWidth = 2; ctx.stroke(); });
-  ph.texB.needsUpdate = true;
-}
-function schedulePhoto(){
-  if (!photo) return;
-  photo.only = (activePin && activePin.view === 'face') ? activePin.key : null;
-  if (photoDirty) return; photoDirty = true;
-  requestAnimationFrame(function(){ photoDirty = false; computeAfter(); });
-}
 function clearPhoto(){
-  if (photo){ face.remove(photo.mesh); photo.mesh.geometry.dispose(); photo.mesh.material.dispose(); photo.texA.dispose(); photo.texB.dispose(); photo = null; }
+  if (photo){ face.remove(photo.mesh); photo.mesh.geometry.dispose(); photo.mesh.material.dispose(); photo.tex.dispose(); photo = null; }
   face.children.forEach(function(c){ if (c.isMesh) c.visible = true; });
   PINS.forEach(function(p){ if (p.view === 'face' && p.at0){ p.at.copy(p.at0); p.anchor.position.copy(p.at0); } });
-  document.body.classList.remove('hasphoto'); $('btnPhotoX').hidden = true; $('simRow').hidden = true; $('modelNote').hidden = true; applyOrbitLimits();
+  document.body.classList.remove('hasphoto'); $('btnPhotoX').hidden = true; $('modelNote').hidden = true; applyOrbitLimits(); syncAnalysis();
 }
 var OVAL = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
 function buildPhoto(img, L, isDefault){
@@ -1234,7 +1220,6 @@ function buildPhoto(img, L, isDefault){
   var before = document.createElement('canvas'); before.width = Math.round(cw*k); before.height = Math.round(ch*k);
   before.getContext('2d').drawImage(img, cx0, cy0, cw, ch, 0, 0, before.width, before.height);
   var tw = before.width, th = before.height, Q = L.map(function(l){ return {x:(l.x*W-cx0)*k, y:(l.y*H-cy0)*k, z:l.z*W*k}; });
-  function blank(){ var c = document.createElement('canvas'); c.width = tw; c.height = th; return c; }
   var fh = Math.hypot(Q[10].x-Q[152].x, Q[10].y-Q[152].y), fw = Math.hypot(Q[234].x-Q[454].x, Q[234].y-Q[454].y), sc = 1.12/fh, zb = 0, u0 = 1, u1 = 0;
   OVAL.forEach(function(i){ zb += Q[i].z; }); zb = zb/OVAL.length+.04*fw;
   /* the face rises out of a flat photo: a ring of points on the crop edge sits at the depth of the face outline */
@@ -1248,18 +1233,17 @@ function buildPhoto(img, L, isDefault){
   var del = new window.Delaunator(flat), geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos,3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv,2));
   geo.setIndex(new THREE.BufferAttribute(new Uint32Array(del.triangles),1));
-  var after = blank(), texA = new THREE.CanvasTexture(before), texB = new THREE.CanvasTexture(after);
-  [texA, texB].forEach(function(t){ t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; });
+  var tex = new THREE.CanvasTexture(before); tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
   var mat = new THREE.ShaderMaterial({
-    uniforms:{tA:{value:texA}, tB:{value:texB}, uSplit:{value:.5}},
+    uniforms:{tA:{value:tex}},
     vertexShader:'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader:'uniform sampler2D tA; uniform sampler2D tB; uniform float uSplit; varying vec2 vUv; void main(){ vec3 a = texture2D(tA,vUv).rgb; vec3 b = texture2D(tB,vUv).rgb; vec3 c = mix(a, b, step(uSplit, vUv.x)); float ln = 1.0-smoothstep(0.0, 0.003, abs(vUv.x-uSplit)); c = mix(c, vec3(0.85,0.73,0.51), ln*0.9); float d = length((vUv-0.5)*2.0); gl_FragColor = vec4(c, 1.0-smoothstep(0.80, 1.0, d)); }',
+    fragmentShader:'uniform sampler2D tA; varying vec2 vUv; void main(){ float d = length((vUv-0.5)*2.0); gl_FragColor = vec4(texture2D(tA,vUv).rgb, 1.0-smoothstep(0.80, 1.0, d)); }',
     transparent:true, side:THREE.DoubleSide
   });
   var mesh = new THREE.Mesh(geo, mat);
   face.children.forEach(function(c){ if (c.isMesh) c.visible = false; });
   face.add(mesh);
-  photo = {mesh:mesh, texA:texA, texB:texB, before:before, after:after, mask:blank(), layer:blank(), blur:blurOf(before, clamp(fw/55, 4, 16)), zones:zonesFor(Q), strength:$('simStrength').value/100, only:null, u0:u0, u1:u1, isDefault:!!isDefault, L:L};
+  photo = {mesh:mesh, tex:tex, before:before, zones:zonesFor(Q), isDefault:!!isDefault, L:L};
   PINS.forEach(function(p){
     if (p.view !== 'face' || !photo.zones[p.key]) return;
     if (!p.at0) p.at0 = p.at.clone();
@@ -1267,9 +1251,8 @@ function buildPhoto(img, L, isDefault){
     for (var j=0;j<NL;j++){ var d = (Q[j].x-c.x)*(Q[j].x-c.x)+(Q[j].y-c.y)*(Q[j].y-c.y); if (d < bd){ bd = d; best = j; } }
     p.at.set((c.x-cx)*sc, -(c.y-cy)*sc+.1, pos[best*3+2]+.04); p.anchor.position.copy(p.at);
   });
-  mat.uniforms.uSplit.value = lerp(u0, u1, $('simSplit').value/100);
-  document.body.classList.add('hasphoto'); $('btnPhotoX').hidden = !!isDefault; $('simRow').hidden = false; $('modelNote').hidden = !isDefault;
-  applyOrbitLimits(); closePin(); computeAfter();
+  document.body.classList.add('hasphoto'); $('btnPhotoX').hidden = !!isDefault; $('modelNote').hidden = !isDefault;
+  applyOrbitLimits(); closePin(); renderAnalysis();
   if (view === 'face'){ var hp = homePose('face'); flyTo(hp.pos, hp.target); }
 }
 /* the default face: an AI-generated portrait shipped with its landmarks, so no model download is needed to show it */
@@ -1298,7 +1281,6 @@ function usePhoto(source, w, h){
     buildPhoto(img, L); setPhotoStatus(null);
   }).catch(function(err){ if (window.console) console.error(err); setPhotoStatus('fail'); }).then(function(){ photoBusy = false; });
 }
-function setRangeFill(el){ el.style.setProperty('--p', ((el.value-el.min)/(el.max-el.min)*100)+'%'); }
 $('btnPhoto').addEventListener('click', function(){ $('photoFile').click(); });
 $('photoFile').addEventListener('change', function(){
   var f = this.files && this.files[0]; this.value = ''; if (!f) return;
@@ -1308,9 +1290,6 @@ $('photoFile').addEventListener('change', function(){
   im.src = url;
 });
 $('btnPhotoX').addEventListener('click', function(){ closePin(); clearPhoto(); setPhotoStatus(null); showDefaultFace(); });
-$('simSplit').addEventListener('input', function(){ setRangeFill(this); if (photo) photo.mesh.material.uniforms.uSplit.value = lerp(photo.u0, photo.u1, this.value/100); });
-$('simStrength').addEventListener('input', function(){ setRangeFill(this); if (photo){ photo.strength = this.value/100; schedulePhoto(); } });
-setRangeFill($('simSplit')); setRangeFill($('simStrength'));
 var camEl = $('cam'), camVideo = camEl.querySelector('video'), camStream = null;
 function stopCam(){ if (camStream){ camStream.getTracks().forEach(function(t){ t.stop(); }); camStream = null; } camVideo.srcObject = null; camEl.hidden = true; }
 $('btnCam').addEventListener('click', function(){
@@ -1326,6 +1305,62 @@ $('camSnap').addEventListener('click', function(){
 });
 $('camX').addEventListener('click', stopCam);
 
+/* ---------- personal suggestions: the visitor marks concerns and enters an age ----------
+   Nothing here is measured from the photo. An automatic score was tried and removed: on a test portrait
+   with clear forehead lines it reported none, and a wrong reading is worse than no reading.
+   The rules in recommend() are a draft for the clinic's doctor to review and edit. */
+var CONCERNS = ['forehead','frown','crow','undereye','nasolabial','lips','jaw'], concern = {};
+CONCERNS.forEach(function(k){ concern[k] = 0; });
+var AN_TXT = {
+  en:{lv:['Not a concern','A little','A lot'], prompt:'Enter your age to see suggestions.', minor:'Suggestions are not shown for anyone under 18.', none:'Mark at least one area, or see general advice for your age below.',
+      rec:{botox:['Botulinum toxin','For expression lines: '], filler:['Hyaluronic filler','For volume and contour: '], under:['Under-eye assessment','Mesotherapy or biorevitalization; filler only in selected cases.'],
+           biorev:['Biorevitalization','Skin quality and hydration.'], collagen:['Collagen stimulation','For firmness; RF lifting is one option.'], prevent:['Prevention','Daily SPF and good hydration are enough for now.'], spf:['Daily SPF','It slows every change described here.']}},
+  ka:{lv:['არ მაწუხებს','ოდნავ','ძალიან'], prompt:'შეიყვანეთ ასაკი რეკომენდაციების სანახავად.', minor:'18 წლამდე ასაკისთვის რეკომენდაციები არ ჩანს.', none:'მონიშნეთ მინიმუმ ერთი ზონა, ან ქვემოთ ნახეთ ზოგადი რჩევა თქვენი ასაკისთვის.',
+      rec:{botox:['ბოტულინის ტოქსინი','მიმიკური ხაზებისთვის: '], filler:['ჰიალურონის ფილერი','მოცულობისა და კონტურისთვის: '], under:['თვალის ქვედა ზონის შეფასება','მეზოთერაპია ან ბიორევიტალიზაცია; ფილერი მხოლოდ შერჩეულ შემთხვევებში.'],
+           biorev:['ბიორევიტალიზაცია','კანის ხარისხისა და დატენიანებისთვის.'], collagen:['კოლაგენის სტიმულაცია','კანის სიმკვრივისთვის; ერთ-ერთი ვარიანტია RF ლიფტინგი.'], prevent:['პრევენცია','ამ ეტაპზე საკმარისია ყოველდღიური SPF და კარგი დატენიანება.'], spf:['ყოველდღიური SPF','ანელებს აქ აღწერილ ყველა ცვლილებას.']}}
+};
+function recommend(age, lv){
+  var out = [];
+  var dyn = ['forehead','frown','crow'].filter(function(k){ return lv[k] >= 1; });
+  var vol = ['nasolabial','lips','jaw'].filter(function(k){ return lv[k] === 2 || (lv[k] === 1 && (k === 'lips' || age >= 35)); });
+  if (dyn.length && (age >= 25 || dyn.some(function(k){ return lv[k] === 2; }))) out.push(['botox', dyn]);
+  if (vol.length) out.push(['filler', vol]);
+  if (lv.undereye >= 1) out.push(['under']);
+  if (age >= 28 || lv.undereye >= 1 || lv.lips >= 1) out.push(['biorev']);
+  if (age >= 40 || lv.jaw >= 1) out.push(['collagen']);
+  if (!out.length) out.push(['prevent']); else out.push(['spf']);
+  return out;
+}
+var anAge = $('anAge'), analysisEl = $('analysis');
+function zonePin(k){ return PINS.filter(function(p){ return p.key === k; })[0]; }
+function syncAnalysis(){ if (!analysisEl) return; analysisEl.hidden = !(view === 'face' && !activePin); }
+function renderAnalysis(){
+  if (!analysisEl) return; syncAnalysis();
+  var T = AN_TXT[lang], rows = $('anRows'), recs = $('anRecs'); rows.innerHTML = ''; recs.innerHTML = '';
+  CONCERNS.forEach(function(k){
+    var row = document.createElement('div'); row.className = 'an-row';
+    var name = document.createElement('button'); name.className = 'an-name'; name.textContent = pinText(zonePin(k), 'label'); name.addEventListener('click', function(){ openPin(zonePin(k)); });
+    var pick = document.createElement('button'); pick.className = 'an-pick'; pick.setAttribute('aria-label', pinText(zonePin(k), 'label')+': '+T.lv[concern[k]]);
+    var dots = document.createElement('span'); dots.className = 'an-dots'; for (var i=1;i<=2;i++){ var d = document.createElement('i'); if (i <= concern[k]) d.className = 'on'; dots.appendChild(d); }
+    var word = document.createElement('em'); word.textContent = T.lv[concern[k]];
+    pick.appendChild(dots); pick.appendChild(word);
+    pick.addEventListener('click', function(){ concern[k] = (concern[k]+1)%3; renderAnalysis(); });
+    row.appendChild(name); row.appendChild(pick); rows.appendChild(row);
+  });
+  var age = parseInt(anAge.value, 10);
+  function line(title, why){ var li = document.createElement('li'), b = document.createElement('b'); b.textContent = title; li.appendChild(b); if (why) li.appendChild(document.createTextNode(why)); recs.appendChild(li); }
+  if (!(age > 0 && age <= 100)){ line(T.prompt); return; }
+  if (age < 18){ line(T.minor); return; }
+  recommend(age, concern).forEach(function(r){
+    var t = T.rec[r[0]], why = t[1];
+    if (r[1]) why += r[1].map(function(k){ return pinText(zonePin(k), 'label').toLowerCase(); }).join(', ')+'.';
+    line(t[0], why);
+  });
+}
+anAge.addEventListener('input', renderAnalysis);
+$('anBook').addEventListener('click', function(e){ e.stopPropagation(); goTarget('consult'); });
+renderAnalysis();
+
 /* ---------- colour key ---------- */
 var legendHover = null, legendPin = null;
 Array.prototype.forEach.call(document.querySelectorAll('.lg'), function(b){
@@ -1340,7 +1375,7 @@ Array.prototype.forEach.call(document.querySelectorAll('.lg'), function(b){
 });
 
 /* ---------- draggable panels ---------- */
-var DRAG = {views:[document.querySelector('.views')], bar:Array.prototype.slice.call(document.querySelectorAll('.bar')), legend:[document.querySelector('.legend')]}, panelPos = {};
+var DRAG = {views:[document.querySelector('.views')], bar:Array.prototype.slice.call(document.querySelectorAll('.bar')), legend:[document.querySelector('.legend')], analysis:[document.querySelector('.analysis')]}, panelPos = {};
 function canDrag(){ return window.innerWidth > 820; }
 function placePanel(g){
   var pos = panelPos[g];
@@ -1519,7 +1554,7 @@ function frame(now){
     if (p === activePin && ww > 820){
       var tw = 300, th = tip.offsetHeight, tx = px+26, ty = py-th/2;
       if (tx+tw > ww-16) tx = px-tw-26;
-      if (photo && p.view === 'face'){ tx = ww-tw-30; ty = 128; }
+      if (photo && p.view === 'face'){ tx = ww-tw-30; ty = 84; }
       tip.style.transform = 'translate('+clamp(tx,16,ww-tw-16).toFixed(1)+'px,'+clamp(ty,16,wh-th-16).toFixed(1)+'px)';
     }
   }
