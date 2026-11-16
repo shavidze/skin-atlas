@@ -47,7 +47,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .ui svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
 .ui .slash{display:none}
 body.clean .ui .slash{display:block}
-body.clean .left,body.clean .bar,body.clean .note,body.clean .cta,body.clean .lang,body.clean .consult,body.clean .tip,body.clean #pins{visibility:hidden}
+body.clean .left,body.clean .bar,body.clean .legend,body.clean .note,body.clean .cta,body.clean .lang,body.clean .consult,body.clean .tip,body.clean #pins{visibility:hidden}
 .cta{padding:11px 20px;border:1px solid var(--line);border-radius:999px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:400;color:var(--gold);background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .3s,color .3s,border-color .3s}
 .cta:hover{background:var(--gold);color:#1a1612;border-color:var(--gold)}
 .consult{position:fixed;top:78px;right:30px;width:min(300px,calc(100% - 32px));padding:20px 22px;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .3s,transform .3s;z-index:6}
@@ -89,7 +89,17 @@ body.clean .left,body.clean .bar,body.clean .note,body.clean .cta,body.clean .la
 
 /* Bottom bar */
 .bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);width:min(880px,calc(100% - 32px));padding:16px 20px 16px;display:grid;gap:12px;background:rgba(24,21,18,.76)}
-.views,.bar{user-select:none;-webkit-user-select:none}
+.views,.bar,.legend{user-select:none;-webkit-user-select:none}
+[hidden]{display:none !important}
+.legend{position:fixed;top:84px;right:30px;width:214px;padding:16px 12px 10px;display:grid;gap:1px;cursor:grab;z-index:2}
+.legend .eyebrow{padding:0 6px 8px}
+.lg{display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:7px;font-size:12px;letter-spacing:.02em;text-align:left;color:#d9d1c4;cursor:pointer;transition:background .2s,color .2s}
+.lg i{flex:none;width:22px;height:10px;border-radius:5px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.lg i.thin{height:4px}
+.lg i.dot{width:12px;height:12px;border-radius:50%;margin:0 5px}
+.lg:hover,.lg[aria-pressed="true"]{background:rgba(216,185,131,.12);color:var(--gold)}
+.pin.flip{flex-direction:row-reverse;padding:6px 0 6px 8px}
+.pin.flip .dot{margin-left:0;margin-right:-5.5px}
 .views{position:relative}
 .grip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:14px;display:grid;place-items:center;cursor:grab;touch-action:none}
 .grip::before{content:"";width:30px;height:3px;border-radius:2px;background:rgba(216,185,131,.38)}
@@ -172,6 +182,8 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
 .fallback.show{display:grid}
 
 @media (max-height:780px) and (min-width:821px){
+  .legend{top:78px;padding:14px 10px 8px}
+  .lg{padding:3px 6px}
   .head p{display:none}
   .head h1{margin:6px 0 0}
   .left{gap:14px}
@@ -188,6 +200,7 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
   .left{top:14px;left:16px;right:16px;bottom:auto;width:auto;gap:10px}
   .grip{display:none}
   .views,.bar{cursor:auto}
+  .legend{display:none}
   .head{max-width:calc(100% - 160px)}
   .topbar{top:14px;right:16px;flex-wrap:wrap;justify-content:flex-end;max-width:160px;gap:8px}
   .ui{width:32px;height:32px}
@@ -241,6 +254,18 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
   <button class="sw plain" id="btnReset" data-i18n="reset">Reset view</button>
 </nav>
 </div>
+
+<aside class="legend glass skinonly" aria-label="Colour key">
+  <div class="eyebrow" data-i18n="l_title">Colour key</div>
+  <button class="lg" data-key="collagen"><i style="background:#f0dcc0"></i><span data-i18n="l_collagen">Collagen, thick fibres</span></button>
+  <button class="lg" data-key="elastin"><i class="thin" style="background:#cf9a4e"></i><span data-i18n="l_elastin">Elastin, thin fibres</span></button>
+  <button class="lg" data-key="artery"><i style="background:#c4443c"></i><span data-i18n="l_artery">Arterioles</span></button>
+  <button class="lg" data-key="vein"><i style="background:#5c6db6"></i><span data-i18n="l_vein">Venules</span></button>
+  <button class="lg" data-key="water"><i class="dot" style="background:#9fd6f7"></i><span data-i18n="l_water">Water molecules</span></button>
+  <button class="lg" data-key="fat"><i class="dot" style="background:#dfb76f"></i><span data-i18n="l_fat">Fat lobules</span></button>
+  <button class="lg" data-key="follicle"><i style="background:linear-gradient(90deg,#e9b39b 0 35%,#2c1d14 35% 65%,#e9b39b 65%)"></i><span data-i18n="l_follicle">Hair and follicle</span></button>
+  <button class="lg" data-key="gland"><i class="dot" style="background:#f0d595"></i><span data-i18n="l_gland">Sebaceous gland</span></button>
+</aside>
 
 <div id="pins"></div>
 
@@ -479,12 +504,13 @@ var derMat = shell(0xd48a86, .58); derMat.emissive.set(0xffd9cc); derMat.emissiv
 var derMesh = new THREE.Mesh(derGeo, derMat); derMesh.renderOrder = 10; der.add(derMesh);
 
 /* hypodermis: shell plus fat lobules */
+var fatMat, glandMat;
 var hypGeo = new THREE.BoxGeometry(W, H_HYP, D); hypGeo.translate(0, H_HYP/2, 0);
 var hypMat = shell(0xe7c283, .5);
 var hypMesh = new THREE.Mesh(hypGeo, hypMat); hypMesh.renderOrder = 10; hyp.add(hypMesh);
 (function(){
   var r = rng(5), nx=10, nz=7, ny=2, dummy = new THREE.Object3D();
-  var mat = new THREE.MeshPhysicalMaterial({color:0xdfb76f, roughness:.5, clearcoat:.15, clearcoatRoughness:.5, envMapIntensity:.25});
+  var mat = fatMat = new THREE.MeshPhysicalMaterial({color:0xdfb76f, emissive:0xffb648, emissiveIntensity:0, roughness:.5, clearcoat:.15, clearcoatRoughness:.5, envMapIntensity:.25});
   var im = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 20, 14), mat, nx*nz*ny), k=0;
   for (var y=0;y<ny;y++) for (var x=0;x<nx;x++) for (var z=0;z<nz;z++){
     dummy.position.set(-2.62+x*0.582+(r()-.5)*.14+(y?0.2:0), 0.33+y*0.53+(r()-.5)*.08, -1.66+z*0.553+(r()-.5)*.14+(y?0.15:0));
@@ -584,7 +610,7 @@ var melMat = new THREE.MeshStandardMaterial({color:0x3a2416, roughness:.5, emiss
 var melanin = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 16), melMat); melanin.position.copy(along(0.06)); melanin.scale.set(1,1.3,1); melanin.quaternion.copy(qAxis); der.add(melanin);
 var papilla = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), new THREE.MeshStandardMaterial({color:0xb8463f, roughness:.4})); papilla.position.copy(along(-0.1)); der.add(papilla);
 (function(){
-  var gl = new THREE.MeshPhysicalMaterial({color:0xf0d595, roughness:.35, clearcoat:.5, envMapIntensity:.5});
+  var gl = glandMat = new THREE.MeshPhysicalMaterial({color:0xf0d595, emissive:0xffc75a, emissiveIntensity:0, roughness:.35, clearcoat:.5, envMapIntensity:.5});
   var c = along(1.12);
   [[.2,.02,0,.13],[.3,.12,.06,.11],[.27,-.1,-.05,.1],[.36,.0,-.02,.085]].forEach(function(o){ var s=new THREE.Mesh(new THREE.SphereGeometry(o[3],16,12), gl); s.position.set(c.x+o[0], c.y+o[1], c.z+o[2]); der.add(s); });
   var mus = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([along(0.75).add(new V3(.1,0,0)), new V3(1.25,1.25,.3), new V3(1.6,1.6,.3), new V3(1.75,1.74,.3)]), 24, .035, 8, false), new THREE.MeshStandardMaterial({color:0xa6564c, roughness:.5}));
@@ -752,7 +778,8 @@ var KA = {
   fallback:'ამ გვერდს სჭირდება WebGL, რომელიც ამ ბრაუზერში მიუწვდომელია.',
   v_treat:'პროცედურები', v_age:'კანის ასაკი', v_face:'სახის რუკა', t_help:'რა შველის',
   a_years:'წელი', a_col:'კოლაგენი', a_hyd:'ტენი', a_life:'ცხოვრების წესი', a_sun:'მზე SPF-ის გარეშე', a_smoke:'მოწევა', a_sleep:'უძილობა',
-  f_hint:'აირჩიეთ ზონა, რომელიც გაწუხებთ'
+  f_hint:'აირჩიეთ ზონა, რომელიც გაწუხებთ',
+  l_title:'ფერების განმარტება', l_collagen:'კოლაგენი, სქელი ბოჭკოები', l_elastin:'ელასტინი, წვრილი ბოჭკოები', l_artery:'არტერიოლები', l_vein:'ვენულები', l_water:'წყლის მოლეკულები', l_fat:'ცხიმოვანი წილაკები', l_follicle:'თმა და ფოლიკული', l_gland:'ცხიმოვანი ჯირკვალი'
 };
 var EN = {};
 var PIN_KA = {
@@ -1059,8 +1086,21 @@ var h0 = readHash();
 applyLang(h0 ? h0.lang : (/^ka/i.test(navigator.language || '') ? 'ka' : 'en'), true);
 if (h0 && h0.view !== 'treat'){ setView(h0.view, true); tween = null; var hp0 = homePose(view); camera.position.copy(hp0.pos); controls.target.copy(hp0.target); }
 
+/* ---------- colour key ---------- */
+var legendHover = null, legendPin = null;
+Array.prototype.forEach.call(document.querySelectorAll('.lg'), function(b){
+  b.addEventListener('pointerenter', function(){ legendHover = b.dataset.key; });
+  b.addEventListener('pointerleave', function(){ legendHover = null; });
+  b.addEventListener('focus', function(){ legendHover = b.dataset.key; });
+  b.addEventListener('blur', function(){ legendHover = null; });
+  b.addEventListener('click', function(){
+    legendPin = legendPin === b.dataset.key ? null : b.dataset.key;
+    Array.prototype.forEach.call(document.querySelectorAll('.lg'), function(o){ o.setAttribute('aria-pressed', o.dataset.key === legendPin); });
+  });
+});
+
 /* ---------- draggable panels ---------- */
-var DRAG = {views:[document.querySelector('.views')], bar:Array.prototype.slice.call(document.querySelectorAll('.bar'))}, panelPos = {};
+var DRAG = {views:[document.querySelector('.views')], bar:Array.prototype.slice.call(document.querySelectorAll('.bar')), legend:[document.querySelector('.legend')]}, panelPos = {};
 function canDrag(){ return window.innerWidth > 820; }
 function placePanel(g){
   var pos = panelPos[g];
@@ -1185,7 +1225,16 @@ function frame(now){
   if (isAge){ var sa = clamp(1-2.2*ag.kH,0,1); for (var si=0; si<5; si++) siteAmt[si] = sa; }
   neoMesh.visible = neoK > 0.001; neoMat.opacity = Math.min(1, neoK*1.5);
   neo.geo.setDrawRange(0, Math.floor(neoCount*neoK/3)*3);
-  updateMols(time, siteAmt, hl.water, isAge ? 1.15-.75*ag.kH : 1);
+  var lk = legendHover || legendPin, lp = .55+.45*Math.sin(time*5);
+  if (lk === 'collagen') colMat.emissiveIntensity += .5*lp;
+  if (lk === 'elastin') elaMat.emissiveIntensity += .7*lp;
+  if (lk === 'follicle') sheathMat.emissiveIntensity += .8*lp;
+  if (lk === 'water') oMat.emissiveIntensity += .9*lp;
+  capRed.emissive.copy(cRed0); capRed.emissiveIntensity = lk === 'artery' ? .9*lp : 0;
+  capBlue.emissive.copy(cBlue0); capBlue.emissiveIntensity = lk === 'vein' ? 1.1*lp : 0;
+  fatMat.emissiveIntensity = lk === 'fat' ? .4*lp : 0;
+  glandMat.emissiveIntensity = lk === 'gland' ? .7*lp : 0;
+  updateMols(time, siteAmt, hl.water+(lk === 'water' ? .8 : 0), isAge ? 1.15-.75*ag.kH : 1);
 
   /* needle */
   needle.visible = Hh > 0.001 && Hh < .76;
@@ -1218,12 +1267,15 @@ function frame(now){
   if (composer) composer.render(); else renderer.render(scene, camera);
 
   /* pins */
-  var ww = window.innerWidth, wh = window.innerHeight;
+  var ww = window.innerWidth, wh = window.innerHeight, placed = [];
   for (var pi=0; pi<PINS.length; pi++){
     var p = PINS[pi]; p.anchor.getWorldPosition(tmpV); tmpV.project(camera);
     var px = (tmpV.x*.5+.5)*ww, py = (-tmpV.y*.5+.5)*wh;
     p.el.style.display = (tmpV.z > 1 || (p.view === 'face') !== (view === 'face')) ? 'none' : '';
-    p.el.style.transform = 'translate('+px.toFixed(1)+'px,'+(py-11).toFixed(1)+'px)';
+    var hidden = p.el.style.display === 'none', flip = false;
+    if (!hidden){ for (var q=0; q<placed.length; q++){ if (Math.abs(placed[q][1]-py) < 24 && px-placed[q][0] > -30 && px-placed[q][0] < 190){ flip = true; break; } } placed.push([px,py]); }
+    if (flip !== p.flip){ p.flip = flip; p.el.classList.toggle('flip', flip); }
+    p.el.style.transform = 'translate('+(flip ? px-p.el.offsetWidth : px).toFixed(1)+'px,'+(py-11).toFixed(1)+'px)';
     if (p === activePin && ww > 820){
       var tw = 300, th = tip.offsetHeight, tx = px+26, ty = py-th/2;
       if (tx+tw > ww-16) tx = px-tw-26;
