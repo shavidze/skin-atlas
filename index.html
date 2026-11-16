@@ -1232,16 +1232,25 @@ function buildPhoto(img, L){
   var tw = before.width, th = before.height, Q = L.map(function(l){ return {x:(l.x*W-cx0)*k, y:(l.y*H-cy0)*k, z:l.z*W*k}; });
   function blank(){ var c = document.createElement('canvas'); c.width = tw; c.height = th; return c; }
   var fh = Math.hypot(Q[10].x-Q[152].x, Q[10].y-Q[152].y), fw = Math.hypot(Q[234].x-Q[454].x, Q[234].y-Q[454].y);
-  var cx = (Q[10].x+Q[152].x)/2, cy = (Q[10].y+Q[152].y)/2, roll = Math.atan2(Q[263].y-Q[33].y, Q[263].x-Q[33].x), cr = Math.cos(-roll), sr = Math.sin(-roll), sc = 2.25/fh, mz = 0;
+  var cx = (Q[10].x+Q[152].x)/2, cy = (Q[10].y+Q[152].y)/2, roll = Math.atan2(Q[263].y-Q[33].y, Q[263].x-Q[33].x), cr = Math.cos(-roll), sr = Math.sin(-roll), sc = 1.95/fh, mz = 0;
   Q.forEach(function(q){ mz += q.z; }); mz /= Q.length;
   var N = Q.length, pos = new Float32Array(N*3), uv = new Float32Array(N*2), edge = new Float32Array(N), flat = new Float64Array(N*2), u0 = 1, u1 = 0;
   for (var i=0;i<N;i++){
     var dx = Q[i].x-cx, dy = Q[i].y-cy, rx = dx*cr-dy*sr, ry = dx*sr+dy*cr;
-    pos[i*3] = rx*sc; pos[i*3+1] = -ry*sc-.18; pos[i*3+2] = -(Q[i].z-mz)*sc+.42;
+    pos[i*3] = rx*sc; pos[i*3+1] = -ry*sc-.08; pos[i*3+2] = -(Q[i].z-mz)*sc+.42;
     uv[i*2] = Q[i].x/tw; uv[i*2+1] = 1-Q[i].y/th; edge[i] = 1; flat[i*2] = rx; flat[i*2+1] = ry;
     if (uv[i*2] < u0) u0 = uv[i*2]; if (uv[i*2] > u1) u1 = uv[i*2];
   }
-  var del = new window.Delaunator(flat); for (var hI=0; hI<del.hull.length; hI++) edge[del.hull[hI]] = 0;
+  var del = new window.Delaunator(flat); var hull = del.hull, band = .075*fw;
+  for (var vi=0; vi<N; vi++){
+    var px = flat[vi*2], py = flat[vi*2+1], best2 = 1e12;
+    for (var hI=0; hI<hull.length; hI++){
+      var a = hull[hI], b = hull[(hI+1)%hull.length], ax = flat[a*2], ay = flat[a*2+1], ex = flat[b*2]-ax, ey = flat[b*2+1]-ay;
+      var t = clamp(((px-ax)*ex+(py-ay)*ey)/(ex*ex+ey*ey || 1), 0, 1), qx = ax+ex*t-px, qy = ay+ey*t-py, d2 = qx*qx+qy*qy;
+      if (d2 < best2) best2 = d2;
+    }
+    edge[vi] = clamp(Math.sqrt(best2)/band, 0, 1);
+  }
   ((visionMod && visionMod.FaceLandmarker.FACE_LANDMARKS_FACE_OVAL) || []).forEach(function(c){ edge[c.start] = 0; edge[c.end] = 0; });
   var geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos,3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv,2)); geo.setAttribute('edge', new THREE.BufferAttribute(edge,1));
@@ -1264,7 +1273,7 @@ function buildPhoto(img, L){
     var c = photo.zones[p.key][0].c, best = 0, bd = 1e12;
     for (var j=0;j<N;j++){ var d = (Q[j].x-c.x)*(Q[j].x-c.x)+(Q[j].y-c.y)*(Q[j].y-c.y); if (d < bd){ bd = d; best = j; } }
     var ddx = c.x-cx, ddy = c.y-cy;
-    p.at.set((ddx*cr-ddy*sr)*sc, -(ddx*sr+ddy*cr)*sc-.18, pos[best*3+2]+.04); p.anchor.position.copy(p.at);
+    p.at.set((ddx*cr-ddy*sr)*sc, -(ddx*sr+ddy*cr)*sc-.08, pos[best*3+2]+.04); p.anchor.position.copy(p.at);
   });
   mat.uniforms.uSplit.value = lerp(u0, u1, $('simSplit').value/100);
   document.body.classList.add('hasphoto'); $('btnPhotoX').hidden = false; $('simRow').hidden = false;
