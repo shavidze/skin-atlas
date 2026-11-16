@@ -12,6 +12,8 @@ English and Georgian are both included. Deep links: `#ka`, `#en`, `#ka-age`, `#k
 
 ## Face photo
 
+The Face map opens on a default portrait (`assets/model.jpg`). It is AI-generated, not a real person, and the page says so. Its landmarks are precomputed in `assets/model.json`, so the default face needs no model download. To change it, replace the image and regenerate the JSON by uploading the image in the page and running `JSON.stringify(SkinAtlas.landmarks())` in the console.
+
 In the Face map scene a visitor can upload a photo or use the camera. The face is detected in the browser with MediaPipe Face Landmarker, shown as a 3D mask in place of the mannequin, and a before/after slider previews an approximate effect per zone.
 
 - The photo never leaves the device. Library, WebAssembly and model are served from `vendor/`, so nothing is sent to a third party.

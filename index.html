@@ -173,7 +173,7 @@ body[data-view="face"] .skinonly{display:none}
 .fnote{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;line-height:1.5}
 .fnote #photoStatus{color:var(--gold)}
 .fnote #photoStatus:empty{display:none}
-.simbadge{display:none;position:fixed;top:84px;left:50%;transform:translateX(-50%);padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);background:rgba(20,18,16,.66);pointer-events:none;z-index:3;white-space:nowrap}
+.simbadge{display:none;position:fixed;top:84px;right:30px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);background:rgba(20,18,16,.66);pointer-events:none;z-index:3;white-space:nowrap}
 body.hasphoto[data-view="face"]:not(.clean) .simbadge{display:block}
 .cam{position:fixed;inset:0;z-index:20;background:rgba(10,9,8,.88);display:grid;place-items:center;align-content:center;gap:18px}
 .cam video{max-width:min(92vw,720px);max-height:66vh;border-radius:14px;border:1px solid var(--line);transform:scaleX(-1);background:#000}
@@ -230,7 +230,7 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
   .scene em{display:none}
   .agetop{grid-template-columns:auto 1fr;gap:14px}
   .simrow{grid-template-columns:1fr;gap:8px}
-  .simbadge{top:auto;bottom:8px;font-size:9px}
+  .simbadge{top:auto;bottom:8px;right:auto;left:50%;transform:translateX(-50%);font-size:9px}
   .agenum b{font-size:40px}
   .meters{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
   .meter{grid-template-columns:auto 1fr 34px}
@@ -364,7 +364,7 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
     <label><span data-i18n="f_split">Before · After</span><input type="range" class="range" id="simSplit" min="0" max="100" value="50" step="1"></label>
     <label><span data-i18n="f_strength">Effect strength</span><input type="range" class="range" id="simStrength" min="0" max="100" value="60" step="1"></label>
   </div>
-  <div class="fnote x"><span id="photoStatus" aria-live="polite"></span><span data-i18n="f_priv">Your photo is processed on this device only and is never uploaded.</span></div>
+  <div class="fnote x"><span id="photoStatus" aria-live="polite"></span><span id="modelNote" data-i18n="f_ai" hidden>The model face is AI-generated, not a real client.</span><span data-i18n="f_priv">Your photo is processed on this device only and is never uploaded.</span></div>
   <input type="file" id="photoFile" accept="image/*" hidden>
 </section>
 
@@ -423,7 +423,7 @@ controls.minDistance = 4; controls.maxDistance = 26; controls.maxPolarAngle = Ma
 function homePose(v){
   var a = window.innerWidth/window.innerHeight;
   var k = a < 1.15 ? Math.min(2.1, 1.15/a) : 1;
-  if (v === 'face') return { pos:new V3(1.5*k, 0.7, 9.4*k), target:new V3(0, a<1.15 ? 0.5 : 0.1, 0) };
+  if (v === 'face') return { pos:new V3((photo ? .6 : 1.5)*k, 0.7, 9.4*k), target:new V3(0, a<1.15 ? 0.5 : 0.1, 0) };
   return { pos:new V3(7.4*k, 4.0*k, 9.6*k), target:new V3(0, a<1.15? -0.2 : -0.55, 0) };
 }
 var hp = homePose(); camera.position.copy(hp.pos); controls.target.copy(hp.target); controls.update();
@@ -813,6 +813,7 @@ var KA = {
   v_treat:'პროცედურები', v_age:'კანის ასაკი', v_face:'სახის რუკა', t_help:'რა შველის',
   a_years:'წელი', a_col:'კოლაგენი', a_hyd:'ტენი', a_life:'ცხოვრების წესი', a_sun:'მზე SPF-ის გარეშე', a_smoke:'მოწევა', a_sleep:'უძილობა',
   f_hint:'აირჩიეთ ზონა, რომელიც გაწუხებთ',
+  f_ai:'მოდელის სახე ხელოვნური ინტელექტით არის გენერირებული და არა რეალური კლიენტი.',
   f_upload:'ჩემი ფოტო', f_camera:'კამერა', f_remove:'ფოტოს წაშლა', f_split:'მანამდე · შემდეგ', f_strength:'ეფექტის სიძლიერე',
   f_priv:'ფოტო მუშავდება მხოლოდ ამ მოწყობილობაზე და არსად იტვირთება.', f_sim:'სიმულაცია · არ არის გარანტირებული შედეგი', c_snap:'გადაღება', c_cancel:'გაუქმება',
   l_title:'ფერების განმარტება', l_collagen:'კოლაგენი, სქელი ბოჭკოები', l_elastin:'ელასტინი, წვრილი ბოჭკოები', l_artery:'არტერიოლები', l_vein:'ვენულები', l_water:'წყლის მოლეკულები', l_fat:'ცხიმოვანი წილაკები', l_follicle:'თმა და ფოლიკული', l_gland:'ცხიმოვანი ჯირკვალი'
@@ -1082,6 +1083,7 @@ function setView(v, fromHash){
   applyOrbitLimits();
   if (v !== 'treat'){ setExplode(false); if (v === 'age') setXray(false); }
   var h = homePose(v); flyTo(h.pos, h.target);
+  if (v === 'face') showDefaultFace();
   if (!fromHash) writeHash();
 }
 Array.prototype.forEach.call(document.querySelectorAll('.scene'), function(b){ b.addEventListener('click', function(){ if (view !== b.dataset.view) setView(b.dataset.view); }); });
@@ -1133,8 +1135,8 @@ var PH = {
 function setPhotoStatus(k){ phKey = k; $('photoStatus').textContent = k ? PH[lang][k] : ''; }
 function applyOrbitLimits(){
   var f = view === 'face', ph = f && !!photo;
-  controls.minAzimuthAngle = ph ? -.6 : (f ? -1.7 : -Infinity); controls.maxAzimuthAngle = ph ? .6 : (f ? 1.7 : Infinity);
-  controls.minPolarAngle = ph ? Math.PI/2-.45 : 0; controls.maxPolarAngle = ph ? Math.PI/2+.35 : Math.PI*.62;
+  controls.minAzimuthAngle = ph ? -.5 : (f ? -1.7 : -Infinity); controls.maxAzimuthAngle = ph ? .5 : (f ? 1.7 : Infinity);
+  controls.minPolarAngle = ph ? Math.PI/2-.35 : 0; controls.maxPolarAngle = ph ? Math.PI/2+.3 : Math.PI*.62;
 }
 function loadScript(src){ return new Promise(function(res, rej){ var el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = function(){ rej(new Error('script '+src)); }; document.head.appendChild(el); }); }
 function getLandmarker(){
@@ -1219,67 +1221,73 @@ function clearPhoto(){
   if (photo){ face.remove(photo.mesh); photo.mesh.geometry.dispose(); photo.mesh.material.dispose(); photo.texA.dispose(); photo.texB.dispose(); photo = null; }
   face.children.forEach(function(c){ if (c.isMesh) c.visible = true; });
   PINS.forEach(function(p){ if (p.view === 'face' && p.at0){ p.at.copy(p.at0); p.anchor.position.copy(p.at0); } });
-  document.body.classList.remove('hasphoto'); $('btnPhotoX').hidden = true; $('simRow').hidden = true; applyOrbitLimits();
+  document.body.classList.remove('hasphoto'); $('btnPhotoX').hidden = true; $('simRow').hidden = true; $('modelNote').hidden = true; applyOrbitLimits();
 }
-function buildPhoto(img, L){
+var OVAL = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+function buildPhoto(img, L, isDefault){
   clearPhoto();
-  var W = img.width, H = img.height, minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+  var W = img.width, H = img.height, minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9, NL = L.length;
   L.forEach(function(l){ var x = l.x*W, y = l.y*H; if (x<minX) minX=x; if (x>maxX) maxX=x; if (y<minY) minY=y; if (y>maxY) maxY=y; });
-  var bw = maxX-minX, bh = maxY-minY, cx0 = Math.max(0, minX-bw*.2), cy0 = Math.max(0, minY-bh*.26), cx1 = Math.min(W, maxX+bw*.2), cy1 = Math.min(H, maxY+bh*.2);
-  var cw = cx1-cx0, ch = cy1-cy0, k = Math.min(1, 1024/Math.max(cw, ch));
+  /* a portrait crop: room for hair above and neck below */
+  var bw = maxX-minX, bh = maxY-minY, cx0 = Math.max(0, minX-bw*.5), cy0 = Math.max(0, minY-bh*.62), cx1 = Math.min(W, maxX+bw*.5), cy1 = Math.min(H, maxY+bh*.5);
+  var cw = cx1-cx0, ch = cy1-cy0, k = Math.min(1, 1280/Math.max(cw, ch));
   var before = document.createElement('canvas'); before.width = Math.round(cw*k); before.height = Math.round(ch*k);
   before.getContext('2d').drawImage(img, cx0, cy0, cw, ch, 0, 0, before.width, before.height);
   var tw = before.width, th = before.height, Q = L.map(function(l){ return {x:(l.x*W-cx0)*k, y:(l.y*H-cy0)*k, z:l.z*W*k}; });
   function blank(){ var c = document.createElement('canvas'); c.width = tw; c.height = th; return c; }
-  var fh = Math.hypot(Q[10].x-Q[152].x, Q[10].y-Q[152].y), fw = Math.hypot(Q[234].x-Q[454].x, Q[234].y-Q[454].y);
-  var cx = (Q[10].x+Q[152].x)/2, cy = (Q[10].y+Q[152].y)/2, roll = Math.atan2(Q[263].y-Q[33].y, Q[263].x-Q[33].x), cr = Math.cos(-roll), sr = Math.sin(-roll), sc = 1.95/fh, mz = 0;
-  Q.forEach(function(q){ mz += q.z; }); mz /= Q.length;
-  var N = Q.length, pos = new Float32Array(N*3), uv = new Float32Array(N*2), edge = new Float32Array(N), flat = new Float64Array(N*2), u0 = 1, u1 = 0;
+  var fh = Math.hypot(Q[10].x-Q[152].x, Q[10].y-Q[152].y), fw = Math.hypot(Q[234].x-Q[454].x, Q[234].y-Q[454].y), sc = 1.12/fh, zb = 0, u0 = 1, u1 = 0;
+  OVAL.forEach(function(i){ zb += Q[i].z; }); zb = zb/OVAL.length+.04*fw;
+  /* the face rises out of a flat photo: a ring of points on the crop edge sits at the depth of the face outline */
+  var E = 7; for (var e=0; e<E; e++){ var t = e/E; Q.push({x:t*tw, y:0, z:zb}, {x:tw, y:t*th, z:zb}, {x:tw-t*tw, y:th, z:zb}, {x:0, y:th-t*th, z:zb}); }
+  var N = Q.length, pos = new Float32Array(N*3), uv = new Float32Array(N*2), flat = new Float64Array(N*2), cx = tw/2, cy = th/2;
   for (var i=0;i<N;i++){
-    var dx = Q[i].x-cx, dy = Q[i].y-cy, rx = dx*cr-dy*sr, ry = dx*sr+dy*cr;
-    pos[i*3] = rx*sc; pos[i*3+1] = -ry*sc-.08; pos[i*3+2] = -(Q[i].z-mz)*sc+.42;
-    uv[i*2] = Q[i].x/tw; uv[i*2+1] = 1-Q[i].y/th; edge[i] = 1; flat[i*2] = rx; flat[i*2+1] = ry;
-    if (uv[i*2] < u0) u0 = uv[i*2]; if (uv[i*2] > u1) u1 = uv[i*2];
+    pos[i*3] = (Q[i].x-cx)*sc; pos[i*3+1] = -(Q[i].y-cy)*sc+.1; pos[i*3+2] = -(Q[i].z-zb)*sc;
+    uv[i*2] = Q[i].x/tw; uv[i*2+1] = 1-Q[i].y/th; flat[i*2] = Q[i].x; flat[i*2+1] = Q[i].y;
+    if (i < NL){ if (uv[i*2] < u0) u0 = uv[i*2]; if (uv[i*2] > u1) u1 = uv[i*2]; }
   }
-  var del = new window.Delaunator(flat); var hull = del.hull, band = .075*fw;
-  for (var vi=0; vi<N; vi++){
-    var px = flat[vi*2], py = flat[vi*2+1], best2 = 1e12;
-    for (var hI=0; hI<hull.length; hI++){
-      var a = hull[hI], b = hull[(hI+1)%hull.length], ax = flat[a*2], ay = flat[a*2+1], ex = flat[b*2]-ax, ey = flat[b*2+1]-ay;
-      var t = clamp(((px-ax)*ex+(py-ay)*ey)/(ex*ex+ey*ey || 1), 0, 1), qx = ax+ex*t-px, qy = ay+ey*t-py, d2 = qx*qx+qy*qy;
-      if (d2 < best2) best2 = d2;
-    }
-    edge[vi] = clamp(Math.sqrt(best2)/band, 0, 1);
-  }
-  ((visionMod && visionMod.FaceLandmarker.FACE_LANDMARKS_FACE_OVAL) || []).forEach(function(c){ edge[c.start] = 0; edge[c.end] = 0; });
-  var geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos,3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv,2)); geo.setAttribute('edge', new THREE.BufferAttribute(edge,1));
+  var del = new window.Delaunator(flat), geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv,2));
   geo.setIndex(new THREE.BufferAttribute(new Uint32Array(del.triangles),1));
   var after = blank(), texA = new THREE.CanvasTexture(before), texB = new THREE.CanvasTexture(after);
   [texA, texB].forEach(function(t){ t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; });
   var mat = new THREE.ShaderMaterial({
     uniforms:{tA:{value:texA}, tB:{value:texB}, uSplit:{value:.5}},
-    vertexShader:'attribute float edge; varying vec2 vUv; varying float vE; void main(){ vUv = uv; vE = edge; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader:'uniform sampler2D tA; uniform sampler2D tB; uniform float uSplit; varying vec2 vUv; varying float vE; void main(){ vec3 a = texture2D(tA,vUv).rgb; vec3 b = texture2D(tB,vUv).rgb; vec3 c = mix(a, b, step(uSplit, vUv.x)); float ln = 1.0-smoothstep(0.0, 0.0035, abs(vUv.x-uSplit)); c = mix(c, vec3(0.85,0.73,0.51), ln*0.9); gl_FragColor = vec4(c, smoothstep(0.0, 0.9, vE)); }',
+    vertexShader:'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader:'uniform sampler2D tA; uniform sampler2D tB; uniform float uSplit; varying vec2 vUv; void main(){ vec3 a = texture2D(tA,vUv).rgb; vec3 b = texture2D(tB,vUv).rgb; vec3 c = mix(a, b, step(uSplit, vUv.x)); float ln = 1.0-smoothstep(0.0, 0.003, abs(vUv.x-uSplit)); c = mix(c, vec3(0.85,0.73,0.51), ln*0.9); float d = length((vUv-0.5)*2.0); gl_FragColor = vec4(c, 1.0-smoothstep(0.80, 1.0, d)); }',
     transparent:true, side:THREE.DoubleSide
   });
   var mesh = new THREE.Mesh(geo, mat);
   face.children.forEach(function(c){ if (c.isMesh) c.visible = false; });
   face.add(mesh);
-  photo = {mesh:mesh, texA:texA, texB:texB, before:before, after:after, mask:blank(), layer:blank(), blur:blurOf(before, clamp(fw/55, 4, 16)), zones:zonesFor(Q), strength:$('simStrength').value/100, only:null, u0:u0, u1:u1};
+  photo = {mesh:mesh, texA:texA, texB:texB, before:before, after:after, mask:blank(), layer:blank(), blur:blurOf(before, clamp(fw/55, 4, 16)), zones:zonesFor(Q), strength:$('simStrength').value/100, only:null, u0:u0, u1:u1, isDefault:!!isDefault, L:L};
   PINS.forEach(function(p){
     if (p.view !== 'face' || !photo.zones[p.key]) return;
     if (!p.at0) p.at0 = p.at.clone();
     var c = photo.zones[p.key][0].c, best = 0, bd = 1e12;
-    for (var j=0;j<N;j++){ var d = (Q[j].x-c.x)*(Q[j].x-c.x)+(Q[j].y-c.y)*(Q[j].y-c.y); if (d < bd){ bd = d; best = j; } }
-    var ddx = c.x-cx, ddy = c.y-cy;
-    p.at.set((ddx*cr-ddy*sr)*sc, -(ddx*sr+ddy*cr)*sc-.08, pos[best*3+2]+.04); p.anchor.position.copy(p.at);
+    for (var j=0;j<NL;j++){ var d = (Q[j].x-c.x)*(Q[j].x-c.x)+(Q[j].y-c.y)*(Q[j].y-c.y); if (d < bd){ bd = d; best = j; } }
+    p.at.set((c.x-cx)*sc, -(c.y-cy)*sc+.1, pos[best*3+2]+.04); p.anchor.position.copy(p.at);
   });
   mat.uniforms.uSplit.value = lerp(u0, u1, $('simSplit').value/100);
-  document.body.classList.add('hasphoto'); $('btnPhotoX').hidden = false; $('simRow').hidden = false;
+  document.body.classList.add('hasphoto'); $('btnPhotoX').hidden = !!isDefault; $('simRow').hidden = false; $('modelNote').hidden = !isDefault;
   applyOrbitLimits(); closePin(); computeAfter();
-  var hp = homePose('face'); flyTo(hp.pos, hp.target);
+  if (view === 'face'){ var hp = homePose('face'); flyTo(hp.pos, hp.target); }
 }
+/* the default face: an AI-generated portrait shipped with its landmarks, so no model download is needed to show it */
+var defaultFace = null, defaultTried = false;
+function showDefaultFace(){
+  if (photo) return;
+  if (defaultFace){ buildPhoto(defaultFace.img, defaultFace.L, true); return; }
+  if (defaultTried) return; defaultTried = true;
+  Promise.all([
+    fetch('./assets/model.json').then(function(r){ if (!r.ok) throw new Error('model.json'); return r.json(); }),
+    new Promise(function(res, rej){ var im = new Image(); im.onload = function(){ res(im); }; im.onerror = function(){ rej(new Error('model.jpg')); }; im.src = './assets/model.jpg'; }),
+    window.Delaunator ? null : loadScript('./vendor/delaunator.min.js')
+  ]).then(function(r){
+    defaultFace = {img:fitCanvas(r[1], r[1].naturalWidth, r[1].naturalHeight, 1600), L:r[0].map(function(a){ return {x:a[0], y:a[1], z:a[2]}; })};
+    if (!photo) buildPhoto(defaultFace.img, defaultFace.L, true);
+  }).catch(function(){ /* no default portrait available: the mannequin stays */ });
+}
+window.SkinAtlas = { landmarks:function(){ return photo ? photo.L.map(function(l){ return [+l.x.toFixed(5), +l.y.toFixed(5), +l.z.toFixed(5)]; }) : null; } };
 function usePhoto(source, w, h){
   if (photoBusy || !w || !h) return;
   photoBusy = true; setPhotoStatus('load');
@@ -1299,7 +1307,7 @@ $('photoFile').addEventListener('change', function(){
   im.onerror = function(){ URL.revokeObjectURL(url); setPhotoStatus('noface'); };
   im.src = url;
 });
-$('btnPhotoX').addEventListener('click', function(){ closePin(); clearPhoto(); setPhotoStatus(null); });
+$('btnPhotoX').addEventListener('click', function(){ closePin(); clearPhoto(); setPhotoStatus(null); showDefaultFace(); });
 $('simSplit').addEventListener('input', function(){ setRangeFill(this); if (photo) photo.mesh.material.uniforms.uSplit.value = lerp(photo.u0, photo.u1, this.value/100); });
 $('simStrength').addEventListener('input', function(){ setRangeFill(this); if (photo){ photo.strength = this.value/100; schedulePhoto(); } });
 setRangeFill($('simSplit')); setRangeFill($('simStrength'));
@@ -1511,7 +1519,7 @@ function frame(now){
     if (p === activePin && ww > 820){
       var tw = 300, th = tip.offsetHeight, tx = px+26, ty = py-th/2;
       if (tx+tw > ww-16) tx = px-tw-26;
-      if (photo && p.view === 'face'){ tx = ww-tw-30; ty = 84; }
+      if (photo && p.view === 'face'){ tx = ww-tw-30; ty = 128; }
       tip.style.transform = 'translate('+clamp(tx,16,ww-tw-16).toFixed(1)+'px,'+clamp(ty,16,wh-th-16).toFixed(1)+'px)';
     }
   }
