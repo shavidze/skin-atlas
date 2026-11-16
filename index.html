@@ -6,296 +6,357 @@
 <title>Beneath the Surface</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Noto+Sans+Georgian:wght@300;400;500&family=Noto+Serif+Georgian:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@300;400;500;600&family=Noto+Serif+Georgian:wght@700&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:"Zodiak";src:url("assets/fonts/zodiak-bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
 :root{
-  /* Layout: full-bleed 3D stage; glass panels hug the four corners and the bottom edge. Single dark theme by choice. */
-  color-scheme: dark;
-  --bg:#131110;
-  --ink:#f4ede1;
-  --muted:#a9a093;
-  --gold:#d8b983;
-  --gold-deep:#a98755;
-  --glass:rgba(255,246,232,.055);
-  --glass-strong:rgba(28,25,22,.62);
-  --line:rgba(216,185,131,.24);
-  --display:"Cormorant Garamond","Noto Serif Georgian","Iowan Old Style","Palatino Linotype",Georgia,serif;
-  --ui:"Jost","Noto Sans Georgian","Avenir Next","Segoe UI",system-ui,sans-serif;
+  /* Verve brand book. Cream Silk page, Smoked Moss rail, Charcoal Noir stage; Zodiak / Noto Serif Georgian Bold for headings, Noto Sans Georgian for text.
+     Layout: moss rail | arched stage standing on a control strip | notes column. The arch outline is the progress track. */
+  color-scheme:light;
+  --cream:#F3F1E9; --leather:#DCC7AA; --moss:#6A6F59; --walnut:#5A473E; --noir:#29211B; --black:#111111;
+  --rule:rgba(41,33,27,.18); --cream-deep:#E9E6DB;
+  --head:"Zodiak","Noto Serif Georgian",Georgia,serif;
+  --body:"Noto Sans Georgian","Noto Sans","Segoe UI",system-ui,sans-serif;
 }
+html[lang="ka"]{--head:"Noto Serif Georgian","Zodiak",Georgia,serif}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-weight:300;overflow:hidden;-webkit-font-smoothing:antialiased}
-button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
-:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
-
-#stage{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-.vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 42%,transparent 55%,rgba(8,7,6,.55) 100%)}
-
-.glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05)}
-.eyebrow{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:400}
-
-/* Header */
-.left{position:fixed;top:26px;left:30px;bottom:22px;width:min(340px,calc(100% - 60px));display:flex;flex-direction:column;gap:18px;pointer-events:none;z-index:2}
-.head{pointer-events:none}
-.head h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,3.4vw,44px);line-height:1.02;margin:10px 0 8px;text-wrap:balance;letter-spacing:.005em}
-.head h1 em{font-style:italic;color:var(--gold)}
-.head p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55;max-width:30ch}
-
-.topbar{position:fixed;top:26px;right:30px;display:flex;gap:10px;align-items:center;z-index:7}
-.ui{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .3s,color .3s}
-.ui:hover{background:var(--gold);color:#1a1612}
-.ui svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
-.ui .slash{display:none}
-body.clean .ui .slash{display:block}
-body.clean .left,body.clean .bar,body.clean .legend,body.clean .note,body.clean .cta,body.clean .lang,body.clean .consult,body.clean .tip,body.clean #pins{visibility:hidden}
-.cta{padding:11px 20px;border:1px solid var(--line);border-radius:999px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:400;color:var(--gold);background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .3s,color .3s,border-color .3s}
-.cta:hover{background:var(--gold);color:#1a1612;border-color:var(--gold)}
-.consult{position:fixed;top:78px;right:30px;width:min(300px,calc(100% - 32px));padding:20px 22px;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .3s,transform .3s;z-index:6}
-.consult.open{opacity:1;transform:none;pointer-events:auto}
-.consult h2{font-family:var(--display);font-weight:500;font-size:24px;margin:8px 0 8px}
-.consult p{margin:0 0 10px;font-size:13.5px;line-height:1.6;color:#d9d1c4}
-.consult small{display:block;color:var(--muted);font-size:12px;line-height:1.5;border-top:1px solid var(--line);padding-top:10px}
-
-/* View toggles */
-.views{align-self:flex-start;flex:0 1 auto;min-height:0;overflow-y:auto;pointer-events:auto;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:190px}
-.sw{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 8px;border-radius:9px;font-size:12.5px;letter-spacing:.06em;text-align:left;transition:background .25s}
-.sw:hover{background:rgba(255,255,255,.04)}
-.sw i{flex:none;width:30px;height:16px;border-radius:999px;border:1px solid var(--line);position:relative;transition:background .3s,border-color .3s}
-.sw i::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--muted);transition:transform .3s,background .3s}
-.sw[aria-pressed="true"] i{background:rgba(216,185,131,.22);border-color:var(--gold)}
-.sw[aria-pressed="true"] i::after{transform:translateX(14px);background:var(--gold)}
-.sw.plain{color:var(--muted);border-top:1px solid var(--line);border-radius:0 0 9px 9px;margin-top:4px;padding-top:12px}
-.sw.plain:hover{color:var(--ink)}
-
-/* Pins */
-#pins{position:fixed;inset:0;pointer-events:none;overflow:hidden}
-.pin{position:absolute;left:0;top:0;display:flex;align-items:center;gap:9px;pointer-events:auto;will-change:transform;padding:6px 8px 6px 0}
-.pin .dot{width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(216,185,131,.18),0 0 14px rgba(216,185,131,.7);position:relative;transition:transform .3s;margin-left:-5.5px}
-.pin .dot::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid rgba(216,185,131,.55);animation:ping 2.6s ease-out infinite}
-.pin .lab{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);opacity:.72;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8);transition:opacity .3s,color .3s}
-.pin:hover .lab,.pin.on .lab{opacity:1;color:var(--gold)}
-.pin:hover .dot,.pin.on .dot{transform:scale(1.25)}
-@keyframes ping{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.9);opacity:0}}
-
-.tip{position:fixed;left:0;top:0;width:300px;padding:18px 20px 18px;opacity:0;pointer-events:none;transition:opacity .35s;background:var(--glass-strong);z-index:5}
-.tip.open{opacity:1;pointer-events:auto}
-.tip h3{font-family:var(--display);font-weight:500;font-size:26px;line-height:1.05;margin:8px 0 8px}
-.tip p{margin:0;font-size:13.5px;line-height:1.62;color:#ddd5c8}
-.tip .x{position:absolute;top:10px;right:12px;width:26px;height:26px;border-radius:50%;color:var(--muted);font-size:18px;line-height:1}
-.tip .x:hover{color:var(--ink)}
-.go{margin-top:14px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:3px;font-weight:400}
-.go:hover{border-color:var(--gold)}
-.go[hidden]{display:none}
-
-/* Bottom bar */
-.bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);width:min(880px,calc(100% - 32px));padding:16px 20px 16px;display:grid;gap:12px;background:rgba(24,21,18,.76)}
-.views,.bar,.legend{user-select:none;-webkit-user-select:none}
+body{background:var(--cream);color:var(--noir);font-family:var(--body);font-weight:300;font-size:14px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
 [hidden]{display:none !important}
-.legend{position:fixed;top:84px;right:30px;width:214px;padding:16px 12px 10px;display:grid;gap:1px;cursor:grab;z-index:2}
-.legend .eyebrow{padding:0 6px 8px}
-.lg{display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:7px;font-size:12px;letter-spacing:.02em;text-align:left;color:#d9d1c4;cursor:pointer;transition:background .2s,color .2s}
-.lg i{flex:none;width:22px;height:10px;border-radius:5px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
-.lg i.thin{height:4px}
-.lg i.dot{width:12px;height:12px;border-radius:50%;margin:0 5px}
-.lg:hover,.lg[aria-pressed="true"]{background:rgba(216,185,131,.12);color:var(--gold)}
-.pin.flip{flex-direction:row-reverse;padding:6px 0 6px 8px}
-.pin.flip .dot{margin-left:0;margin-right:-5.5px}
-.views{position:relative}
-.grip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:14px;display:grid;place-items:center;cursor:grab;touch-action:none}
-.grip::before{content:"";width:30px;height:3px;border-radius:2px;background:rgba(216,185,131,.38)}
-.views,.bar{cursor:grab}
-.views button,.bar button,.bar input{cursor:pointer}
-.dragging,.dragging .grip{cursor:grabbing}
-.min{position:absolute;top:-13px;right:18px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:#1b1815;color:var(--gold);display:grid;place-items:center}
-.min svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;transition:transform .3s}
-body.barmin .min svg{transform:rotate(180deg)}
-body.barmin .bar .x{display:none}
-@media (min-width:821px) and (max-width:1500px){.bar{left:calc(165px + 50%);width:min(880px,calc(100% - 340px))}}
-.modes{display:flex;gap:6px;flex-wrap:wrap}
-.mode{flex:1 1 150px;padding:10px 12px;border-radius:10px;border:1px solid transparent;text-align:left;transition:background .3s,border-color .3s}
-.mode b{display:block;font-family:var(--display);font-weight:500;font-size:19px;line-height:1.1;letter-spacing:.01em}
-.mode span{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:3px}
-.mode:hover{background:rgba(255,255,255,.035)}
-.mode[aria-pressed="true"]{border-color:var(--line);background:rgba(216,185,131,.09)}
-.mode[aria-pressed="true"] b{color:var(--gold)}
-.phase{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;min-height:38px;padding:0 4px}
-.phase .num{font-family:var(--display);font-style:italic;color:var(--gold);font-size:18px}
-.phase .ttl{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:400;white-space:nowrap}
-.phase .txt{flex:1 1 280px;font-size:13px;color:#d6cec1;line-height:1.5}
-.phase .read{font-size:11px;letter-spacing:.08em;color:var(--gold);font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:999px;padding:4px 11px;white-space:nowrap}
-.transport{display:flex;align-items:center;gap:14px}
-.play{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:grid;place-items:center;transition:background .3s,color .3s}
-.play:hover{background:var(--gold);color:#1a1612}
-.play svg{width:14px;height:14px;fill:currentColor}
-.range{flex:1;-webkit-appearance:none;appearance:none;height:22px;background:transparent;cursor:pointer;--p:0%}
-.range::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--gold) var(--p),rgba(255,255,255,.16) var(--p))}
-.range::-moz-range-track{height:2px;background:rgba(255,255,255,.16)}
-.range::-moz-range-progress{height:2px;background:var(--gold)}
-.range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--bg);border:1.5px solid var(--gold);margin-top:-6px;box-shadow:0 0 12px rgba(216,185,131,.6)}
-.range::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--bg);border:1.5px solid var(--gold);box-shadow:0 0 12px rgba(216,185,131,.6)}
-.pct{flex:none;width:44px;text-align:right;font-size:12px;letter-spacing:.08em;color:var(--muted);font-variant-numeric:tabular-nums}
-.scenes{display:flex;flex-direction:column;gap:2px;padding-bottom:8px;margin-bottom:6px;border-bottom:1px solid var(--line)}
-.scene{display:flex;align-items:baseline;gap:10px;padding:8px;border-radius:9px;text-align:left;font-family:var(--display);font-size:19px;color:var(--muted);transition:color .25s,background .25s}
-.scene em{font-style:italic;font-size:13px;color:var(--gold-deep)}
-.scene:hover{color:var(--ink)}
-.scene[aria-pressed="true"]{color:var(--gold);background:rgba(216,185,131,.09)}
-html[lang="ka"] .scene{font-size:15px}
+:focus-visible{outline:2px solid var(--walnut);outline-offset:2px}
+.rail :focus-visible{outline-color:var(--leather)}
+h1,h2,h3{font-family:var(--head);font-weight:700;margin:0}
+
+.app{display:grid;grid-template-columns:280px minmax(0,1fr) 330px;height:100%}
+
+/* rail */
+.rail{background:var(--moss);color:var(--cream);padding:28px 26px 0;display:flex;flex-direction:column;gap:20px;overflow-y:auto;min-height:0}
+.logo{display:block;height:38px;width:auto;color:var(--cream);flex:none}
+html[lang="ka"] .logo-en,html:not([lang="ka"]) .logo-ka{display:none}
+.head h1{font-size:26px;line-height:1.1;text-transform:uppercase;letter-spacing:.01em;margin-bottom:10px;text-wrap:balance}
+.head p{margin:0;font-size:13.5px;line-height:1.6;color:rgba(243,241,233,.88)}
+.scenes,.views,.facetools{border-top:1px solid rgba(243,241,233,.3);padding-top:14px}
+.scenes{display:grid;gap:2px}
+.scene{padding:7px 0 7px 12px;font-size:15px;font-weight:400;color:rgba(243,241,233,.74);border-left:2px solid transparent;transition:color .2s}
+.scene:hover{color:var(--cream)}
+.scene[aria-pressed="true"]{color:var(--cream);border-left-color:var(--leather);font-weight:600}
+.views{display:grid;gap:3px;justify-items:start}
+.sw{display:flex;align-items:center;gap:11px;padding:6px 0;font-size:13.5px}
+.sw i{flex:none;width:15px;height:15px;border:1px solid var(--cream);border-radius:2px;display:grid;place-items:center}
+.sw[aria-pressed="true"] i{background:var(--leather);border-color:var(--leather)}
+.sw[aria-pressed="true"] i::after{content:"";width:8px;height:4px;border-left:1.5px solid var(--noir);border-bottom:1.5px solid var(--noir);transform:translateY(-1px) rotate(-45deg)}
+.link{margin-top:6px;font-size:13px;text-decoration:underline;text-underline-offset:3px;color:rgba(243,241,233,.88)}
+.link:hover{color:var(--cream)}
+.facetools{display:none}
+body[data-view="face"] .facetools{display:grid;gap:8px}
+body[data-view="face"] .skinonly{display:none}
+.rbtn{border:1px solid var(--cream);color:var(--cream);padding:9px 12px;font-size:13.5px;font-weight:400;text-align:center;border-radius:2px;transition:background .2s,color .2s}
+.rbtn:hover{background:var(--cream);color:var(--moss)}
+.fnote{margin:4px 0 0;font-size:12px;line-height:1.5;color:rgba(243,241,233,.84);display:grid;gap:6px}
+#photoStatus{color:var(--leather);font-weight:500}
+#photoStatus:empty{display:none}
+.railfoot{margin:auto -26px 0;flex:1 0 96px;min-height:96px;background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2296%22 height=%22104%22 viewBox=%220 0 96 104%22%3E%3Cg fill=%22%23F3F1E9%22 stroke=%22none%22 opacity=%22.34%22%3E%3Cg transform=%22translate%280.0 0.0%29 scale%280.150%29 translate%28-54 -53%29%22%3E%3Cpath d=%22M 50.61 14.67 C 65.6 -0.51 88.19 -4.23 107.38 4.9 L 107.38 12.42 C 82.89 6.97 57.84 17.19 44.16 37.52 C 37.82 47.32 36.29 57.75 38.11 69.37 C 31.47 50.37 36.36 29.12 50.61 14.67%22/%3E%3Cpath d=%22M 108.45 37.81 L 108.45 42.1 C 102.97 48.82 96.51 54.7 89.27 59.5 C 73.36 70.06 53.98 75.01 34.95 73.42 C 27.37 72.79 19.88 71.2 13.06 67.73 C 7.85 65.09 2.68 61.03 1.22 55.22 C 1.21 55.18 1.2 55.13 1.19 55.09 C -3.7 39.92 7.41 13.21 17.22 2.84 L 36.53 2.84 C 26.02 9.53 11.74 27.82 6.36 43.52 L 6.35 43.53 L 6.35 43.54 C 6.35 43.55 6.34 43.56 6.33 43.57 C 5.82 45.08 5.39 46.57 5.05 48.02 C 4.3 52.16 4.39 58.33 9.81 62.71 C 9.81 62.71 9.81 62.72 9.82 62.72 C 12.35 64.55 15.27 65.94 17.83 66.96 C 24.94 69.79 32.61 70.86 40.23 71.02 C 49.61 71.21 58.98 69.82 67.9 66.92 C 83.95 61.69 98.28 51.37 108.4 37.87 C 108.42 37.86 108.43 37.83 108.45 37.81%22/%3E%3Cpath d=%22M 107.38 86.97 L 107.39 101 C 81.43 114.06 50.18 101.41 39.97 74.95 C 54.4 99.31 84.53 99.36 107.38 86.97%22/%3E%3C/g%3E%3Cg transform=%22translate%2896.0 0.0%29 scale%280.150%29 translate%28-54 -53%29%22%3E%3Cpath d=%22M 50.61 14.67 C 65.6 -0.51 88.19 -4.23 107.38 4.9 L 107.38 12.42 C 82.89 6.97 57.84 17.19 44.16 37.52 C 37.82 47.32 36.29 57.75 38.11 69.37 C 31.47 50.37 36.36 29.12 50.61 14.67%22/%3E%3Cpath d=%22M 108.45 37.81 L 108.45 42.1 C 102.97 48.82 96.51 54.7 89.27 59.5 C 73.36 70.06 53.98 75.01 34.95 73.42 C 27.37 72.79 19.88 71.2 13.06 67.73 C 7.85 65.09 2.68 61.03 1.22 55.22 C 1.21 55.18 1.2 55.13 1.19 55.09 C -3.7 39.92 7.41 13.21 17.22 2.84 L 36.53 2.84 C 26.02 9.53 11.74 27.82 6.36 43.52 L 6.35 43.53 L 6.35 43.54 C 6.35 43.55 6.34 43.56 6.33 43.57 C 5.82 45.08 5.39 46.57 5.05 48.02 C 4.3 52.16 4.39 58.33 9.81 62.71 C 9.81 62.71 9.81 62.72 9.82 62.72 C 12.35 64.55 15.27 65.94 17.83 66.96 C 24.94 69.79 32.61 70.86 40.23 71.02 C 49.61 71.21 58.98 69.82 67.9 66.92 C 83.95 61.69 98.28 51.37 108.4 37.87 C 108.42 37.86 108.43 37.83 108.45 37.81%22/%3E%3Cpath d=%22M 107.38 86.97 L 107.39 101 C 81.43 114.06 50.18 101.41 39.97 74.95 C 54.4 99.31 84.53 99.36 107.38 86.97%22/%3E%3C/g%3E%3Cg transform=%22translate%280.0 104.0%29 scale%280.150%29 translate%28-54 -53%29%22%3E%3Cpath d=%22M 50.61 14.67 C 65.6 -0.51 88.19 -4.23 107.38 4.9 L 107.38 12.42 C 82.89 6.97 57.84 17.19 44.16 37.52 C 37.82 47.32 36.29 57.75 38.11 69.37 C 31.47 50.37 36.36 29.12 50.61 14.67%22/%3E%3Cpath d=%22M 108.45 37.81 L 108.45 42.1 C 102.97 48.82 96.51 54.7 89.27 59.5 C 73.36 70.06 53.98 75.01 34.95 73.42 C 27.37 72.79 19.88 71.2 13.06 67.73 C 7.85 65.09 2.68 61.03 1.22 55.22 C 1.21 55.18 1.2 55.13 1.19 55.09 C -3.7 39.92 7.41 13.21 17.22 2.84 L 36.53 2.84 C 26.02 9.53 11.74 27.82 6.36 43.52 L 6.35 43.53 L 6.35 43.54 C 6.35 43.55 6.34 43.56 6.33 43.57 C 5.82 45.08 5.39 46.57 5.05 48.02 C 4.3 52.16 4.39 58.33 9.81 62.71 C 9.81 62.71 9.81 62.72 9.82 62.72 C 12.35 64.55 15.27 65.94 17.83 66.96 C 24.94 69.79 32.61 70.86 40.23 71.02 C 49.61 71.21 58.98 69.82 67.9 66.92 C 83.95 61.69 98.28 51.37 108.4 37.87 C 108.42 37.86 108.43 37.83 108.45 37.81%22/%3E%3Cpath d=%22M 107.38 86.97 L 107.39 101 C 81.43 114.06 50.18 101.41 39.97 74.95 C 54.4 99.31 84.53 99.36 107.38 86.97%22/%3E%3C/g%3E%3Cg transform=%22translate%2896.0 104.0%29 scale%280.150%29 translate%28-54 -53%29%22%3E%3Cpath d=%22M 50.61 14.67 C 65.6 -0.51 88.19 -4.23 107.38 4.9 L 107.38 12.42 C 82.89 6.97 57.84 17.19 44.16 37.52 C 37.82 47.32 36.29 57.75 38.11 69.37 C 31.47 50.37 36.36 29.12 50.61 14.67%22/%3E%3Cpath d=%22M 108.45 37.81 L 108.45 42.1 C 102.97 48.82 96.51 54.7 89.27 59.5 C 73.36 70.06 53.98 75.01 34.95 73.42 C 27.37 72.79 19.88 71.2 13.06 67.73 C 7.85 65.09 2.68 61.03 1.22 55.22 C 1.21 55.18 1.2 55.13 1.19 55.09 C -3.7 39.92 7.41 13.21 17.22 2.84 L 36.53 2.84 C 26.02 9.53 11.74 27.82 6.36 43.52 L 6.35 43.53 L 6.35 43.54 C 6.35 43.55 6.34 43.56 6.33 43.57 C 5.82 45.08 5.39 46.57 5.05 48.02 C 4.3 52.16 4.39 58.33 9.81 62.71 C 9.81 62.71 9.81 62.72 9.82 62.72 C 12.35 64.55 15.27 65.94 17.83 66.96 C 24.94 69.79 32.61 70.86 40.23 71.02 C 49.61 71.21 58.98 69.82 67.9 66.92 C 83.95 61.69 98.28 51.37 108.4 37.87 C 108.42 37.86 108.43 37.83 108.45 37.81%22/%3E%3Cpath d=%22M 107.38 86.97 L 107.39 101 C 81.43 114.06 50.18 101.41 39.97 74.95 C 54.4 99.31 84.53 99.36 107.38 86.97%22/%3E%3C/g%3E%3Cg transform=%22translate%2848.0 52.0%29 scale%280.150%29 translate%28-54 -53%29%22%3E%3Cpath d=%22M 50.61 14.67 C 65.6 -0.51 88.19 -4.23 107.38 4.9 L 107.38 12.42 C 82.89 6.97 57.84 17.19 44.16 37.52 C 37.82 47.32 36.29 57.75 38.11 69.37 C 31.47 50.37 36.36 29.12 50.61 14.67%22/%3E%3Cpath d=%22M 108.45 37.81 L 108.45 42.1 C 102.97 48.82 96.51 54.7 89.27 59.5 C 73.36 70.06 53.98 75.01 34.95 73.42 C 27.37 72.79 19.88 71.2 13.06 67.73 C 7.85 65.09 2.68 61.03 1.22 55.22 C 1.21 55.18 1.2 55.13 1.19 55.09 C -3.7 39.92 7.41 13.21 17.22 2.84 L 36.53 2.84 C 26.02 9.53 11.74 27.82 6.36 43.52 L 6.35 43.53 L 6.35 43.54 C 6.35 43.55 6.34 43.56 6.33 43.57 C 5.82 45.08 5.39 46.57 5.05 48.02 C 4.3 52.16 4.39 58.33 9.81 62.71 C 9.81 62.71 9.81 62.72 9.82 62.72 C 12.35 64.55 15.27 65.94 17.83 66.96 C 24.94 69.79 32.61 70.86 40.23 71.02 C 49.61 71.21 58.98 69.82 67.9 66.92 C 83.95 61.69 98.28 51.37 108.4 37.87 C 108.42 37.86 108.43 37.83 108.45 37.81%22/%3E%3Cpath d=%22M 107.38 86.97 L 107.39 101 C 81.43 114.06 50.18 101.41 39.97 74.95 C 54.4 99.31 84.53 99.36 107.38 86.97%22/%3E%3C/g%3E%3C/g%3E%3Cg stroke=%22%23F3F1E9%22 stroke-width=%22.7%22 opacity=%22.34%22%3E%3Cline x1=%2213.0%22 y1=%2214.0%22 x2=%2235.0%22 y2=%2238.0%22/%3E%3Cline x1=%2283.0%22 y1=%2214.0%22 x2=%2261.0%22 y2=%2238.0%22/%3E%3Cline x1=%2213.0%22 y1=%2290.0%22 x2=%2235.0%22 y2=%2266.0%22/%3E%3Cline x1=%2283.0%22 y1=%2290.0%22 x2=%2261.0%22 y2=%2266.0%22/%3E%3C/g%3E%3C/svg%3E");background-size:96px 104px;background-position:center top}
+
+/* stage */
+.main{display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;min-height:0}
+.stagecell{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);place-items:end center;padding:46px 40px 0;min-height:0}
+.stagebox{position:relative;height:100%;aspect-ratio:1.24;max-width:100%;min-width:0}
+.arch{position:absolute;inset:0;border-radius:9999px 9999px 0 0;overflow:hidden;background:var(--noir)}
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 95% at 50% 48%,transparent 58%,rgba(17,17,17,.5) 100%)}
+.ring{position:absolute;left:-16px;top:-16px;width:calc(100% + 32px);height:calc(100% + 32px);pointer-events:none;overflow:visible}
+#ringBase{fill:none;stroke:var(--rule);stroke-width:1}
+#ringProg{fill:none;stroke:var(--moss);stroke-width:3}
+#ringTicks line{stroke:var(--walnut);stroke-width:1}
+#ringTicks text{font:400 10.5px var(--body);fill:var(--walnut);font-variant-numeric:tabular-nums}
+#pins{position:absolute;inset:0;pointer-events:none}
+.pin{position:absolute;left:0;top:0;width:22px;height:22px;pointer-events:auto;will-change:transform}
+.pin .dot{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--cream);color:var(--noir);font-size:11px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;box-shadow:0 0 0 1px rgba(17,17,17,.4);transition:background .2s,transform .2s}
+.pin:hover .dot,.pin.on .dot{background:var(--leather);transform:scale(1.12)}
+.pin .lab{position:absolute;left:28px;top:1px;white-space:nowrap;font-size:12px;font-weight:500;color:var(--cream);background:rgba(41,33,27,.9);padding:2px 8px;border-radius:2px;opacity:0;pointer-events:none;transition:opacity .2s}
+.pin:hover .lab,.pin:focus-visible .lab{opacity:1}
+
+/* control strip */
+.strip{border-top:1px solid var(--noir);padding:16px 34px 12px;display:grid;gap:10px}
+.bar{display:grid;gap:12px}
 .agebar,.facebar{display:none}
 body[data-view="age"] .treatbar,body[data-view="face"] .treatbar{display:none}
-body[data-view="age"] .agebar,body[data-view="face"] .facebar{display:grid}
-body[data-view="face"] .skinonly{display:none}
+body[data-view="age"] .agebar{display:grid}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.mode{padding:0 14px 9px 0;border-bottom:2px solid var(--rule);transition:border-color .2s}
+.mode b{display:block;font-family:var(--head);font-weight:700;font-size:16px;line-height:1.2;color:var(--walnut)}
+.mode span{display:block;font-size:12px;color:var(--moss);margin-top:2px}
+.mode:hover b{color:var(--noir)}
+.mode[aria-pressed="true"]{border-bottom-color:var(--moss)}
+.mode[aria-pressed="true"] b{color:var(--noir)}
+.phase{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap;min-height:42px}
+.phase .num{font-size:12px;font-weight:500;color:var(--moss);font-variant-numeric:tabular-nums;white-space:nowrap}
+.phase .ttl{font-weight:600;font-size:13.5px;white-space:nowrap}
+.phase .txt{flex:1 1 300px;font-size:13.5px;line-height:1.5}
+.phase .read{font-size:12.5px;font-weight:500;color:var(--moss);font-variant-numeric:tabular-nums;white-space:nowrap}
+.transport{display:flex;align-items:center;gap:14px}
+.play{flex:none;width:38px;height:38px;border-radius:50%;background:var(--walnut);color:var(--leather);display:grid;place-items:center;transition:background .2s}
+.play:hover{background:var(--noir)}
+.play svg{width:13px;height:13px;fill:currentColor}
+.range{flex:1;-webkit-appearance:none;appearance:none;height:22px;background:transparent;cursor:pointer;--p:0%;margin:0}
+.range::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--moss) var(--p),var(--rule) var(--p))}
+.range::-moz-range-track{height:2px;background:var(--rule)}
+.range::-moz-range-progress{height:2px;background:var(--moss)}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--moss);border:2px solid var(--cream);margin-top:-6px;box-shadow:0 0 0 1px var(--moss)}
+.range::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--moss);border:2px solid var(--cream);box-shadow:0 0 0 1px var(--moss)}
+.pct{flex:none;width:42px;text-align:right;font-size:12.5px;color:var(--walnut);font-variant-numeric:tabular-nums}
 .agetop{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center}
-.agenum b{display:block;font-family:var(--display);font-weight:400;font-size:54px;line-height:.9;color:var(--gold);font-variant-numeric:tabular-nums;min-width:58px}
-.agenum span{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.agenum b{display:block;font-family:var(--head);font-weight:700;font-size:46px;line-height:.9;color:var(--moss);font-variant-numeric:tabular-nums;min-width:56px}
+.agenum span{display:block;font-size:12px;color:var(--walnut);margin-top:5px}
 .agemid{position:relative;padding-bottom:16px;display:flex}
-.ticks{position:absolute;left:7px;right:7px;bottom:0;height:12px;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ticks{position:absolute;left:7px;right:7px;bottom:0;height:12px;font-size:10.5px;color:var(--walnut);font-variant-numeric:tabular-nums}
 .ticks span{position:absolute;transform:translateX(-50%)}
-.meters{display:grid;gap:9px;min-width:210px}
-.meter{display:grid;grid-template-columns:78px 1fr 38px;gap:8px;align-items:center;font-size:11px;letter-spacing:.06em}
-.meter i{height:2px;background:rgba(255,255,255,.14);position:relative}
-.meter u{position:absolute;left:0;top:0;bottom:0;background:var(--gold);transition:width .3s}
-.meter b{font-weight:400;color:var(--gold);text-align:right;font-variant-numeric:tabular-nums}
+.meters{display:grid;gap:8px;min-width:210px}
+.meter{display:grid;grid-template-columns:80px 1fr 38px;gap:8px;align-items:center;font-size:12.5px}
+.meter i{height:3px;background:var(--rule);position:relative}
+.meter u{position:absolute;left:0;top:0;bottom:0;background:var(--moss);transition:width .3s}
+.meter b{font-weight:500;color:var(--moss);text-align:right;font-variant-numeric:tabular-nums}
 .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chip{padding:7px 13px;border:1px solid var(--line);border-radius:999px;font-size:12px;letter-spacing:.04em;color:#d6cec1;transition:background .25s,color .25s,border-color .25s}
-.chip:hover{border-color:var(--gold)}
-.chip[aria-pressed="true"]{background:rgba(216,185,131,.2);border-color:var(--gold);color:var(--gold)}
-.phase .go{margin-top:0;white-space:nowrap}
-.tip .help{margin-top:14px}
-.tip .help[hidden],.tip ul[hidden]{display:none}
-.tip ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:5px}
-.tip li{font-size:13px;line-height:1.45;color:#ddd5c8;padding-left:14px;position:relative}
-.tip li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--gold)}
-.analysis{position:fixed;top:84px;right:30px;width:300px;max-height:calc(100% - 106px);overflow-y:auto;padding:18px 18px 16px;background:var(--glass-strong);z-index:4;display:grid;gap:10px}
-.an-sub{margin:0;font-size:11.5px;line-height:1.5;color:var(--muted)}
+.chips .lbl{font-size:12.5px;color:var(--moss);font-weight:500;margin-right:4px}
+.chip{padding:6px 12px;border:1px solid var(--moss);border-radius:2px;font-size:12.5px;font-weight:400;transition:background .2s,color .2s}
+.chip:hover{background:var(--cream-deep)}
+.chip[aria-pressed="true"]{background:var(--moss);color:var(--cream)}
+.go{font-size:13px;font-weight:500;color:var(--moss);text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.go:hover{color:var(--noir)}
+.note{margin:0;font-size:11px;color:rgba(90,71,62,.85)}
+
+/* notes column */
+.notes{border-left:1px solid var(--rule);display:flex;flex-direction:column;min-height:0;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:18px 22px;border-bottom:1px solid var(--rule)}
+.ui{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);display:grid;place-items:center;color:var(--walnut);transition:background .2s,color .2s}
+.ui:hover{background:var(--walnut);color:var(--leather)}
+.ui svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+.ui .slash{display:none}
+body.clean .ui .slash{display:block}
+.lang{display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+.lang button{padding:7px 10px;font-size:12px;font-weight:500;color:var(--walnut)}
+.lang button[aria-pressed="true"]{background:var(--moss);color:var(--cream)}
+.cta{padding:9px 14px;background:var(--walnut);color:var(--leather);font-size:13px;font-weight:500;border-radius:2px;white-space:nowrap;transition:background .2s}
+.cta:hover{background:var(--noir)}
+.notesbody{flex:1;min-height:0;overflow-y:auto;padding:22px 22px 24px;display:grid;gap:24px;align-content:start}
+.notesbody h2{font-size:13.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--moss);margin-bottom:8px}
+#keyList{list-style:none;margin:0;padding:0;display:grid;gap:1px}
+#keyList button,.lg{display:flex;align-items:center;gap:10px;width:100%;padding:6px;font-size:13.5px;border-radius:2px;transition:background .2s}
+#keyList i{flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--moss);display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:600;line-height:1;color:var(--moss);font-variant-numeric:tabular-nums}
+#keyList button:hover,.lg:hover{background:var(--cream-deep)}
+#keyList button.on,.lg[aria-pressed="true"]{background:var(--leather)}
+#keyList button.on i{background:var(--noir);border-color:var(--noir);color:var(--cream)}
+.legend{display:grid;gap:1px}
+.lg i{flex:none;width:22px;height:10px;border-radius:5px;box-shadow:0 0 0 1px rgba(41,33,27,.25)}
+.lg i.thin{height:4px}
+.lg i.dot{width:12px;height:12px;border-radius:50%;margin:0 5px}
+.tip{display:none;position:relative}
+.tip.open{display:block}
+body.noting .key,body.noting .legend,body.noting .analysis{display:none}
+.tip .meta,.an-sub{margin:0;font-size:12.5px;line-height:1.5;color:var(--moss)}
+.tip .meta{padding-right:30px}
+.tip h3{font-size:22px;line-height:1.15;margin:6px 0 10px}
+.tip p{margin:0;font-size:14px;line-height:1.65}
+.tip .x{position:absolute;top:-6px;right:-6px;width:30px;height:30px;font-size:22px;line-height:1;text-align:center;color:var(--walnut)}
+.tip .x:hover{color:var(--noir)}
+.tip h4{font-family:var(--body);font-weight:600;font-size:13px;margin:16px 0 6px}
+.tip ul,.analysis ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.tip li,.analysis li{font-size:13.5px;line-height:1.45;padding-left:14px;position:relative}
+.tip li::before,.analysis li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;background:var(--moss)}
+.tip .go{display:inline-block;margin-top:16px}
+.analysis{display:grid;gap:12px}
+.analysis h2{margin-bottom:0}
 .an-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.an-name{padding:6px;border-radius:7px;font-size:12.5px;text-align:left;color:#ddd5c8;transition:color .2s}
-.an-name:hover{color:var(--gold)}
-.an-pick{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;border:1px solid transparent;transition:background .2s,border-color .2s}
-.an-pick:hover{background:rgba(216,185,131,.1);border-color:var(--line)}
-.an-pick em{font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap;min-width:74px;text-align:right}
-.an-pick .on ~ em,.an-pick:has(.on) em{color:var(--gold)}
+.an-name{display:flex;align-items:center;gap:9px;padding:5px 4px;font-size:13.5px;border-radius:2px}
+.an-name i{flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--moss);display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:600;line-height:1;color:var(--moss)}
+.an-name:hover{text-decoration:underline;text-underline-offset:3px}
+.an-pick{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:2px;border:1px solid transparent;transition:background .2s,border-color .2s}
+.an-pick:hover{background:var(--cream-deep);border-color:var(--rule)}
 .an-dots{display:flex;gap:3px}
-.an-dots i{width:7px;height:7px;border-radius:50%;border:1px solid var(--gold-deep)}
-.an-dots i.on{background:var(--gold);border-color:var(--gold)}
-.an-age{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12.5px;border-top:1px solid var(--line);padding-top:12px}
-.an-age input{width:76px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font:inherit;font-size:14px;text-align:center;font-variant-numeric:tabular-nums}
-.an-age input:focus{outline:1px solid var(--gold)}
-.analysis ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
-.analysis li{font-size:12.5px;line-height:1.45;color:var(--muted);padding-left:14px;position:relative}
-.analysis li b{display:block;font-weight:400;color:var(--ink);font-size:13.5px}
-.analysis li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:var(--gold)}
-.an-disc{margin:0;font-size:11px;line-height:1.5;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
-.analysis .go{margin-top:0;justify-self:start}
-body.clean .analysis{visibility:hidden}
-@media (min-width:1100px){body[data-view="face"] .bar{left:auto;right:350px;transform:none;width:min(880px,calc(100% - 700px))}}
-@media (min-width:821px) and (max-width:1099px){.analysis{max-height:calc(100% - 420px)}}
-.frow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.fact{display:flex;gap:8px;flex-wrap:wrap}
-.chip.act{border-color:var(--gold);color:var(--gold)}
-.simrow{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.simrow label{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
-.fnote{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;line-height:1.5}
-.fnote #photoStatus{color:var(--gold)}
-.fnote #photoStatus:empty{display:none}
-.simbadge{display:none;position:fixed;top:84px;right:30px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);background:rgba(20,18,16,.66);pointer-events:none;z-index:3;white-space:nowrap}
-.cam{position:fixed;inset:0;z-index:20;background:rgba(10,9,8,.88);display:grid;place-items:center;align-content:center;gap:18px}
-.cam video{max-width:min(92vw,720px);max-height:66vh;border-radius:14px;border:1px solid var(--line);transform:scaleX(-1);background:#000}
+.an-dots i{width:8px;height:8px;border:1px solid var(--moss)}
+.an-dots i.on{background:var(--moss)}
+.an-pick em{font-style:normal;font-size:12px;color:var(--walnut);white-space:nowrap;min-width:78px;text-align:right}
+.an-age{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px;font-weight:500;border-top:1px solid var(--rule);padding-top:12px}
+.an-age input{width:76px;padding:7px 10px;border-radius:2px;border:1px solid var(--moss);background:#fff;color:var(--noir);font:inherit;font-size:15px;text-align:center;font-variant-numeric:tabular-nums}
+.analysis li{color:var(--walnut)}
+.analysis li b{display:block;font-weight:600;color:var(--noir)}
+.an-disc{margin:0;font-size:12px;line-height:1.5;color:var(--walnut);border-top:1px solid var(--rule);padding-top:10px}
+.analysis .go{justify-self:start}
+
+/* overlays */
+.consult{display:none;position:fixed;top:68px;right:22px;width:min(300px,calc(100% - 32px));padding:20px 22px;background:var(--walnut);color:var(--leather);z-index:8;border-radius:2px}
+.consult.open{display:block}
+.consult h2{font-size:20px;line-height:1.2;margin-bottom:8px}
+.consult p{margin:0 0 10px;font-size:13.5px;line-height:1.6}
+.consult small{display:block;font-size:12px;line-height:1.5;border-top:1px solid rgba(220,199,170,.4);padding-top:10px}
+.cam{position:fixed;inset:0;z-index:20;background:rgba(17,17,17,.92);display:grid;place-items:center;align-content:center;gap:18px}
+.cam video{max-width:min(92vw,720px);max-height:66vh;border-radius:2px;transform:scaleX(-1);background:#000}
 .cam div{display:flex;gap:10px}
-.note{position:fixed;right:30px;bottom:8px;font-size:10px;letter-spacing:.08em;color:rgba(169,160,147,.6);pointer-events:none}
-
-.lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.lang button{padding:7px 12px;border-radius:999px;font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:400;transition:background .3s,color .3s}
-.lang button[aria-pressed="true"]{background:rgba(216,185,131,.2);color:var(--gold)}
-html[lang="ka"] *{text-transform:none !important}
-html[lang="ka"] .eyebrow,html[lang="ka"] .cta,html[lang="ka"] .pin .lab,html[lang="ka"] .mode span,html[lang="ka"] .phase .ttl,html[lang="ka"] .go{letter-spacing:.05em;font-size:11.5px}
-html[lang="ka"] .head h1{font-size:clamp(24px,2.9vw,38px);line-height:1.15}
-html[lang="ka"] .head h1 em,html[lang="ka"] .phase .num{font-style:normal}
-html[lang="ka"] .mode b{font-size:15.5px;line-height:1.25}
-html[lang="ka"] .tip h3,html[lang="ka"] .consult h2{font-size:21px;line-height:1.2}
-html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
-
-.fallback{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:32px;font-family:var(--display);font-size:24px}
+.fallback{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:32px;background:var(--cream);font-family:var(--head);font-size:22px;z-index:30}
 .fallback.show{display:grid}
 
-@media (max-height:780px) and (min-width:821px){
-  .legend{top:78px;padding:14px 10px 8px}
-  .lg{padding:3px 6px}
+/* figure only */
+body.clean .app{grid-template-columns:minmax(0,1fr)}
+body.clean .rail,body.clean .strip,body.clean .notesbody,body.clean .lang,body.clean .cta,body.clean #pins{display:none}
+body.clean .notes{position:fixed;top:0;right:0;border:0;z-index:6}
+body.clean .topbar{border:0;padding:16px}
+body.clean .stagecell{padding:40px 40px 0}
+
+@media (max-width:1180px){.app{grid-template-columns:236px minmax(0,1fr) 292px} .rail{padding:24px 20px 0} .railfoot{margin-left:-20px;margin-right:-20px} .stagecell{padding:44px 34px 0} .strip{padding:14px 26px 10px}}
+@media (max-height:720px) and (min-width:901px){
   .head p{display:none}
-  .head h1{margin:6px 0 0}
-  .left{gap:14px}
-  .scene{padding:5px 8px;font-size:17px}
-  .sw{padding:6px 8px}
-  .views{padding:10px 12px}
-  .bar{padding:12px 18px;gap:8px;bottom:16px}
-  .mode{padding:7px 12px}
+  .head h1{font-size:22px;margin-bottom:0}
+  .rail{gap:14px;padding-top:22px}
+  .logo{height:32px}
+  .railfoot{flex-basis:52px;min-height:52px}
   .mode span{display:none}
+  .strip{padding-top:12px;gap:8px}
   .phase{min-height:0}
-  .agenum b{font-size:42px}
+  .agenum b{font-size:38px}
+  .notesbody{gap:18px;padding-top:16px}
+  .topbar{padding:12px 22px}
 }
-@media (max-width:820px){
-  .left{top:14px;left:16px;right:16px;bottom:auto;width:auto;gap:10px}
-  .grip{display:none}
-  .views,.bar{cursor:auto}
-  .legend{display:none}
-  .head{max-width:calc(100% - 160px)}
-  .topbar{top:14px;right:16px;flex-wrap:wrap;justify-content:flex-end;max-width:160px;gap:8px}
-  .ui{width:32px;height:32px}
-  .head p{display:none}
-  .head h1,html[lang="ka"] .head h1{font-size:24px;margin:6px 0 0}
-  html[lang="ka"] .mode b{font-size:12.5px}
-  .cta{padding:7px 12px;font-size:10px;order:3}
-  .consult{top:auto;bottom:16px;right:16px;z-index:8}
-  .views{align-self:stretch;flex-direction:row;min-width:0;padding:6px;gap:2px;flex-wrap:wrap}
-  .sw{padding:7px 9px;font-size:11.5px;gap:9px}
-  .sw.plain{border-top:0;margin:0;padding-top:7px;border-radius:9px}
-  .scenes{flex-direction:row;width:100%;border-bottom:0;padding:0;margin:0}
-  .scene,html[lang="ka"] .scene{flex:1;font-size:14px;padding:6px 8px;justify-content:center}
-  .scene em{display:none}
-  .agetop{grid-template-columns:auto 1fr;gap:14px}
-  .simrow{grid-template-columns:1fr;gap:8px}
-  .analysis{left:16px;right:16px;top:196px;width:auto;max-height:36vh}
-  .simbadge{top:auto;bottom:8px;right:auto;left:50%;transform:translateX(-50%);font-size:9px}
-  .agenum b{font-size:40px}
-  .meters{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
-  .meter{grid-template-columns:auto 1fr 34px}
-  .bar{bottom:16px;padding:12px 14px;gap:9px}
-  .mode{flex:1 1 30%;padding:8px 9px}
-  .mode b{font-size:15px}
+@media (max-width:900px){
+  html,body{height:auto}
+  body{overflow:auto}
+  .app{display:block;height:auto}
+  .rail{padding:58px 16px 16px;gap:12px;overflow:visible}
+  .logo{height:30px}
+  .head h1{font-size:20px;margin:0}
+  .head p,.railfoot{display:none}
+  .scenes{grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
+  .scene{padding:6px 0;border-left:0;border-bottom:2px solid transparent;text-align:center;font-size:14px}
+  .scene[aria-pressed="true"]{border-bottom-color:var(--leather)}
+  .views{display:flex;flex-wrap:wrap;gap:4px 18px}
+  .link{margin-top:0;padding:6px 0}
+  .stagecell{height:62vh;min-height:340px;padding:40px 30px 0}
+  .stagebox{aspect-ratio:auto;width:100%}
+  .strip{padding:14px 16px 10px}
+  .modes{gap:10px}
+  .mode{padding-right:8px}
+  .mode b{font-size:12.5px;overflow-wrap:anywhere}
   .mode span{display:none}
-  .phase .txt{font-size:12px;flex-basis:100%}
-  .pin .lab{display:none}
-  .tip{left:16px !important;top:auto !important;bottom:16px;width:calc(100% - 32px);transform:none !important;z-index:9}
-  .note{display:none}
+  .agetop{grid-template-columns:auto 1fr;gap:14px}
+  .meters{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
+  .notes{border-left:0;border-top:1px solid var(--noir)}
+  .topbar{position:absolute;top:12px;right:12px;padding:0;border:0;gap:6px}
+  .topbar .ui{border-color:rgba(243,241,233,.5);color:var(--cream);width:30px;height:30px}
+  .topbar .lang{border-color:rgba(243,241,233,.5)}
+  .topbar .lang button{color:var(--cream);padding:5px 8px}
+  .topbar .lang button[aria-pressed="true"]{background:var(--cream);color:var(--moss)}
+  .topbar .cta{background:var(--leather);color:var(--noir);padding:7px 10px;font-size:12px}
+  .consult{top:52px;right:12px}
+  body.clean .topbar{position:fixed}
+  body.clean .stagecell{height:100vh}
 }
-@media (prefers-reduced-motion:reduce){.pin .dot::after{animation:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
 </head>
-<body>
-<canvas id="stage" aria-label="Interactive 3D cross-section of human skin"></canvas>
-<div class="vignette"></div>
+<body data-view="treat">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="logo-en" viewBox="0 0 449.84 138.74"><path d="M 241.57 69.99 L 234.39 73.38 L 234.27 73.28 C 246.21 64.59 252.76 58.5 251.2 41.03 C 249.11 17.56 218.18 20.71 202.14 21.28 L 202.12 136.6 L 187.76 136.59 L 187.76 20.16 C 207.74 20.97 261.15 13.36 265.34 40.85 C 267.78 56.87 254.32 63.96 241.57 69.99"/><path d="M 275.34 136.6 L 253.15 136.6 C 240.17 128.99 228.63 118.87 222.21 104.97 C 217.13 93.99 219.98 81.73 230.28 75.84 L 230.42 75.97 C 209.57 95.98 260.68 126.72 275.34 136.6"/><path d="M 218.55 9.84 C 226.82 12.45 235.32 9.2 239.48 2.06 C 240.32 0.64 241.57 -0.35 243.38 0.12 L 243.59 0.37 C 237.86 8.06 229.35 11.98 220.32 11.89 C 211.36 11.8 202.69 7.78 197.37 0.2 L 205.09 0.13 C 208.62 4.72 212.87 8.05 218.55 9.84"/><path d="M 14.5 22.93 L 50.07 117.14 L 51.84 121.69 C 53.27 125.02 54.61 128.33 56.18 132.79 C 51.25 132.79 46.58 132.79 41.41 132.78 L 0 23.43 Z M 14.5 22.93"/><path d="M 112.27 36.26 C 129.05 19.26 154.35 15.08 175.84 25.32 L 175.84 33.73 C 148.41 27.64 120.35 39.08 105.04 61.85 C 97.93 72.84 96.22 84.52 98.26 97.54 C 90.81 76.25 96.29 52.45 112.27 36.26"/><path d="M 177.05 62.18 L 177.05 66.99 C 170.9 74.52 163.68 81.09 155.57 86.48 C 137.75 98.31 116.04 103.84 94.71 102.07 C 86.23 101.36 77.84 99.57 70.2 95.7 C 64.36 92.74 58.58 88.19 56.94 81.68 C 56.93 81.63 56.92 81.58 56.91 81.53 C 51.43 64.54 63.88 34.63 74.86 23.02 L 96.49 23.02 C 84.72 30.5 68.72 51 62.7 68.58 L 62.68 68.59 L 62.68 68.6 C 62.68 68.61 62.68 68.62 62.66 68.64 C 62.09 70.33 61.61 71.98 61.23 73.62 C 60.39 78.25 60.5 85.16 66.55 90.07 C 66.55 90.07 66.56 90.08 66.57 90.08 C 69.4 92.13 72.67 93.69 75.54 94.84 C 83.51 98.01 92.09 99.2 100.63 99.38 C 111.14 99.6 121.64 98.04 131.63 94.79 C 149.6 88.93 165.66 77.36 176.99 62.25 C 177.01 62.23 177.03 62.2 177.05 62.18"/><path d="M 175.84 117.25 L 175.86 132.97 C 146.79 147.59 111.78 133.42 100.34 103.79 C 116.5 131.06 150.25 131.13 175.84 117.25"/><path d="M 287.28 22.93 L 322.86 117.14 L 324.62 121.69 C 326.06 125.02 327.4 128.33 328.97 132.79 C 323.89 132.79 319.39 132.79 314.2 132.78 L 272.79 23.43 Z M 287.28 22.93"/><path d="M 373.13 103.78 C 389.29 131.07 423.04 131.13 448.63 117.25 L 448.65 132.96 C 419.57 147.58 384.57 133.42 373.13 103.78"/><path d="M 385.05 36.26 C 401.84 19.26 427.14 15.21 448.63 25.44 L 448.63 33.8 C 421.2 27.71 393.14 39.08 377.82 61.85 C 370.72 72.84 369.01 84.52 371.05 97.54 C 363.6 76.25 369.08 52.45 385.05 36.26"/><path d="M 449.84 62.18 L 449.84 66.99 C 443.69 74.52 436.46 81.09 428.36 86.48 C 410.54 98.31 388.82 103.84 367.5 102.07 C 359.01 101.36 350.63 99.57 342.99 95.7 C 337.15 92.74 331.38 88.2 329.73 81.69 C 329.71 81.65 329.7 81.59 329.7 81.53 C 324.21 64.54 336.66 34.63 347.65 23.02 L 369.28 23.02 C 356.27 31.29 338.09 55.46 333.91 74.03 C 333.9 74.04 333.9 74.05 333.9 74.06 C 333.16 78.72 333.48 85.34 339.36 90.08 C 339.37 90.09 339.39 90.11 339.41 90.12 C 342.23 92.15 345.47 93.7 348.33 94.84 C 356.29 98.01 364.88 99.2 373.42 99.38 C 383.93 99.6 394.43 98.04 404.42 94.79 C 422.39 88.93 438.44 77.36 449.78 62.25 C 449.8 62.23 449.82 62.2 449.84 62.18"/></symbol>
+<symbol id="logo-ka" viewBox="0 0 438.42 144.15"><path d="M 118.57 10.12 C 127.07 12.8 135.81 9.46 140.1 2.11 C 140.95 0.65 142.24 -0.36 144.11 0.12 L 144.32 0.38 C 138.43 8.29 129.68 12.33 120.39 12.23 C 111.18 12.13 102.26 8 96.78 0.2 L 104.72 0.13 C 108.35 4.85 112.73 8.28 118.57 10.12"/><path d="M 390.07 10.12 C 398.57 12.8 407.31 9.46 411.6 2.11 C 412.45 0.65 413.74 -0.36 415.61 0.12 L 415.82 0.38 C 409.93 8.29 401.18 12.33 391.89 12.23 C 382.68 12.13 373.76 8 368.29 0.2 L 376.22 0.13 C 379.85 4.85 384.23 8.28 390.07 10.12"/><path d="M 195.16 22.35 L 195.2 144.14 L 180.87 144.14 L 180.86 22.35 L 195.16 22.35 Z M 195.16 22.35"/><path d="M 165.53 100.23 L 165.4 100.18 C 167.33 87.09 165.5 75.3 158.33 64.2 C 142.57 40.79 113.99 29.02 85.79 35.3 C 85.33 31.95 85.35 29.38 85.81 26.64 C 107.92 16.11 133.63 20.4 150.89 37.89 C 167.16 54.36 172.84 78.5 165.53 100.23"/><path d="M 162.89 107.99 C 150.87 138.02 115.18 152.26 85.48 137.34 L 85.51 121.18 C 111.63 135.34 146 135.38 162.76 107.96 Z M 162.89 107.99"/><path d="M 46.29 93.1 C 47.15 93.74 47.26 94.01 48.03 94.64 C 42.78 102.11 37.01 108.88 29.94 114.66 L 24.99 114.66 C 25.01 114.64 25.04 114.62 25.07 114.59 C 33.16 108.52 40.5 101.41 46.29 93.1"/><path d="M 53.73 86.93 C 52.96 86.64 52.19 86.36 51.42 86.07 C 55.34 81.44 58.48 76.4 60.67 71.11 C 63.41 64.47 64.73 57.47 64.55 50.49 C 64.39 44.8 63.39 39.09 60.71 33.79 C 59.75 31.88 58.44 29.73 56.72 27.85 C 56.71 27.84 56.7 27.83 56.69 27.82 C 52.68 23.91 47.08 23.7 43.14 24.19 C 43.13 24.19 43.12 24.19 43.12 24.2 C 27.43 26.98 7 39.07 0 47.73 L 0 33.33 C 9.82 26.02 35.1 17.74 49.46 21.39 C 49.52 21.4 49.55 21.4 49.6 21.42 C 55.1 22.5 58.93 26.35 61.44 30.24 C 64.71 35.32 66.22 40.9 66.82 46.54 C 68.31 60.69 63.67 75.09 53.73 86.93"/><path d="M 45.54 87.15 L 37.48 83.42 L 37.48 83.67 C 51.02 93.34 58.43 96.44 56.63 116 C 54.22 142.42 18.7 138.93 0.2 138.29 L 0.2 143.53 C 27.91 144.29 69.02 145.14 72.92 120.02 C 75.74 101.95 60.23 93.94 45.54 87.15"/><path d="M 317.22 93.1 C 318.07 93.74 318.19 94.01 318.96 94.64 C 313.7 102.11 307.93 108.88 300.86 114.66 L 295.92 114.66 C 295.94 114.64 295.97 114.62 295.99 114.59 C 304.09 108.52 311.42 101.41 317.22 93.1"/><path d="M 324.66 86.93 C 323.89 86.64 323.12 86.36 322.35 86.07 C 326.27 81.44 329.4 76.4 331.59 71.11 C 334.34 64.47 335.66 57.47 335.47 50.49 C 335.32 44.8 334.31 39.09 331.63 33.79 C 330.67 31.88 329.36 29.73 327.64 27.85 C 327.64 27.84 327.62 27.83 327.61 27.82 C 323.61 23.91 318 23.7 314.07 24.19 C 314.06 24.19 314.05 24.19 314.04 24.2 C 298.35 26.98 277.92 39.07 270.93 47.73 L 270.93 33.33 C 280.74 26.02 306.02 17.74 320.39 21.39 C 320.44 21.4 320.48 21.4 320.52 21.42 C 326.02 22.5 329.86 26.35 332.36 30.24 C 335.64 35.32 337.14 40.9 337.74 46.54 C 339.24 60.69 334.59 75.09 324.66 86.93"/><path d="M 316.46 87.15 L 308.4 83.42 L 308.4 83.67 C 321.94 93.34 329.35 96.44 327.55 116 C 325.14 142.42 289.63 138.93 271.12 138.29 L 271.12 143.53 C 298.84 144.29 339.95 145.14 343.85 120.02 C 346.66 101.95 331.16 93.94 316.46 87.15"/><path d="M 435.34 100.23 L 435.22 100.18 C 437.14 87.09 435.31 75.3 428.14 64.2 C 412.39 40.79 383.8 29.02 355.6 35.3 C 355.14 31.95 355.17 29.38 355.63 26.64 C 377.73 16.11 403.44 20.4 420.7 37.89 C 436.98 54.36 442.65 78.5 435.34 100.23"/><path d="M 432.7 107.99 C 420.68 138.02 384.99 152.26 355.3 137.34 L 355.32 121.18 C 381.44 135.34 415.82 135.38 432.57 107.96 Z M 432.7 107.99"/><path d="M 254.62 144.15 C 252.75 144.13 251.07 144.15 248.73 144.15 C 253.02 124.82 244.91 105.82 228.88 95.03 C 221.58 90.31 213.84 88.97 205.28 90.04 L 205.28 89.75 C 219.88 85.28 235.89 89.25 246.9 100.12 C 258.88 111.93 261.83 129.01 254.62 144.15"/></symbol>
+</defs></svg>
 
-<div class="left">
-<header class="head">
-  <div class="eyebrow" data-i18n="eyebrow">Skin Atlas &middot; Interactive</div>
-  <h1 data-i18n="title">Beneath the <em>Surface</em></h1>
-  <p data-i18n="intro">Drag to orbit, scroll to zoom. Open a pin to study a structure, or play a treatment below.</p>
-</header>
-
-<nav class="views glass" aria-label="Scenes and view options">
-  <div class="scenes" role="group">
-    <button class="scene" data-view="treat" aria-pressed="true"><em>01</em><span data-i18n="v_treat">Treatments</span></button>
-    <button class="scene" data-view="age" aria-pressed="false"><em>02</em><span data-i18n="v_age">Skin age</span></button>
-    <button class="scene" data-view="face" aria-pressed="false"><em>03</em><span data-i18n="v_face">Face map</span></button>
+<div class="app">
+<aside class="rail">
+  <svg class="logo logo-en" viewBox="0 0 449.84 138.74" fill="currentColor" role="img" aria-label="Verve"><use href="#logo-en"/></svg>
+  <svg class="logo logo-ka" viewBox="0 0 438.42 144.15" fill="currentColor" role="img" aria-label="ვერვე"><use href="#logo-ka"/></svg>
+  <header class="head">
+    <h1 data-i18n="title">Beneath the surface</h1>
+    <p data-i18n="intro">Drag to turn the model, scroll to zoom. Open a numbered point to read about it, or play a treatment below.</p>
+  </header>
+  <nav class="scenes" aria-label="Scenes">
+    <button class="scene" data-view="treat" aria-pressed="true" data-i18n="v_treat">Treatments</button>
+    <button class="scene" data-view="age" aria-pressed="false" data-i18n="v_age">Skin age</button>
+    <button class="scene" data-view="face" aria-pressed="false" data-i18n="v_face">Face map</button>
+  </nav>
+  <div class="views">
+    <button class="sw skinonly" id="btnExplode" aria-pressed="false"><i></i><span data-i18n="explode">Exploded view</span></button>
+    <button class="sw skinonly" id="btnXray" aria-pressed="false"><i></i><span data-i18n="xray">X-ray cutaway</span></button>
+    <button class="sw" id="btnSound" aria-pressed="false"><i></i><span data-i18n="sound">Ambient sound</span></button>
+    <button class="link" id="btnReset" data-i18n="reset">Reset view</button>
   </div>
-  <button class="sw skinonly" id="btnExplode" aria-pressed="false"><span data-i18n="explode">Exploded view</span> <i></i></button>
-  <button class="sw skinonly" id="btnXray" aria-pressed="false"><span data-i18n="xray">X-ray cutaway</span> <i></i></button>
-  <button class="sw" id="btnSound" aria-pressed="false"><span data-i18n="sound">Ambient sound</span> <i></i></button>
-  <button class="sw plain" id="btnReset" data-i18n="reset">Reset view</button>
-</nav>
-</div>
+  <div class="facetools">
+    <button class="rbtn" id="btnPhoto" data-i18n="f_upload">Use my photo</button>
+    <button class="rbtn" id="btnCam" data-i18n="f_camera">Camera</button>
+    <button class="rbtn" id="btnPhotoX" data-i18n="f_remove" hidden>Remove photo</button>
+    <p class="fnote"><span id="photoStatus" aria-live="polite"></span><span id="modelNote" data-i18n="f_ai" hidden>The model face is AI-generated, not a real client.</span><span data-i18n="f_priv">Your photo is processed on this device only and is never uploaded.</span></p>
+    <input type="file" id="photoFile" accept="image/*" hidden>
+  </div>
+  <div class="railfoot" aria-hidden="true"></div>
+</aside>
 
-<aside class="legend glass skinonly" aria-label="Colour key">
-  <div class="eyebrow" data-i18n="l_title">Colour key</div>
+<main class="main">
+  <div class="stagecell">
+    <div class="stagebox" id="stagebox">
+      <div class="arch"><canvas id="stage" aria-label="Interactive 3D model"></canvas><div class="vignette"></div></div>
+      <svg class="ring" id="ring" aria-hidden="true"><path id="ringBase"/><path id="ringProg"/><g id="ringTicks"></g></svg>
+      <div id="pins"></div>
+    </div>
+  </div>
+  <div class="strip">
+    <section class="bar treatbar" aria-label="Treatment simulation">
+      <div class="modes">
+        <button class="mode" data-mode="laser" aria-pressed="true"><b data-i18n="m_laser">Laser epilation</b><span data-i18n="m_laser_s">Selective photothermolysis</span></button>
+        <button class="mode" data-mode="ha" aria-pressed="false"><b data-i18n="m_ha">Hyaluronic biorevitalization</b><span data-i18n="m_ha_s">Dermal hydration</span></button>
+        <button class="mode" data-mode="rf" aria-pressed="false"><b data-i18n="m_rf">RF lifting and collagen</b><span data-i18n="m_rf_s">Thermal remodelling</span></button>
+      </div>
+      <div class="phase">
+        <span class="num" id="phNum"></span>
+        <span class="ttl" id="phTitle"></span>
+        <span class="txt" id="phText"></span>
+        <span class="read" id="phRead"></span>
+      </div>
+      <div class="transport">
+        <button class="play" id="btnPlay" aria-label="Play"><svg viewBox="0 0 14 14" id="icoPlay"><path d="M3 1.5v11l9-5.5z"/></svg></button>
+        <input type="range" class="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Treatment timeline">
+        <span class="pct" id="pct">0%</span>
+      </div>
+    </section>
+    <section class="bar agebar" aria-label="Skin age">
+      <div class="agetop">
+        <div class="agenum"><b id="ageNum">35</b><span data-i18n="a_years">years</span></div>
+        <div class="agemid">
+          <input type="range" class="range" id="ageSeek" min="20" max="65" value="35" step="1" aria-label="Age">
+          <div class="ticks" aria-hidden="true"><span style="left:0%">20</span><span style="left:22.2%">30</span><span style="left:44.4%">40</span><span style="left:66.7%">50</span><span style="left:88.9%">60</span></div>
+        </div>
+        <div class="meters">
+          <div class="meter"><span data-i18n="a_col">Collagen</span><i><u id="mCol"></u></i><b id="mColV"></b></div>
+          <div class="meter"><span data-i18n="a_hyd">Hydration</span><i><u id="mHyd"></u></i><b id="mHydV"></b></div>
+        </div>
+      </div>
+      <div class="chips">
+        <span class="lbl" data-i18n="a_life">Lifestyle</span>
+        <button class="chip" id="lfSun" aria-pressed="false" data-i18n="a_sun">Sun without SPF</button>
+        <button class="chip" id="lfSmoke" aria-pressed="false" data-i18n="a_smoke">Smoking</button>
+        <button class="chip" id="lfSleep" aria-pressed="false" data-i18n="a_sleep">Poor sleep</button>
+      </div>
+      <div class="phase">
+        <span class="ttl" id="ageTtl"></span>
+        <span class="txt" id="ageTxt"></span>
+        <button class="go" id="ageGo" hidden></button>
+      </div>
+    </section>
+    <div id="zoneChips" hidden></div>
+    <p class="note" data-i18n="note">Illustrative model. Figures and timings are simplified, not clinical guidance.</p>
+  </div>
+</main>
+
+<aside class="notes">
+  <div class="topbar">
+    <button class="ui" id="btnUi" aria-pressed="false" aria-label="Show the model only" title="H"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-lang="en" aria-pressed="true">EN</button>
+      <button data-lang="ka" aria-pressed="false" lang="ka">ქარ</button>
+    </div>
+    <button class="cta" id="btnCta" aria-expanded="false" aria-controls="consult" data-i18n="cta">Book a consultation</button>
+  </div>
+  <div class="notesbody">
+    <section class="key skinonly"><h2 data-i18n="k_title">Structures</h2><ol id="keyList"></ol></section>
+    <section class="legend skinonly" aria-label="Colour key">
+  <h2 data-i18n="l_title">Colour key</h2>
   <button class="lg" data-key="collagen"><i style="background:#f0dcc0"></i><span data-i18n="l_collagen">Collagen, thick fibres</span></button>
   <button class="lg" data-key="elastin"><i class="thin" style="background:#cf9a4e"></i><span data-i18n="l_elastin">Elastin, thin fibres</span></button>
   <button class="lg" data-key="artery"><i style="background:#c4443c"></i><span data-i18n="l_artery">Arterioles</span></button>
@@ -304,115 +365,40 @@ html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
   <button class="lg" data-key="fat"><i class="dot" style="background:#dfb76f"></i><span data-i18n="l_fat">Fat lobules</span></button>
   <button class="lg" data-key="follicle"><i style="background:linear-gradient(90deg,#e9b39b 0 35%,#2c1d14 35% 65%,#e9b39b 65%)"></i><span data-i18n="l_follicle">Hair and follicle</span></button>
   <button class="lg" data-key="gland"><i class="dot" style="background:#f0d595"></i><span data-i18n="l_gland">Sebaceous gland</span></button>
-</aside>
-
-<div id="pins"></div>
-
-<aside class="tip glass" id="tip" aria-live="polite">
-  <button class="x" id="tipClose" aria-label="Close">&times;</button>
-  <div class="eyebrow" id="tipEyebrow"></div>
-  <h3 id="tipTitle"></h3>
-  <p id="tipBody"></p>
-  <div class="eyebrow help" id="tipHelp" data-i18n="t_help" hidden>What can help</div>
-  <ul id="tipList" hidden></ul>
-  <button class="go" id="tipGo" hidden></button>
-</aside>
-
-<div class="topbar">
-  <button class="ui" id="btnUi" aria-pressed="false" aria-label="Hide or show panels" title="H"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button>
-  <button class="cta" id="btnCta" aria-expanded="false" aria-controls="consult" data-i18n="cta">Book consultation</button>
-  <div class="lang" role="group" aria-label="Language">
-    <button data-lang="en" aria-pressed="true">EN</button>
-    <button data-lang="ka" aria-pressed="false" lang="ka">ქარ</button>
+</section>
+    <section class="tip" id="tip" aria-live="polite">
+      <button class="x" id="tipClose" aria-label="Close">&times;</button>
+      <p class="meta" id="tipEyebrow"></p>
+      <h3 id="tipTitle"></h3>
+      <p id="tipBody"></p>
+      <h4 id="tipHelp" data-i18n="t_help" hidden>What can help</h4>
+      <ul id="tipList" hidden></ul>
+      <button class="go" id="tipGo" hidden></button>
+    </section>
+    <section class="analysis" id="analysis" hidden>
+      <h2 data-i18n="an_title">Personal suggestions</h2>
+      <p class="an-sub" data-i18n="an_sub">Mark what bothers you, tap a name to read about the area, and enter your age.</p>
+      <div id="anRows"></div>
+      <label class="an-age"><span data-i18n="an_age">Your age</span><input type="number" id="anAge" min="1" max="100" inputmode="numeric" placeholder="–"></label>
+      <h2 data-i18n="an_rec">Worth discussing at a consultation</h2>
+      <ul id="anRecs"></ul>
+      <p class="an-disc" data-i18n="an_disc">This is not a medical diagnosis. A doctor confirms what suits you after an in-person assessment.</p>
+      <button class="go" id="anBook" data-i18n="cta">Book a consultation</button>
+    </section>
   </div>
+</aside>
 </div>
 
-<section class="bar glass treatbar" aria-label="Treatment simulation">
-  <button class="min" aria-label="Collapse or expand this panel"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg></button>
-  <div class="modes x">
-    <button class="mode" data-mode="laser" aria-pressed="true"><b data-i18n="m_laser">Laser Epilation</b><span data-i18n="m_laser_s">Selective photothermolysis</span></button>
-    <button class="mode" data-mode="ha" aria-pressed="false"><b data-i18n="m_ha">Hyaluronic Biorevitalization</b><span data-i18n="m_ha_s">Dermal hydration</span></button>
-    <button class="mode" data-mode="rf" aria-pressed="false"><b data-i18n="m_rf">RF Lifting &amp; Collagen</b><span data-i18n="m_rf_s">Thermal remodelling</span></button>
-  </div>
-  <div class="phase x">
-    <span class="num" id="phNum">01</span>
-    <span class="ttl" id="phTitle"></span>
-    <span class="txt" id="phText"></span>
-    <span class="read" id="phRead"></span>
-  </div>
-  <div class="transport">
-    <button class="play" id="btnPlay" aria-label="Play"><svg viewBox="0 0 14 14" id="icoPlay"><path d="M3 1.5v11l9-5.5z"/></svg></button>
-    <input type="range" class="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Treatment timeline">
-    <span class="pct" id="pct">0%</span>
-  </div>
-</section>
-
-<section class="bar glass agebar" aria-label="Skin age">
-  <button class="min" aria-label="Collapse or expand this panel"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg></button>
-  <div class="agetop">
-    <div class="agenum"><b id="ageNum">35</b><span data-i18n="a_years">years</span></div>
-    <div class="agemid">
-      <input type="range" class="range" id="ageSeek" min="20" max="65" value="35" step="1" aria-label="Age">
-      <div class="ticks" aria-hidden="true"><span style="left:0%">20</span><span style="left:22.2%">30</span><span style="left:44.4%">40</span><span style="left:66.7%">50</span><span style="left:88.9%">60</span></div>
-    </div>
-    <div class="meters">
-      <div class="meter"><span data-i18n="a_col">Collagen</span><i><u id="mCol"></u></i><b id="mColV"></b></div>
-      <div class="meter"><span data-i18n="a_hyd">Hydration</span><i><u id="mHyd"></u></i><b id="mHydV"></b></div>
-    </div>
-  </div>
-  <div class="chips x">
-    <span class="eyebrow" data-i18n="a_life">Lifestyle</span>
-    <button class="chip" id="lfSun" aria-pressed="false" data-i18n="a_sun">Sun without SPF</button>
-    <button class="chip" id="lfSmoke" aria-pressed="false" data-i18n="a_smoke">Smoking</button>
-    <button class="chip" id="lfSleep" aria-pressed="false" data-i18n="a_sleep">Poor sleep</button>
-  </div>
-  <div class="phase x">
-    <span class="ttl" id="ageTtl"></span>
-    <span class="txt" id="ageTxt"></span>
-    <button class="go" id="ageGo" hidden></button>
-  </div>
-</section>
-
-<section class="bar glass facebar" aria-label="Face map">
-  <button class="min" aria-label="Collapse or expand this panel"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg></button>
-  <div class="frow">
-    <span class="eyebrow" data-i18n="f_hint">Choose an area of concern</span>
-    <span class="fact">
-      <button class="chip act" id="btnPhoto" data-i18n="f_upload">Use my photo</button>
-      <button class="chip act" id="btnCam" data-i18n="f_camera">Camera</button>
-      <button class="chip" id="btnPhotoX" data-i18n="f_remove" hidden>Remove photo</button>
-    </span>
-  </div>
-  <div class="chips x" id="zoneChips"></div>
-  <div class="fnote x"><span id="photoStatus" aria-live="polite"></span><span id="modelNote" data-i18n="f_ai" hidden>The model face is AI-generated, not a real client.</span><span data-i18n="f_priv">Your photo is processed on this device only and is never uploaded.</span></div>
-  <input type="file" id="photoFile" accept="image/*" hidden>
-</section>
-
-<aside class="analysis glass" id="analysis" hidden>
-  <div class="eyebrow" data-i18n="an_title">Personal suggestions</div>
-  <p class="an-sub" data-i18n="an_sub">Mark what bothers you, tap a name to read about the area, and enter your age.</p>
-  <div id="anRows"></div>
-  <label class="an-age"><span data-i18n="an_age">Your age</span><input type="number" id="anAge" min="1" max="100" inputmode="numeric" placeholder="–"></label>
-  <div class="eyebrow" data-i18n="an_rec">Worth discussing at a consultation</div>
-  <ul id="anRecs"></ul>
-  <p class="an-disc" data-i18n="an_disc">This is not a medical diagnosis. A doctor confirms what suits you after an in-person assessment.</p>
-  <button class="go" id="anBook" data-i18n="cta">Book consultation</button>
-</aside>
-
-<div class="cam" id="cam" hidden>
-  <video playsinline autoplay muted></video>
-  <div><button class="chip act" id="camSnap" data-i18n="c_snap">Capture</button><button class="chip" id="camX" data-i18n="c_cancel">Cancel</button></div>
-</div>
-
-<aside class="consult glass" id="consult">
-  <div class="eyebrow" data-i18n="c_eyebrow">By appointment</div>
+<aside class="consult" id="consult">
   <h2 data-i18n="c_title">Private consultation</h2>
   <p data-i18n="c_body">Thirty minutes with a practitioner: a skin assessment, a treatment plan and aftercare guidance.</p>
-  <small data-i18n="c_note">Booking is not connected yet. Link this button to your clinic's booking page.</small>
+  <small data-i18n="c_note">Vakhushti St 6, Rustavi. +995 511 70 73 00. Online booking is not connected yet.</small>
 </aside>
-
-<div class="note" data-i18n="note">Illustrative model. Figures and timings are simplified, not clinical guidance.</div>
-<div class="fallback" id="fallback" data-i18n="fallback">This explainer needs WebGL, which is not available in this browser.</div>
+<div class="cam" id="cam" hidden>
+  <video playsinline autoplay muted></video>
+  <div><button class="rbtn" id="camSnap" data-i18n="c_snap">Capture</button><button class="rbtn" id="camX" data-i18n="c_cancel">Cancel</button></div>
+</div>
+<div class="fallback" id="fallback" data-i18n="fallback">This page needs WebGL, which is not available in this browser.</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -442,19 +428,19 @@ function rng(seed){ var s=seed>>>0; return function(){ s+=0x6D2B79F5; var t=s; t
 
 /* ---------- renderer, scene, camera ---------- */
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
-renderer.setSize(window.innerWidth, window.innerHeight, false);
+renderer.setSize(Math.max(1, canvas.clientWidth), Math.max(1, canvas.clientHeight), false);
 var scene = new THREE.Scene();
-scene.background = new THREE.Color(0x131110);
-var camera = new THREE.PerspectiveCamera(32, window.innerWidth/window.innerHeight, 0.1, 100);
+scene.background = new THREE.Color(0x29211b);
+var camera = new THREE.PerspectiveCamera(32, Math.max(1, canvas.clientWidth)/Math.max(1, canvas.clientHeight), 0.1, 100);
 var controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.06;
 controls.rotateSpeed = 0.6; controls.zoomSpeed = 0.7; controls.panSpeed = 0.5;
 controls.minDistance = 4; controls.maxDistance = 26; controls.maxPolarAngle = Math.PI*0.62;
 function homePose(v){
-  var a = window.innerWidth/window.innerHeight;
+  var a = Math.max(1, canvas.clientWidth)/Math.max(1, canvas.clientHeight);
   var k = a < 1.15 ? Math.min(2.1, 1.15/a) : 1;
-  if (v === 'face') return { pos:new V3((photo ? .6 : 1.5)*k, 0.7, 9.4*k), target:new V3(0, a<1.15 ? 0.5 : 0.1, 0) };
-  return { pos:new V3(7.4*k, 4.0*k, 9.6*k), target:new V3(0, a<1.15? -0.2 : -0.55, 0) };
+  if (v === 'face') return photo ? { pos:new V3(.5*k, .8, 7.6*k), target:new V3(0, .72, 0) } : { pos:new V3(1.5*k, .6, 9.4*k), target:new V3(0, -.1, 0) };
+  return { pos:new V3(7.4*k, 4.0*k, 9.6*k), target:new V3(0, -.05, 0) };
 }
 var hp = homePose(); camera.position.copy(hp.pos); controls.target.copy(hp.target); controls.update();
 
@@ -484,10 +470,41 @@ if (THREE.EffectComposer && THREE.RenderPass && THREE.UnrealBloomPass) {
   try {
     composer = new THREE.EffectComposer(renderer);
     composer.addPass(new THREE.RenderPass(scene, camera));
-    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.36, 0.7, 0.96);
+    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(Math.max(1, canvas.clientWidth), Math.max(1, canvas.clientHeight)), 0.36, 0.7, 0.96);
     composer.addPass(bloom);
   } catch(e){ composer = null; }
 }
+
+/* ---------- stage frame: the arch outline is the progress track ---------- */
+var stageBox = $('stagebox'), ringSvg = $('ring'), ringBase = $('ringBase'), ringProg = $('ringProg'), ringTicks = $('ringTicks');
+var ringMarks = [], ringFrac = -1, ringLen = 1, RING_PAD = 16, RING_OFF = 7, SVGNS = 'http://www.w3.org/2000/svg';
+function drawRing(){
+  var W = stageBox.clientWidth, H = stageBox.clientHeight; if (!W || !H) return;
+  var x0 = RING_PAD-RING_OFF, x1 = RING_PAD+W+RING_OFF, top = RING_PAD-RING_OFF, yb = RING_PAD+H, r = Math.min((x1-x0)/2, yb-top), yr = top+r;
+  var d = 'M'+x0+' '+yb+' L'+x0+' '+yr+' A'+r+' '+r+' 0 0 1 '+(x0+r)+' '+top+' L'+(x1-r)+' '+top+' A'+r+' '+r+' 0 0 1 '+x1+' '+yr+' L'+x1+' '+yb;
+  ringSvg.setAttribute('viewBox', '0 0 '+(W+2*RING_PAD)+' '+(H+2*RING_PAD));
+  ringBase.setAttribute('d', d); ringProg.setAttribute('d', d);
+  ringLen = ringBase.getTotalLength(); ringFrac = -1; ringTicks.innerHTML = '';
+  ringMarks.forEach(function(m){
+    var p = ringBase.getPointAtLength(ringLen*m.f), q = ringBase.getPointAtLength(Math.min(ringLen, ringLen*m.f+1)), tx = q.x-p.x, ty = q.y-p.y, tl = Math.hypot(tx, ty) || 1, nx = ty/tl, ny = -tx/tl;
+    var ln = document.createElementNS(SVGNS, 'line'); ln.setAttribute('x1', p.x-nx*3); ln.setAttribute('y1', p.y-ny*3); ln.setAttribute('x2', p.x+nx*7); ln.setAttribute('y2', p.y+ny*7); ringTicks.appendChild(ln);
+    if (m.t){ var t = document.createElementNS(SVGNS, 'text'); t.setAttribute('x', p.x+nx*17); t.setAttribute('y', p.y+ny*17+3.5); t.setAttribute('text-anchor', 'middle'); t.textContent = m.t; ringTicks.appendChild(t); }
+  });
+}
+function setRingMarks(){
+  if (view === 'treat' && PHASES) ringMarks = PHASES[mode].slice(0, -1).map(function(ph){ return {f:ph[0]}; });
+  else if (view === 'age') ringMarks = [20,30,40,50,60].map(function(a){ return {f:(a-20)/45, t:String(a)}; });
+  else ringMarks = [];
+  drawRing();
+}
+function fitStage(){
+  var w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight);
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false); if (composer) composer.setSize(w, h);
+  drawRing();
+}
+if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageBox);
+window.addEventListener('resize', fitStage);
 
 /* shared textures */
 var glowTex = (function(){
@@ -831,13 +848,13 @@ var zoneGlow = glow(0xffd28a, .55); face.add(zoneGlow);
 /* ---------- language ---------- */
 var lang = 'en';
 var KA = {
-  eyebrow:'კანის ატლასი · ინტერაქტიული', title:'ზედაპირის <em>მიღმა</em>',
-  intro:'ატრიალეთ მოდელი და გაადიდეთ გორგოლაჭით. გახსენით ნიშნული სტრუქტურის შესასწავლად ან ჩართეთ პროცედურა ქვემოთ.',
+  title:'ზედაპირის მიღმა', k_title:'სტრუქტურები',
+  intro:'ატრიალეთ მოდელი და გაადიდეთ გორგოლაჭით. გახსენით დანომრილი წერტილი მის შესახებ წასაკითხად ან ჩართეთ პროცედურა ქვემოთ.',
   explode:'დაშლილი ხედი', xray:'რენტგენის ხედი', sound:'ფონური მუსიკა', reset:'საწყისი ხედი', cta:'კონსულტაციის დაჯავშნა',
   m_laser:'ლაზერული ეპილაცია', m_laser_s:'სელექციური ფოტოთერმოლიზი', m_ha:'ჰიალურონის ბიორევიტალიზაცია', m_ha_s:'დერმის დატენიანება', m_rf:'RF ლიფტინგი და კოლაგენი', m_rf_s:'თერმული რემოდელირება',
-  c_eyebrow:'წინასწარი ჩაწერით', c_title:'პირადი კონსულტაცია',
+  c_title:'პირადი კონსულტაცია',
   c_body:'ოცდაათი წუთი სპეციალისტთან: კანის შეფასება, მკურნალობის გეგმა და რჩევები პროცედურის შემდგომი მოვლისთვის.',
-  c_note:'ჯავშანი ჯერ არ არის დაკავშირებული. მიაბით ეს ღილაკი კლინიკის ჯავშნის გვერდს.',
+  c_note:'რუსთავი, ვახუშტის 6. +995 511 70 73 00. ონლაინ ჯავშანი ჯერ არ არის დაკავშირებული.',
   note:'საილუსტრაციო მოდელი. ციფრები და დრო გამარტივებულია და არ წარმოადგენს კლინიკურ რეკომენდაციას.',
   fallback:'ამ გვერდს სჭირდება WebGL, რომელიც ამ ბრაუზერში მიუწვდომელია.',
   v_treat:'პროცედურები', v_age:'კანის ასაკი', v_face:'სახის რუკა', t_help:'რა შველის',
@@ -929,14 +946,26 @@ var BOOK = ['consult','Book a consultation'];
   PINS.push(z);
 });
 var pinsEl = $('pins'), tip = $('tip'), activePin = null, autoXray = false, hl = {epi:0, collagen:0, follicle:0, water:0, subcutis:0};
+var pinCount = {skin:0, face:0};
 PINS.forEach(function(p){
   if (hl[p.key] === undefined) hl[p.key] = 0;
+  p.n = ++pinCount[p.view === 'face' ? 'face' : 'skin'];
   p.anchor = new THREE.Object3D(); p.anchor.position.copy(p.at); p.parent.add(p.anchor);
-  var b = document.createElement('button'); b.className = 'pin'; b.setAttribute('aria-label', 'About: '+p.label);
-  b.innerHTML = '<span class="dot"></span><span class="lab">'+p.label+'</span>';
+  var b = document.createElement('button'); b.className = 'pin'; b.setAttribute('aria-label', p.label);
+  b.innerHTML = '<span class="dot">'+p.n+'</span><span class="lab">'+p.label+'</span>';
   b.addEventListener('click', function(){ if (activePin === p) closePin(); else openPin(p); });
   pinsEl.appendChild(b); p.el = b;
 });
+function renderKey(){
+  var ol = $('keyList'); ol.innerHTML = '';
+  PINS.forEach(function(p){
+    if (p.view === 'face') return;
+    var li = document.createElement('li'), b = document.createElement('button'), n = document.createElement('i'), t = document.createElement('span');
+    n.textContent = p.n; t.textContent = pinText(p, 'label'); b.appendChild(n); b.appendChild(t); if (activePin === p) b.className = 'on';
+    b.addEventListener('click', function(){ if (activePin === p) closePin(); else openPin(p); });
+    li.appendChild(b); ol.appendChild(li);
+  });
+}
 var tween = null, tmpV = new V3();
 function flyTo(pos, target){ tween = {p0:camera.position.clone(), p1:pos, t0:controls.target.clone(), t1:target, start:performance.now()}; }
 controls.addEventListener('start', function(){ tween = null; });
@@ -954,7 +983,7 @@ function goTarget(t){
 }
 function openPin(p){
   if (activePin) activePin.el.classList.remove('on');
-  activePin = p; p.el.classList.add('on');
+  activePin = p; p.el.classList.add('on'); document.body.classList.add('noting'); renderKey();
   fillTip(p);
   tip.classList.add('open');
   if (p.xray && !xrayOn){ setXray(true); autoXray = true; }
@@ -965,7 +994,7 @@ function openPin(p){
 }
 function closePin(){
   if (!activePin) return;
-  activePin.el.classList.remove('on'); activePin = null; tip.classList.remove('open');
+  activePin.el.classList.remove('on'); activePin = null; tip.classList.remove('open'); document.body.classList.remove('noting'); renderKey();
   Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.setAttribute('aria-pressed', false); });
   syncAnalysis();
   if (autoXray){ autoXray = false; if (!(playing || T > 0)) setXray(false); }
@@ -1007,7 +1036,7 @@ var lastPhase = '', lastRead = '';
 function syncUI(){
   var v = Math.round(T*1000); seek.value = v; seek.style.setProperty('--p', (T*100)+'%'); $('pct').textContent = Math.round(T*100)+'%';
   var ph = (lang === 'ka' ? PHASES_KA : PHASES)[mode], i = 0; while (i < ph.length-1 && T >= ph[i][0]) i++;
-  var id = lang+mode+i; if (id !== lastPhase){ lastPhase = id; $('phNum').textContent = '0'+(i+1); $('phTitle').textContent = ph[i][1]; $('phText').textContent = ph[i][2]; }
+  var id = lang+mode+i; if (id !== lastPhase){ lastPhase = id; $('phNum').textContent = (i+1)+' / '+ph.length; $('phTitle').textContent = ph[i][1]; $('phText').textContent = ph[i][2]; }
 }
 function setRead(s){ if (s !== lastRead){ lastRead = s; $('phRead').textContent = s; } }
 function setT(v){ T = clamp(v,0,1); syncUI(); }
@@ -1018,7 +1047,7 @@ function play(v){
   $('icoPlay').innerHTML = v ? '<path d="M3 1.5h3v11H3zM8 1.5h3v11H8z"/>' : '<path d="M3 1.5v11l9-5.5z"/>';
 }
 function setMode(m){
-  mode = m; lastPhase = '';
+  mode = m; lastPhase = ''; setRingMarks();
   Array.prototype.forEach.call(document.querySelectorAll('.mode'), function(b){ b.setAttribute('aria-pressed', b.dataset.mode === m); });
   syncUI();
 }
@@ -1091,11 +1120,12 @@ Array.prototype.forEach.call(i18nEls, function(el){ EN[el.dataset.i18n] = el.inn
 function applyLang(l, fromHash){
   lang = l === 'ka' ? 'ka' : 'en';
   document.documentElement.lang = lang;
-  btnUi.setAttribute('aria-label', lang === 'ka' ? 'პანელების დამალვა ან ჩვენება' : 'Hide or show panels');
+  btnUi.setAttribute('aria-label', lang === 'ka' ? 'მხოლოდ მოდელის ჩვენება' : 'Show the model only');
   var d = lang === 'ka' ? KA : EN;
   Array.prototype.forEach.call(i18nEls, function(el){ el.innerHTML = d[el.dataset.i18n]; });
   Array.prototype.forEach.call(document.querySelectorAll('.lang button'), function(b){ b.setAttribute('aria-pressed', b.dataset.lang === lang); });
   PINS.forEach(function(p){ p.el.querySelector('.lab').textContent = pinText(p,'label'); p.el.setAttribute('aria-label', pinText(p,'label')); });
+  renderKey();
   if (activePin) fillTip(activePin);
   lastPhase = ''; lastRead = ''; syncUI(); updateAgeUI(); if (phKey) setPhotoStatus(phKey); renderAnalysis();
   Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.textContent = pinText(c._pin,'label'); });
@@ -1116,6 +1146,7 @@ function setView(v, fromHash){
   if (v !== 'treat'){ setExplode(false); if (v === 'age') setXray(false); }
   var h = homePose(v); flyTo(h.pos, h.target);
   if (v === 'face') showDefaultFace();
+  setRingMarks();
   syncAnalysis();
   if (!fromHash) writeHash();
 }
@@ -1339,7 +1370,7 @@ function renderAnalysis(){
   var T = AN_TXT[lang], rows = $('anRows'), recs = $('anRecs'); rows.innerHTML = ''; recs.innerHTML = '';
   CONCERNS.forEach(function(k){
     var row = document.createElement('div'); row.className = 'an-row';
-    var name = document.createElement('button'); name.className = 'an-name'; name.textContent = pinText(zonePin(k), 'label'); name.addEventListener('click', function(){ openPin(zonePin(k)); });
+    var name = document.createElement('button'); name.className = 'an-name'; var nn = document.createElement('i'); nn.textContent = zonePin(k).n; name.appendChild(nn); name.appendChild(document.createTextNode(pinText(zonePin(k), 'label'))); name.addEventListener('click', function(){ openPin(zonePin(k)); });
     var pick = document.createElement('button'); pick.className = 'an-pick'; pick.setAttribute('aria-label', pinText(zonePin(k), 'label')+': '+T.lv[concern[k]]);
     var dots = document.createElement('span'); dots.className = 'an-dots'; for (var i=1;i<=2;i++){ var d = document.createElement('i'); if (i <= concern[k]) d.className = 'on'; dots.appendChild(d); }
     var word = document.createElement('em'); word.textContent = T.lv[concern[k]];
@@ -1375,8 +1406,8 @@ Array.prototype.forEach.call(document.querySelectorAll('.lg'), function(b){
 });
 
 /* ---------- draggable panels ---------- */
-var DRAG = {views:[document.querySelector('.views')], bar:Array.prototype.slice.call(document.querySelectorAll('.bar')), legend:[document.querySelector('.legend')], analysis:[document.querySelector('.analysis')]}, panelPos = {};
-function canDrag(){ return window.innerWidth > 820; }
+var DRAG = {}, panelPos = {};
+function canDrag(){ return false; }
 function placePanel(g){
   var pos = panelPos[g];
   DRAG[g].forEach(function(el){
@@ -1541,30 +1572,20 @@ function frame(now){
   if (bloom) bloom.strength = .36+.2*Math.max(beamI, E*.5);
   if (composer) composer.render(); else renderer.render(scene, camera);
 
-  /* pins */
-  var ww = window.innerWidth, wh = window.innerHeight, placed = [];
+  /* arch progress */
+  var rf = view === 'treat' ? T : (view === 'age' ? clamp((ageS.age-20)/45, 0, 1) : 0);
+  if (Math.abs(rf-ringFrac) > .0004){ ringFrac = rf; ringProg.style.strokeDasharray = (rf*ringLen)+' '+(ringLen+10); ringProg.style.visibility = rf > 0.001 ? 'visible' : 'hidden'; }
+
+  /* numbered markers */
+  var ww = canvas.clientWidth, wh = canvas.clientHeight;
   for (var pi=0; pi<PINS.length; pi++){
     var p = PINS[pi]; p.anchor.getWorldPosition(tmpV); tmpV.project(camera);
     var px = (tmpV.x*.5+.5)*ww, py = (-tmpV.y*.5+.5)*wh;
     p.el.style.display = (tmpV.z > 1 || (p.view === 'face') !== (view === 'face')) ? 'none' : '';
-    var hidden = p.el.style.display === 'none', flip = false;
-    if (!hidden){ for (var q=0; q<placed.length; q++){ if (Math.abs(placed[q][1]-py) < 24 && px-placed[q][0] > -30 && px-placed[q][0] < 190){ flip = true; break; } } placed.push([px,py]); }
-    if (flip !== p.flip){ p.flip = flip; p.el.classList.toggle('flip', flip); }
-    p.el.style.transform = 'translate('+(flip ? px-p.el.offsetWidth : px).toFixed(1)+'px,'+(py-11).toFixed(1)+'px)';
-    if (p === activePin && ww > 820){
-      var tw = 300, th = tip.offsetHeight, tx = px+26, ty = py-th/2;
-      if (tx+tw > ww-16) tx = px-tw-26;
-      if (photo && p.view === 'face'){ tx = ww-tw-30; ty = 84; }
-      tip.style.transform = 'translate('+clamp(tx,16,ww-tw-16).toFixed(1)+'px,'+clamp(ty,16,wh-th-16).toFixed(1)+'px)';
-    }
+    p.el.style.transform = 'translate('+(px-11).toFixed(1)+'px,'+(py-11).toFixed(1)+'px)';
   }
 }
-window.addEventListener('resize', function(){
-  var w = window.innerWidth, h = window.innerHeight;
-  camera.aspect = w/h; camera.updateProjectionMatrix();
-  renderer.setSize(w, h, false); if (composer) composer.setSize(w, h);
-  placeAll();
-});
+setRingMarks(); fitStage();
 requestAnimationFrame(frame);
 })();
 </script>

@@ -2,6 +2,14 @@
 
 Interactive 3D skin and procedure explainer for aesthetic clinics. One self-contained `index.html` built on Three.js, no build step.
 
+## Design
+
+The interface follows the Verve brand book: Cream Silk page, Smoked Moss rail, Charcoal Noir stage, Dark Walnut and Tanned Leather for calls to action. Headings use Zodiak Bold (Latin) and Noto Serif Georgian Bold; text uses Noto Sans Georgian. The wordmarks in `assets/logo-en.svg` and `assets/logo-ka.svg` and the symbol in `assets/symbol.svg` are the vector outlines from the brand book, unmodified. The lattice in the rail is the brand pattern.
+
+The model sits in an arch whose outline is the progress track: it fills as a treatment plays and carries the decade marks in the Skin age scene.
+
+Zodiak is served from `assets/fonts/` and comes from Fontshare; check its licence terms before commercial launch.
+
 ## Scenes
 
 - **Treatments** – laser epilation, hyaluronic biorevitalization and RF lifting on a scrubbable timeline
