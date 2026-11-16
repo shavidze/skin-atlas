@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beneath the Surface</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Noto+Sans+Georgian:wght@300;400;500&family=Noto+Serif+Georgian:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: full-bleed 3D stage; glass panels hug the four corners and the bottom edge. Single dark theme by choice. */
+  color-scheme: dark;
+  --bg:#131110;
+  --ink:#f4ede1;
+  --muted:#a9a093;
+  --gold:#d8b983;
+  --gold-deep:#a98755;
+  --glass:rgba(255,246,232,.055);
+  --glass-strong:rgba(28,25,22,.62);
+  --line:rgba(216,185,131,.24);
+  --display:"Cormorant Garamond","Noto Serif Georgian","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --ui:"Jost","Noto Sans Georgian","Avenir Next","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-weight:300;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
+
+#stage{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 42%,transparent 55%,rgba(8,7,6,.55) 100%)}
+
+.glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(18px) saturate(120%);-webkit-backdrop-filter:blur(18px) saturate(120%);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05)}
+.eyebrow{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:400}
+
+/* Header */
+.left{position:fixed;top:26px;left:30px;bottom:22px;width:min(340px,calc(100% - 60px));display:flex;flex-direction:column;gap:18px;pointer-events:none;z-index:2}
+.head{pointer-events:none}
+.head h1{font-family:var(--display);font-weight:400;font-size:clamp(28px,3.4vw,44px);line-height:1.02;margin:10px 0 8px;text-wrap:balance;letter-spacing:.005em}
+.head h1 em{font-style:italic;color:var(--gold)}
+.head p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55;max-width:30ch}
+
+.topbar{position:fixed;top:26px;right:30px;display:flex;gap:10px;align-items:center;z-index:7}
+.ui{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .3s,color .3s}
+.ui:hover{background:var(--gold);color:#1a1612}
+.ui svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
+.ui .slash{display:none}
+body.clean .ui .slash{display:block}
+body.clean .left,body.clean .bar,body.clean .note,body.clean .cta,body.clean .lang,body.clean .consult,body.clean .tip,body.clean #pins{visibility:hidden}
+.cta{padding:11px 20px;border:1px solid var(--line);border-radius:999px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:400;color:var(--gold);background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .3s,color .3s,border-color .3s}
+.cta:hover{background:var(--gold);color:#1a1612;border-color:var(--gold)}
+.consult{position:fixed;top:78px;right:30px;width:min(300px,calc(100% - 32px));padding:20px 22px;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .3s,transform .3s;z-index:6}
+.consult.open{opacity:1;transform:none;pointer-events:auto}
+.consult h2{font-family:var(--display);font-weight:500;font-size:24px;margin:8px 0 8px}
+.consult p{margin:0 0 10px;font-size:13.5px;line-height:1.6;color:#d9d1c4}
+.consult small{display:block;color:var(--muted);font-size:12px;line-height:1.5;border-top:1px solid var(--line);padding-top:10px}
+
+/* View toggles */
+.views{align-self:flex-start;flex:0 1 auto;min-height:0;overflow-y:auto;pointer-events:auto;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:190px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 8px;border-radius:9px;font-size:12.5px;letter-spacing:.06em;text-align:left;transition:background .25s}
+.sw:hover{background:rgba(255,255,255,.04)}
+.sw i{flex:none;width:30px;height:16px;border-radius:999px;border:1px solid var(--line);position:relative;transition:background .3s,border-color .3s}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--muted);transition:transform .3s,background .3s}
+.sw[aria-pressed="true"] i{background:rgba(216,185,131,.22);border-color:var(--gold)}
+.sw[aria-pressed="true"] i::after{transform:translateX(14px);background:var(--gold)}
+.sw.plain{color:var(--muted);border-top:1px solid var(--line);border-radius:0 0 9px 9px;margin-top:4px;padding-top:12px}
+.sw.plain:hover{color:var(--ink)}
+
+/* Pins */
+#pins{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.pin{position:absolute;left:0;top:0;display:flex;align-items:center;gap:9px;pointer-events:auto;will-change:transform;padding:6px 8px 6px 0}
+.pin .dot{width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(216,185,131,.18),0 0 14px rgba(216,185,131,.7);position:relative;transition:transform .3s;margin-left:-5.5px}
+.pin .dot::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid rgba(216,185,131,.55);animation:ping 2.6s ease-out infinite}
+.pin .lab{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);opacity:.72;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.8);transition:opacity .3s,color .3s}
+.pin:hover .lab,.pin.on .lab{opacity:1;color:var(--gold)}
+.pin:hover .dot,.pin.on .dot{transform:scale(1.25)}
+@keyframes ping{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.9);opacity:0}}
+
+.tip{position:fixed;left:0;top:0;width:300px;padding:18px 20px 18px;opacity:0;pointer-events:none;transition:opacity .35s;background:var(--glass-strong);z-index:5}
+.tip.open{opacity:1;pointer-events:auto}
+.tip h3{font-family:var(--display);font-weight:500;font-size:26px;line-height:1.05;margin:8px 0 8px}
+.tip p{margin:0;font-size:13.5px;line-height:1.62;color:#ddd5c8}
+.tip .x{position:absolute;top:10px;right:12px;width:26px;height:26px;border-radius:50%;color:var(--muted);font-size:18px;line-height:1}
+.tip .x:hover{color:var(--ink)}
+.go{margin-top:14px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:3px;font-weight:400}
+.go:hover{border-color:var(--gold)}
+.go[hidden]{display:none}
+
+/* Bottom bar */
+.bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);width:min(880px,calc(100% - 32px));padding:16px 20px 16px;display:grid;gap:12px;background:rgba(24,21,18,.76)}
+.views,.bar{user-select:none;-webkit-user-select:none}
+.views{position:relative}
+.grip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:14px;display:grid;place-items:center;cursor:grab;touch-action:none}
+.grip::before{content:"";width:30px;height:3px;border-radius:2px;background:rgba(216,185,131,.38)}
+.views,.bar{cursor:grab}
+.views button,.bar button,.bar input{cursor:pointer}
+.dragging,.dragging .grip{cursor:grabbing}
+.min{position:absolute;top:-13px;right:18px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:#1b1815;color:var(--gold);display:grid;place-items:center}
+.min svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;transition:transform .3s}
+body.barmin .min svg{transform:rotate(180deg)}
+body.barmin .bar .x{display:none}
+@media (min-width:821px) and (max-width:1500px){.bar{left:calc(165px + 50%);width:min(880px,calc(100% - 340px))}}
+.modes{display:flex;gap:6px;flex-wrap:wrap}
+.mode{flex:1 1 150px;padding:10px 12px;border-radius:10px;border:1px solid transparent;text-align:left;transition:background .3s,border-color .3s}
+.mode b{display:block;font-family:var(--display);font-weight:500;font-size:19px;line-height:1.1;letter-spacing:.01em}
+.mode span{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.mode:hover{background:rgba(255,255,255,.035)}
+.mode[aria-pressed="true"]{border-color:var(--line);background:rgba(216,185,131,.09)}
+.mode[aria-pressed="true"] b{color:var(--gold)}
+.phase{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;min-height:38px;padding:0 4px}
+.phase .num{font-family:var(--display);font-style:italic;color:var(--gold);font-size:18px}
+.phase .ttl{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:400;white-space:nowrap}
+.phase .txt{flex:1 1 280px;font-size:13px;color:#d6cec1;line-height:1.5}
+.phase .read{font-size:11px;letter-spacing:.08em;color:var(--gold);font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.transport{display:flex;align-items:center;gap:14px}
+.play{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:grid;place-items:center;transition:background .3s,color .3s}
+.play:hover{background:var(--gold);color:#1a1612}
+.play svg{width:14px;height:14px;fill:currentColor}
+.range{flex:1;-webkit-appearance:none;appearance:none;height:22px;background:transparent;cursor:pointer;--p:0%}
+.range::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--gold) var(--p),rgba(255,255,255,.16) var(--p))}
+.range::-moz-range-track{height:2px;background:rgba(255,255,255,.16)}
+.range::-moz-range-progress{height:2px;background:var(--gold)}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--bg);border:1.5px solid var(--gold);margin-top:-6px;box-shadow:0 0 12px rgba(216,185,131,.6)}
+.range::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--bg);border:1.5px solid var(--gold);box-shadow:0 0 12px rgba(216,185,131,.6)}
+.pct{flex:none;width:44px;text-align:right;font-size:12px;letter-spacing:.08em;color:var(--muted);font-variant-numeric:tabular-nums}
+.scenes{display:flex;flex-direction:column;gap:2px;padding-bottom:8px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.scene{display:flex;align-items:baseline;gap:10px;padding:8px;border-radius:9px;text-align:left;font-family:var(--display);font-size:19px;color:var(--muted);transition:color .25s,background .25s}
+.scene em{font-style:italic;font-size:13px;color:var(--gold-deep)}
+.scene:hover{color:var(--ink)}
+.scene[aria-pressed="true"]{color:var(--gold);background:rgba(216,185,131,.09)}
+html[lang="ka"] .scene{font-size:15px}
+.agebar,.facebar{display:none}
+body[data-view="age"] .treatbar,body[data-view="face"] .treatbar{display:none}
+body[data-view="age"] .agebar,body[data-view="face"] .facebar{display:grid}
+body[data-view="face"] .skinonly{display:none}
+.agetop{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center}
+.agenum b{display:block;font-family:var(--display);font-weight:400;font-size:54px;line-height:.9;color:var(--gold);font-variant-numeric:tabular-nums;min-width:58px}
+.agenum span{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.agemid{position:relative;padding-bottom:16px;display:flex}
+.ticks{position:absolute;left:7px;right:7px;bottom:0;height:12px;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ticks span{position:absolute;transform:translateX(-50%)}
+.meters{display:grid;gap:9px;min-width:210px}
+.meter{display:grid;grid-template-columns:78px 1fr 38px;gap:8px;align-items:center;font-size:11px;letter-spacing:.06em}
+.meter i{height:2px;background:rgba(255,255,255,.14);position:relative}
+.meter u{position:absolute;left:0;top:0;bottom:0;background:var(--gold);transition:width .3s}
+.meter b{font-weight:400;color:var(--gold);text-align:right;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{padding:7px 13px;border:1px solid var(--line);border-radius:999px;font-size:12px;letter-spacing:.04em;color:#d6cec1;transition:background .25s,color .25s,border-color .25s}
+.chip:hover{border-color:var(--gold)}
+.chip[aria-pressed="true"]{background:rgba(216,185,131,.2);border-color:var(--gold);color:var(--gold)}
+.phase .go{margin-top:0;white-space:nowrap}
+.tip .help{margin-top:14px}
+.tip .help[hidden],.tip ul[hidden]{display:none}
+.tip ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:5px}
+.tip li{font-size:13px;line-height:1.45;color:#ddd5c8;padding-left:14px;position:relative}
+.tip li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.note{position:fixed;right:30px;bottom:8px;font-size:10px;letter-spacing:.08em;color:rgba(169,160,147,.6);pointer-events:none}
+
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:rgba(20,18,16,.35);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.lang button{padding:7px 12px;border-radius:999px;font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:400;transition:background .3s,color .3s}
+.lang button[aria-pressed="true"]{background:rgba(216,185,131,.2);color:var(--gold)}
+html[lang="ka"] *{text-transform:none !important}
+html[lang="ka"] .eyebrow,html[lang="ka"] .cta,html[lang="ka"] .pin .lab,html[lang="ka"] .mode span,html[lang="ka"] .phase .ttl,html[lang="ka"] .go{letter-spacing:.05em;font-size:11.5px}
+html[lang="ka"] .head h1{font-size:clamp(24px,2.9vw,38px);line-height:1.15}
+html[lang="ka"] .head h1 em,html[lang="ka"] .phase .num{font-style:normal}
+html[lang="ka"] .mode b{font-size:15.5px;line-height:1.25}
+html[lang="ka"] .tip h3,html[lang="ka"] .consult h2{font-size:21px;line-height:1.2}
+html[lang="ka"] .sw{font-size:12px;letter-spacing:.02em}
+
+.fallback{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:32px;font-family:var(--display);font-size:24px}
+.fallback.show{display:grid}
+
+@media (max-height:780px) and (min-width:821px){
+  .head p{display:none}
+  .head h1{margin:6px 0 0}
+  .left{gap:14px}
+  .scene{padding:5px 8px;font-size:17px}
+  .sw{padding:6px 8px}
+  .views{padding:10px 12px}
+  .bar{padding:12px 18px;gap:8px;bottom:16px}
+  .mode{padding:7px 12px}
+  .mode span{display:none}
+  .phase{min-height:0}
+  .agenum b{font-size:42px}
+}
+@media (max-width:820px){
+  .left{top:14px;left:16px;right:16px;bottom:auto;width:auto;gap:10px}
+  .grip{display:none}
+  .views,.bar{cursor:auto}
+  .head{max-width:calc(100% - 160px)}
+  .topbar{top:14px;right:16px;flex-wrap:wrap;justify-content:flex-end;max-width:160px;gap:8px}
+  .ui{width:32px;height:32px}
+  .head p{display:none}
+  .head h1,html[lang="ka"] .head h1{font-size:24px;margin:6px 0 0}
+  html[lang="ka"] .mode b{font-size:12.5px}
+  .cta{padding:7px 12px;font-size:10px;order:3}
+  .consult{top:auto;bottom:16px;right:16px;z-index:8}
+  .views{align-self:stretch;flex-direction:row;min-width:0;padding:6px;gap:2px;flex-wrap:wrap}
+  .sw{padding:7px 9px;font-size:11.5px;gap:9px}
+  .sw.plain{border-top:0;margin:0;padding-top:7px;border-radius:9px}
+  .scenes{flex-direction:row;width:100%;border-bottom:0;padding:0;margin:0}
+  .scene,html[lang="ka"] .scene{flex:1;font-size:14px;padding:6px 8px;justify-content:center}
+  .scene em{display:none}
+  .agetop{grid-template-columns:auto 1fr;gap:14px}
+  .agenum b{font-size:40px}
+  .meters{grid-column:1/-1;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
+  .meter{grid-template-columns:auto 1fr 34px}
+  .bar{bottom:16px;padding:12px 14px;gap:9px}
+  .mode{flex:1 1 30%;padding:8px 9px}
+  .mode b{font-size:15px}
+  .mode span{display:none}
+  .phase .txt{font-size:12px;flex-basis:100%}
+  .pin .lab{display:none}
+  .tip{left:16px !important;top:auto !important;bottom:16px;width:calc(100% - 32px);transform:none !important;z-index:9}
+  .note{display:none}
+}
+@media (prefers-reduced-motion:reduce){.pin .dot::after{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="stage" aria-label="Interactive 3D cross-section of human skin"></canvas>
+<div class="vignette"></div>
+
+<div class="left">
+<header class="head">
+  <div class="eyebrow" data-i18n="eyebrow">Skin Atlas &middot; Interactive</div>
+  <h1 data-i18n="title">Beneath the <em>Surface</em></h1>
+  <p data-i18n="intro">Drag to orbit, scroll to zoom. Open a pin to study a structure, or play a treatment below.</p>
+</header>
+
+<nav class="views glass" aria-label="Scenes and view options">
+  <div class="scenes" role="group">
+    <button class="scene" data-view="treat" aria-pressed="true"><em>01</em><span data-i18n="v_treat">Treatments</span></button>
+    <button class="scene" data-view="age" aria-pressed="false"><em>02</em><span data-i18n="v_age">Skin age</span></button>
+    <button class="scene" data-view="face" aria-pressed="false"><em>03</em><span data-i18n="v_face">Face map</span></button>
+  </div>
+  <button class="sw skinonly" id="btnExplode" aria-pressed="false"><span data-i18n="explode">Exploded view</span> <i></i></button>
+  <button class="sw skinonly" id="btnXray" aria-pressed="false"><span data-i18n="xray">X-ray cutaway</span> <i></i></button>
+  <button class="sw" id="btnSound" aria-pressed="false"><span data-i18n="sound">Ambient sound</span> <i></i></button>
+  <button class="sw plain" id="btnReset" data-i18n="reset">Reset view</button>
+</nav>
+</div>
+
+<div id="pins"></div>
+
+<aside class="tip glass" id="tip" aria-live="polite">
+  <button class="x" id="tipClose" aria-label="Close">&times;</button>
+  <div class="eyebrow" id="tipEyebrow"></div>
+  <h3 id="tipTitle"></h3>
+  <p id="tipBody"></p>
+  <div class="eyebrow help" id="tipHelp" data-i18n="t_help" hidden>What can help</div>
+  <ul id="tipList" hidden></ul>
+  <button class="go" id="tipGo" hidden></button>
+</aside>
+
+<div class="topbar">
+  <button class="ui" id="btnUi" aria-pressed="false" aria-label="Hide or show panels" title="H"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button>
+  <button class="cta" id="btnCta" aria-expanded="false" aria-controls="consult" data-i18n="cta">Book consultation</button>
+  <div class="lang" role="group" aria-label="Language">
+    <button data-lang="en" aria-pressed="true">EN</button>
+    <button data-lang="ka" aria-pressed="false" lang="ka">ქარ</button>
+  </div>
+</div>
+
+<section class="bar glass treatbar" aria-label="Treatment simulation">
+  <button class="min" aria-label="Collapse or expand this panel"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg></button>
+  <div class="modes x">
+    <button class="mode" data-mode="laser" aria-pressed="true"><b data-i18n="m_laser">Laser Epilation</b><span data-i18n="m_laser_s">Selective photothermolysis</span></button>
+    <button class="mode" data-mode="ha" aria-pressed="false"><b data-i18n="m_ha">Hyaluronic Biorevitalization</b><span data-i18n="m_ha_s">Dermal hydration</span></button>
+    <button class="mode" data-mode="rf" aria-pressed="false"><b data-i18n="m_rf">RF Lifting &amp; Collagen</b><span data-i18n="m_rf_s">Thermal remodelling</span></button>
+  </div>
+  <div class="phase x">
+    <span class="num" id="phNum">01</span>
+    <span class="ttl" id="phTitle"></span>
+    <span class="txt" id="phText"></span>
+    <span class="read" id="phRead"></span>
+  </div>
+  <div class="transport">
+    <button class="play" id="btnPlay" aria-label="Play"><svg viewBox="0 0 14 14" id="icoPlay"><path d="M3 1.5v11l9-5.5z"/></svg></button>
+    <input type="range" class="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Treatment timeline">
+    <span class="pct" id="pct">0%</span>
+  </div>
+</section>
+
+<section class="bar glass agebar" aria-label="Skin age">
+  <button class="min" aria-label="Collapse or expand this panel"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg></button>
+  <div class="agetop">
+    <div class="agenum"><b id="ageNum">35</b><span data-i18n="a_years">years</span></div>
+    <div class="agemid">
+      <input type="range" class="range" id="ageSeek" min="20" max="65" value="35" step="1" aria-label="Age">
+      <div class="ticks" aria-hidden="true"><span style="left:0%">20</span><span style="left:22.2%">30</span><span style="left:44.4%">40</span><span style="left:66.7%">50</span><span style="left:88.9%">60</span></div>
+    </div>
+    <div class="meters">
+      <div class="meter"><span data-i18n="a_col">Collagen</span><i><u id="mCol"></u></i><b id="mColV"></b></div>
+      <div class="meter"><span data-i18n="a_hyd">Hydration</span><i><u id="mHyd"></u></i><b id="mHydV"></b></div>
+    </div>
+  </div>
+  <div class="chips x">
+    <span class="eyebrow" data-i18n="a_life">Lifestyle</span>
+    <button class="chip" id="lfSun" aria-pressed="false" data-i18n="a_sun">Sun without SPF</button>
+    <button class="chip" id="lfSmoke" aria-pressed="false" data-i18n="a_smoke">Smoking</button>
+    <button class="chip" id="lfSleep" aria-pressed="false" data-i18n="a_sleep">Poor sleep</button>
+  </div>
+  <div class="phase x">
+    <span class="ttl" id="ageTtl"></span>
+    <span class="txt" id="ageTxt"></span>
+    <button class="go" id="ageGo" hidden></button>
+  </div>
+</section>
+
+<section class="bar glass facebar" aria-label="Face map">
+  <button class="min" aria-label="Collapse or expand this panel"><svg viewBox="0 0 12 12"><path d="M2 4l4 4 4-4"/></svg></button>
+  <div class="eyebrow" data-i18n="f_hint">Choose an area of concern</div>
+  <div class="chips x" id="zoneChips"></div>
+</section>
+
+<aside class="consult glass" id="consult">
+  <div class="eyebrow" data-i18n="c_eyebrow">By appointment</div>
+  <h2 data-i18n="c_title">Private consultation</h2>
+  <p data-i18n="c_body">Thirty minutes with a practitioner: a skin assessment, a treatment plan and aftercare guidance.</p>
+  <small data-i18n="c_note">Booking is not connected yet. Link this button to your clinic's booking page.</small>
+</aside>
+
+<div class="note" data-i18n="note">Illustrative model. Figures and timings are simplified, not clinical guidance.</div>
+<div class="fallback" id="fallback" data-i18n="fallback">This explainer needs WebGL, which is not available in this browser.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var canvas = $('stage');
+var renderer = null;
+if (window.THREE) {
+  try { renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, powerPreference:'high-performance'}); } catch(e){ renderer = null; }
+}
+if (!renderer) { $('fallback').classList.add('show'); return; }
+
+var V3 = THREE.Vector3;
+var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var clamp = function(x,a,b){ return x<a?a:(x>b?b:x); };
+var lerp = function(a,b,k){ return a+(b-a)*k; };
+var ss = function(a,b,x){ var k=clamp((x-a)/(b-a),0,1); return k*k*(3-2*k); };
+function rng(seed){ var s=seed>>>0; return function(){ s+=0x6D2B79F5; var t=s; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
+
+/* ---------- renderer, scene, camera ---------- */
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight, false);
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(0x131110);
+var camera = new THREE.PerspectiveCamera(32, window.innerWidth/window.innerHeight, 0.1, 100);
+var controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.06;
+controls.rotateSpeed = 0.6; controls.zoomSpeed = 0.7; controls.panSpeed = 0.5;
+controls.minDistance = 4; controls.maxDistance = 26; controls.maxPolarAngle = Math.PI*0.62;
+function homePose(v){
+  var a = window.innerWidth/window.innerHeight;
+  var k = a < 1.15 ? Math.min(2.1, 1.15/a) : 1;
+  if (v === 'face') return { pos:new V3(1.5*k, 0.7, 9.4*k), target:new V3(0, a<1.15 ? 0.5 : 0.1, 0) };
+  return { pos:new V3(7.4*k, 4.0*k, 9.6*k), target:new V3(0, a<1.15? -0.2 : -0.55, 0) };
+}
+var hp = homePose(); camera.position.copy(hp.pos); controls.target.copy(hp.target); controls.update();
+
+/* studio environment for soft reflections */
+(function(){
+  var s = new THREE.Scene();
+  var g = new THREE.SphereGeometry(20, 32, 16), p = g.attributes.position, col = [], c = new THREE.Color();
+  var top = new THREE.Color(0x57504a), bot = new THREE.Color(0x0b0a09);
+  for (var i=0;i<p.count;i++){ c.copy(bot).lerp(top, (p.getY(i)/20+1)/2); col.push(c.r,c.g,c.b); }
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col,3));
+  s.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({vertexColors:true, side:THREE.BackSide})));
+  function panel(w,h,x,y,z,r,gg,b){ var m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({color:new THREE.Color(r,gg,b), side:THREE.DoubleSide})); m.position.set(x,y,z); m.lookAt(0,0,0); s.add(m); }
+  panel(12,12, 0,14,2, 1.5,1.42,1.3);
+  panel(8,10, -12,5,8, 1.3,1.2,1.05);
+  panel(3,12, 12,3,-10, 1.0,1.1,1.35);
+  var pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(s, 0.04).texture;
+  pm.dispose();
+})();
+scene.add(new THREE.HemisphereLight(0xfff1df, 0x2a2521, 0.4));
+var key = new THREE.DirectionalLight(0xfff0dc, 0.5); key.position.set(-5,8,6); scene.add(key);
+var rim = new THREE.DirectionalLight(0xcfd8ff, 0.22); rim.position.set(6,2,-6); scene.add(rim);
+
+/* bloom */
+var composer = null, bloom = null;
+if (THREE.EffectComposer && THREE.RenderPass && THREE.UnrealBloomPass) {
+  try {
+    composer = new THREE.EffectComposer(renderer);
+    composer.addPass(new THREE.RenderPass(scene, camera));
+    bloom = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.36, 0.7, 0.96);
+    composer.addPass(bloom);
+  } catch(e){ composer = null; }
+}
+
+/* shared textures */
+var glowTex = (function(){
+  var c = document.createElement('canvas'); c.width = c.height = 128; var g = c.getContext('2d');
+  var gr = g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.22,'rgba(255,255,255,.55)'); gr.addColorStop(.6,'rgba(255,255,255,.12)'); gr.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0,0,128,128); return new THREE.CanvasTexture(c);
+})();
+function glow(color, size){
+  var sp = new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex, color:color, blending:THREE.AdditiveBlending, depthWrite:false, transparent:true, opacity:0}));
+  sp.scale.setScalar(size); sp.renderOrder = 20; return sp;
+}
+function fresnelMat(color, pow){
+  return new THREE.ShaderMaterial({
+    uniforms:{uColor:{value:new THREE.Color(color)}, uOpacity:{value:0}, uPow:{value:pow}},
+    vertexShader:'varying vec3 vN; varying vec3 vV; void main(){ vec4 mv = modelViewMatrix*vec4(position,1.0); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }',
+    fragmentShader:'uniform vec3 uColor; uniform float uOpacity; uniform float uPow; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0-abs(dot(normalize(vN),normalize(vV))), uPow); gl_FragColor = vec4(uColor*(0.08+f)*uOpacity, 1.0); }',
+    transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide
+  });
+}
+
+/* ---------- skin block ---------- */
+var W=6, D=4, H_EPI=0.5, H_DER=1.8, H_HYP=1.2, Y_HYP=-2.0, Y_DER=-0.8;
+var ridge = function(x,z){ return 0.06*Math.sin(x*3.1)*Math.cos(z*2.6); };
+function shell(color, op){
+  return new THREE.MeshPhysicalMaterial({color:color, roughness:.55, metalness:0, clearcoat:.35, clearcoatRoughness:.45, transparent:true, opacity:op, depthWrite:false, envMapIntensity:.4, emissive:0x000000});
+}
+var block = new THREE.Group(); scene.add(block);
+var epi = new THREE.Group(), der = new THREE.Group(), hyp = new THREE.Group();
+block.add(hyp, der, epi);
+
+/* hair axis, in dermis-local coordinates (origin at the dermis base) */
+var HB = new V3(0.95, 0.30, 0.30);              // bulb
+var HS = new V3(0.60, H_DER+H_EPI, 0.30);       // where the shaft leaves the skin
+var HD = HS.clone().sub(HB).normalize();
+var H_LEN = HS.distanceTo(HB);
+var qAxis = new THREE.Quaternion().setFromUnitVectors(new V3(0,1,0), HD);
+
+/* epidermis: textured surface with pores and two fine lines that can smooth out */
+var epiGeo = new THREE.BoxGeometry(W, H_EPI, D, 128, 1, 88); epiGeo.translate(0, H_EPI/2, 0);
+var epiAged, epiSmooth;
+(function(){
+  var r = rng(11), pores = [];
+  for (var i=0;i<52;i++) pores.push([lerp(-2.8,2.8,r()), lerp(-1.8,1.8,r()), 0.07+r()*0.04]);
+  function surf(x,z,k){
+    var h = 0.010*(Math.sin(x*21+z*8)+Math.sin(z*26-x*6))*(1-0.5*k);
+    for (var i=0;i<pores.length;i++){ var dx=x-pores[i][0], dz=z-pores[i][1], d2=dx*dx+dz*dz; if (d2<0.06) h -= 0.042*Math.exp(-d2/(pores[i][2]*pores[i][2]))*(1-0.4*k); }
+    var d = z-(0.95+0.28*Math.sin(x*0.9)); h -= 0.08*Math.exp(-(d*d)/0.008)*(1-0.9*k);
+    d = z-(-1.15+0.22*Math.sin(x*1.25+1.1)); h -= 0.06*Math.exp(-(d*d)/0.007)*(1-0.9*k);
+    var hx=x-HS.x, hz=z-HS.z; h -= 0.07*Math.exp(-(hx*hx+hz*hz)/0.014);
+    return h + 0.02*k;
+  }
+  var p = epiGeo.attributes.position, n = p.count;
+  epiAged = new Float32Array(n*3); epiSmooth = new Float32Array(n*3);
+  for (var i=0;i<n;i++){
+    var x=p.getX(i), y=p.getY(i), z=p.getZ(i), ya=y, ys=y;
+    if (y > H_EPI-0.01){ ya = H_EPI+surf(x,z,0); ys = H_EPI+surf(x,z,1); }
+    else if (y < 0.01){ ya = ys = ridge(x,z); }
+    epiAged[i*3]=x; epiAged[i*3+1]=ya; epiAged[i*3+2]=z;
+    epiSmooth[i*3]=x; epiSmooth[i*3+1]=ys; epiSmooth[i*3+2]=z;
+  }
+  p.array.set(epiAged); p.needsUpdate = true; epiGeo.computeVertexNormals();
+})();
+var epiMat = shell(0xe6b59c, .96); epiMat.emissive.set(0xffd2b8); epiMat.emissiveIntensity = 0;
+var epiMesh = new THREE.Mesh(epiGeo, epiMat); epiMesh.renderOrder = 10; epi.add(epiMesh);
+var epiK = 0;
+function setEpiSmooth(k){
+  if (Math.abs(k-epiK) < 0.003) return; epiK = k;
+  var a = epiGeo.attributes.position.array;
+  for (var i=1;i<a.length;i+=3) a[i] = epiAged[i] + (epiSmooth[i]-epiAged[i])*k;
+  epiGeo.attributes.position.needsUpdate = true; epiGeo.computeVertexNormals();
+}
+
+/* dermis shell */
+var derGeo = new THREE.BoxGeometry(W, H_DER, D, 64, 1, 44); derGeo.translate(0, H_DER/2, 0);
+(function(){ var p = derGeo.attributes.position; for (var i=0;i<p.count;i++){ if (p.getY(i) > H_DER-0.01) p.setY(i, H_DER+ridge(p.getX(i),p.getZ(i))); } derGeo.computeVertexNormals(); })();
+var derMat = shell(0xd48a86, .58); derMat.emissive.set(0xffd9cc); derMat.emissiveIntensity = 0;
+var derMesh = new THREE.Mesh(derGeo, derMat); derMesh.renderOrder = 10; der.add(derMesh);
+
+/* hypodermis: shell plus fat lobules */
+var hypGeo = new THREE.BoxGeometry(W, H_HYP, D); hypGeo.translate(0, H_HYP/2, 0);
+var hypMat = shell(0xe7c283, .5);
+var hypMesh = new THREE.Mesh(hypGeo, hypMat); hypMesh.renderOrder = 10; hyp.add(hypMesh);
+(function(){
+  var r = rng(5), nx=10, nz=7, ny=2, dummy = new THREE.Object3D();
+  var mat = new THREE.MeshPhysicalMaterial({color:0xdfb76f, roughness:.5, clearcoat:.15, clearcoatRoughness:.5, envMapIntensity:.25});
+  var im = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 20, 14), mat, nx*nz*ny), k=0;
+  for (var y=0;y<ny;y++) for (var x=0;x<nx;x++) for (var z=0;z<nz;z++){
+    dummy.position.set(-2.62+x*0.582+(r()-.5)*.14+(y?0.2:0), 0.33+y*0.53+(r()-.5)*.08, -1.66+z*0.553+(r()-.5)*.14+(y?0.15:0));
+    dummy.position.x = clamp(dummy.position.x,-2.66,2.66); dummy.position.z = clamp(dummy.position.z,-1.66,1.66);
+    var s = 0.86+r()*0.3; dummy.scale.set(s, s*(0.82+r()*.14), s); dummy.rotation.set(r()*3,r()*3,r()*3); dummy.updateMatrix(); im.setMatrixAt(k++, dummy.matrix);
+  }
+  hyp.add(im);
+})();
+
+/* ---------- dermal fibres ---------- */
+function buildFibres(count, seed, rad, tightRad, amp){
+  var r = rng(seed), loose = [], tight = [], up = new V3(0,1,0);
+  var lo = new V3(-2.82,0.12,-1.84), hi = new V3(2.82,1.62,1.84);
+  for (var i=0;i<count;i++){
+    var A = new V3(lerp(-2.4,2.4,r()), lerp(.2,1.55,r()), lerp(-1.5,1.5,r()));
+    var ang = r()*Math.PI*2, dir = new V3(Math.cos(ang), (r()-.5)*.45, Math.sin(ang)).normalize();
+    var len = 2.2+r()*2.8;
+    for (var t=0;t<14;t++){
+      var e1 = A.clone().addScaledVector(dir, len/2), e2 = A.clone().addScaledVector(dir, -len/2);
+      if (e1.x>lo.x&&e1.x<hi.x&&e1.y>lo.y&&e1.y<hi.y&&e1.z>lo.z&&e1.z<hi.z&&e2.x>lo.x&&e2.x<hi.x&&e2.y>lo.y&&e2.y<hi.y&&e2.z>lo.z&&e2.z<hi.z) break;
+      len *= 0.85;
+    }
+    var u = new V3().crossVectors(dir, up).normalize(), v = new V3().crossVectors(dir, u).normalize();
+    var a1=(.07+r()*.1)*amp, a2=(.05+r()*.08)*amp, f1=2+r()*3, f2=1.5+r()*2.5, p1=r()*6.28, p2=r()*6.28, rr=rad*(.8+r()*.5);
+    var pl=[], pt=[];
+    for (var j=0;j<=13;j++){
+      var s=j/13, base=A.clone().addScaledVector(dir,(s-.5)*len);
+      var o1=a1*Math.sin(f1*s*6.283+p1), o2=a2*Math.sin(f2*s*6.283+p2);
+      pl.push(base.clone().addScaledVector(u,o1).addScaledVector(v,o2).clamp(lo,hi));
+      pt.push(A.clone().addScaledVector(dir,(s-.5)*len*0.97).addScaledVector(u,o1*.1).addScaledVector(v,o2*.1).clamp(lo,hi));
+    }
+    loose.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pl), 34, rr, 5, false));
+    tight.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pt), 34, rr*tightRad, 5, false));
+  }
+  function merge(list){
+    var vc=0, ic=0; list.forEach(function(g){ vc+=g.attributes.position.count; ic+=g.index.count; });
+    var pos=new Float32Array(vc*3), nor=new Float32Array(vc*3), idx=new Uint32Array(ic), vo=0, io=0;
+    list.forEach(function(g){ pos.set(g.attributes.position.array, vo*3); nor.set(g.attributes.normal.array, vo*3); var gi=g.index.array; for (var k=0;k<gi.length;k++) idx[io+k]=gi[k]+vo; vo+=g.attributes.position.count; io+=gi.length; g.dispose(); });
+    return {pos:pos, nor:nor, idx:idx};
+  }
+  var L = merge(loose), T = merge(tight), geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(L.pos),3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(L.nor),3));
+  geo.setIndex(new THREE.BufferAttribute(L.idx,1));
+  var cur = 0;
+  return { geo:geo, set:function(k){
+    if (Math.abs(k-cur) < 0.002) return; cur = k;
+    var p=geo.attributes.position.array, n=geo.attributes.normal.array;
+    for (var i=0;i<p.length;i++){ p[i]=L.pos[i]+(T.pos[i]-L.pos[i])*k; n[i]=L.nor[i]+(T.nor[i]-L.nor[i])*k; }
+    geo.attributes.position.needsUpdate = true; geo.attributes.normal.needsUpdate = true;
+  }};
+}
+var collagen = buildFibres(84, 21, 0.03, 1.6, 1);
+var colMat = new THREE.MeshStandardMaterial({color:0xf0dcc0, roughness:.5, envMapIntensity:.5, emissive:0xffc869, emissiveIntensity:0});
+der.add(new THREE.Mesh(collagen.geo, colMat));
+var elastin = buildFibres(44, 77, 0.014, 1.3, 1.5);
+var elaMat = new THREE.MeshStandardMaterial({color:0xcf9a4e, roughness:.4, envMapIntensity:.6, emissive:0xffb347, emissiveIntensity:0});
+der.add(new THREE.Mesh(elastin.geo, elaMat));
+var neo = buildFibres(56, 303, 0.02, 1, 0.12);
+var neoMat = new THREE.MeshStandardMaterial({color:0xffe9bd, roughness:.35, emissive:0xffd27a, emissiveIntensity:.4, transparent:true, opacity:0});
+var neoMesh = new THREE.Mesh(neo.geo, neoMat); neoMesh.visible = false; der.add(neoMesh);
+var neoCount = neo.geo.index.count;
+
+/* ---------- capillaries ---------- */
+var capRed, capBlue;
+(function(){
+  var red = capRed = new THREE.MeshPhysicalMaterial({color:0xc4443c, roughness:.35, clearcoat:.6, envMapIntensity:.6});
+  var blue = capBlue = new THREE.MeshPhysicalMaterial({color:0x5c6db6, roughness:.35, clearcoat:.6, envMapIntensity:.6});
+  function tube(pts, r, mat){ der.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, r, 8, false), mat)); }
+  [[-1.25, 1],[1.15, -1]].forEach(function(cfg, n){
+    var z0 = cfg[0], sgn = cfg[1], a=[], v=[];
+    for (var i=0;i<=16;i++){ var x=-2.9+5.8*i/16; a.push(new V3(x, .42+.07*Math.sin(i*1.3+n), z0+.12*Math.sin(i*.9+n))); v.push(new V3(x, .34+.06*Math.sin(i*1.1+2+n), z0+sgn*.5+.12*Math.sin(i*.7+1))); }
+    tube(a, .042, red); tube(v, .05, blue);
+    for (var k=0;k<5;k++){
+      var x = -2.3+k*1.15+(n?0.4:0);
+      if (Math.abs(x-0.8)<0.45 && Math.abs(z0+sgn*.25-0.3)<0.6) continue;
+      tube([new V3(x,.42,z0), new V3(x-.07,1.0,z0+sgn*.08), new V3(x,1.5,z0+sgn*.16), new V3(x+.05,1.62,z0+sgn*.25)], .022, red);
+      tube([new V3(x+.05,1.62,z0+sgn*.25), new V3(x+.12,1.45,z0+sgn*.33), new V3(x+.14,.95,z0+sgn*.42), new V3(x+.1,.36,z0+sgn*.5)], .024, blue);
+    }
+  });
+})();
+
+/* ---------- hair follicle ---------- */
+function along(d){ return HB.clone().addScaledVector(HD, d); }
+function axisCyl(d0, d1, rBottom, rTop, mat, open){
+  var m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBottom, d1-d0, 28, 1, !!open), mat);
+  m.position.copy(along((d0+d1)/2)); m.quaternion.copy(qAxis); return m;
+}
+var hairMat = new THREE.MeshStandardMaterial({color:0x2c1d14, roughness:.45, emissive:0xff8a2a, emissiveIntensity:0, transparent:true, opacity:1});
+var hairIn = axisCyl(0.02, H_LEN, 0.042, 0.04, hairMat); der.add(hairIn);
+var hairOutGeo = new THREE.CylinderGeometry(0.012, 0.04, 1.7, 20); hairOutGeo.translate(0, 0.85, 0);
+var hairOut = new THREE.Mesh(hairOutGeo, hairMat); hairOut.position.copy(HS); hairOut.quaternion.copy(qAxis); der.add(hairOut);
+var sheathMat = new THREE.MeshPhysicalMaterial({color:0xe9b39b, roughness:.4, clearcoat:.5, transparent:true, opacity:.42, depthWrite:false, emissive:0xffc98f, emissiveIntensity:0, envMapIntensity:.5});
+var sheath = axisCyl(0.12, H_LEN-0.42, 0.105, 0.12, sheathMat); sheath.renderOrder = 5; der.add(sheath);
+var bulb = new THREE.Mesh(new THREE.SphereGeometry(0.19, 28, 20), sheathMat); bulb.position.copy(along(0.02)); bulb.quaternion.copy(qAxis); bulb.scale.set(1,1.3,1); bulb.renderOrder = 5; der.add(bulb);
+var melMat = new THREE.MeshStandardMaterial({color:0x3a2416, roughness:.5, emissive:0xff7a1a, emissiveIntensity:0});
+var melanin = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 16), melMat); melanin.position.copy(along(0.06)); melanin.scale.set(1,1.3,1); melanin.quaternion.copy(qAxis); der.add(melanin);
+var papilla = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), new THREE.MeshStandardMaterial({color:0xb8463f, roughness:.4})); papilla.position.copy(along(-0.1)); der.add(papilla);
+(function(){
+  var gl = new THREE.MeshPhysicalMaterial({color:0xf0d595, roughness:.35, clearcoat:.5, envMapIntensity:.5});
+  var c = along(1.12);
+  [[.2,.02,0,.13],[.3,.12,.06,.11],[.27,-.1,-.05,.1],[.36,.0,-.02,.085]].forEach(function(o){ var s=new THREE.Mesh(new THREE.SphereGeometry(o[3],16,12), gl); s.position.set(c.x+o[0], c.y+o[1], c.z+o[2]); der.add(s); });
+  var mus = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([along(0.75).add(new V3(.1,0,0)), new V3(1.25,1.25,.3), new V3(1.6,1.6,.3), new V3(1.75,1.74,.3)]), 24, .035, 8, false), new THREE.MeshStandardMaterial({color:0xa6564c, roughness:.5}));
+  der.add(mus);
+})();
+
+/* ---------- water molecules ---------- */
+var SITES = [new V3(-2.0,1.25,-0.9), new V3(-0.9,1.25,0.8), new V3(0.05,1.25,-0.7), new V3(1.7,1.25,1.0), new V3(2.2,1.25,-1.0)];
+var mols = [];
+(function(){
+  var r = rng(42);
+  for (var i=0;i<44;i++) mols.push({p:new V3(lerp(-2.7,2.7,r()), lerp(.25,1.55,r()), lerp(-1.75,1.75,r())), ph:r()*6.28, rot:new THREE.Euler(r()*6,r()*6,r()*6), site:-1, s:1});
+  for (var i=0;i<10;i++){ var d=new V3(r()-.5,r()-.5,r()-.5).normalize().multiplyScalar(.1+r()*.22); mols.push({p:new V3(2.0,1.22,1.55).add(d), ph:r()*6.28, rot:new THREE.Euler(r()*6,r()*6,r()*6), site:-2, s:1}); }
+  SITES.forEach(function(sv, si){ for (var i=0;i<16;i++){ var d=new V3(r()-.5,(r()-.5)*.8,r()-.5).normalize().multiplyScalar(.24+r()*.42); var p=sv.clone().add(d); p.y=clamp(p.y,.2,1.6); mols.push({p:p, ph:r()*6.28, rot:new THREE.Euler(r()*6,r()*6,r()*6), site:si, s:.8+r()*.4}); } });
+})();
+var oMat = new THREE.MeshPhysicalMaterial({color:0x9fd6f7, roughness:.15, clearcoat:1, emissive:0x4fb4ff, emissiveIntensity:.25, envMapIntensity:.8});
+var hMat = new THREE.MeshPhysicalMaterial({color:0xffffff, roughness:.2, clearcoat:1, emissive:0xbfe6ff, emissiveIntensity:.15, envMapIntensity:.8});
+var molO = new THREE.InstancedMesh(new THREE.SphereGeometry(0.046, 14, 10), oMat, mols.length);
+var molH = new THREE.InstancedMesh(new THREE.SphereGeometry(0.028, 10, 8), hMat, mols.length*2);
+der.add(molO, molH);
+var mDummy = new THREE.Object3D(), mT1 = new THREE.Matrix4().makeTranslation(0.0474,0.0367,0), mT2 = new THREE.Matrix4().makeTranslation(-0.0474,0.0367,0), mTmp = new THREE.Matrix4();
+function updateMols(time, siteAmt, hl, baseS){
+  var drift = reduce ? 0 : 1;
+  for (var i=0;i<mols.length;i++){
+    var m = mols[i], s = m.s;
+    if (m.site >= 0) s *= siteAmt[m.site]; else if (m.site === -2) s *= baseS*(1+0.7*hl); else s *= baseS*(1+0.25*hl);
+    mDummy.position.set(m.p.x+drift*.035*Math.sin(time*.7+m.ph), m.p.y+drift*.03*Math.sin(time*.9+m.ph*2), m.p.z+drift*.035*Math.cos(time*.6+m.ph));
+    mDummy.rotation.set(m.rot.x+drift*time*.3, m.rot.y+drift*time*.2, m.rot.z);
+    mDummy.scale.setScalar(Math.max(s, 0.0001)); mDummy.updateMatrix();
+    molO.setMatrixAt(i, mDummy.matrix);
+    mTmp.multiplyMatrices(mDummy.matrix, mT1); molH.setMatrixAt(i*2, mTmp);
+    mTmp.multiplyMatrices(mDummy.matrix, mT2); molH.setMatrixAt(i*2+1, mTmp);
+  }
+  molO.instanceMatrix.needsUpdate = true; molH.instanceMatrix.needsUpdate = true;
+}
+
+/* ---------- treatment devices and effects ---------- */
+var gold = new THREE.MeshStandardMaterial({color:0xd8b983, metalness:1, roughness:.26});
+var graphite = new THREE.MeshStandardMaterial({color:0x2a2622, metalness:.55, roughness:.42});
+var ivory = new THREE.MeshStandardMaterial({color:0xefe6d6, roughness:.45, envMapIntensity:.6});
+var steel = new THREE.MeshStandardMaterial({color:0xdfe3e8, metalness:1, roughness:.2});
+var glass = new THREE.MeshPhysicalMaterial({color:0xd2ecff, roughness:.05, clearcoat:1, transparent:true, opacity:.4, depthWrite:false});
+function seg(parent, y0, h, rBottom, rTop, mat){ var m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBottom, h, 40), mat); m.position.y = y0+h/2; parent.add(m); return m; }
+
+/* laser */
+var laser = new THREE.Group(); der.add(laser);
+var lHand = new THREE.Group(); lHand.quaternion.copy(qAxis); laser.add(lHand);
+seg(lHand, 0, .1, .17, .19, glass).renderOrder = 12;
+seg(lHand, .1, .06, .21, .21, gold); seg(lHand, .16, .5, .2, .26, graphite); seg(lHand, .66, .04, .275, .275, gold); seg(lHand, .7, 1.25, .26, .23, graphite);
+var BEAM_TOP = H_LEN+0.2;
+var beamMat = new THREE.MeshBasicMaterial({color:0xffb04a, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide});
+var beam = axisCyl(0, BEAM_TOP, .05, .14, beamMat, true); beam.renderOrder = 20; laser.add(beam);
+var coreMat = new THREE.MeshBasicMaterial({color:0xfff0cf, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false});
+var beamCore = axisCyl(0, BEAM_TOP, .02, .05, coreMat, true); beamCore.renderOrder = 21; laser.add(beamCore);
+var packet = glow(0xffd9a0, .7); laser.add(packet);
+var bulbGlow = glow(0xff8a2a, 1); bulbGlow.position.copy(along(0.05)); laser.add(bulbGlow);
+var bulbLight = new THREE.PointLight(0xff9a3c, 0, 3, 2); bulbLight.position.copy(along(0.1)); laser.add(bulbLight);
+var coolMat = new THREE.MeshBasicMaterial({map:glowTex, color:0x8fdcff, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false});
+var cool = new THREE.Mesh(new THREE.CircleGeometry(1.1, 48), coolMat); cool.rotation.x = -Math.PI/2; cool.position.set(HS.x, H_EPI+0.03, HS.z); cool.renderOrder = 20; epi.add(cool);
+
+/* hyaluronic acid */
+var needle = new THREE.Group(); scene.add(needle);
+seg(needle, 0, .12, .001, .012, steel); seg(needle, .12, 1.0, .012, .012, steel);
+seg(needle, 1.12, .14, .03, .07, gold);
+seg(needle, 1.28, .62, .068, .068, new THREE.MeshStandardMaterial({color:0xbfe6ff, emissive:0x6fc8ff, emissiveIntensity:.7, roughness:.2}));
+seg(needle, 1.26, .9, .085, .085, glass).renderOrder = 12;
+seg(needle, 2.16, .04, .13, .13, gold); seg(needle, 2.2, .5, .025, .025, graphite); seg(needle, 2.7, .04, .1, .1, gold);
+var gels = SITES.map(function(p){
+  var core = new THREE.Mesh(new THREE.SphereGeometry(1, 28, 20), new THREE.MeshPhysicalMaterial({color:0xd4f0ff, roughness:.08, clearcoat:1, transparent:true, opacity:.55, depthWrite:false, emissive:0x74cdff, emissiveIntensity:.7}));
+  core.position.copy(p); core.renderOrder = 5; core.visible = false; der.add(core);
+  var halo = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), fresnelMat(0x8fd8ff, 2.2)); halo.position.copy(p); halo.renderOrder = 20; halo.visible = false; der.add(halo);
+  var g = glow(0x9fdcff, 1); g.position.copy(p); der.add(g);
+  return {core:core, halo:halo, glow:g};
+});
+
+/* radiofrequency */
+var rfHand = new THREE.Group(); scene.add(rfHand);
+seg(rfHand, 0, .05, .4, .4, gold); seg(rfHand, .05, .3, .42, .3, ivory); seg(rfHand, .35, .04, .31, .31, gold); seg(rfHand, .39, 1.3, .28, .25, graphite);
+var waves = new THREE.Group(); scene.add(waves);
+var waveGeo = new THREE.SphereGeometry(1, 48, 20, 0, Math.PI*2, Math.PI/2, Math.PI/2);
+var waveMeshes = [];
+for (var wi=0; wi<5; wi++){ var wm = new THREE.Mesh(waveGeo, fresnelMat(0xf2c878, 1.6)); wm.renderOrder = 20; waves.add(wm); waveMeshes.push(wm); }
+var rfGlow = glow(0xffc86a, 2.6); waves.add(rfGlow);
+var rfLight = new THREE.PointLight(0xffc56a, 0, 5, 2); waves.add(rfLight);
+
+/* pedestal glow */
+(function(){
+  var m = new THREE.Mesh(new THREE.PlaneGeometry(18,18), new THREE.MeshBasicMaterial({map:glowTex, color:0x6b5536, transparent:true, opacity:.28, depthWrite:false}));
+  m.rotation.x = -Math.PI/2; m.position.y = -3.7; scene.add(m);
+})();
+
+/* ---------- sun spots (skin age scene) ---------- */
+var spotMat = new THREE.MeshBasicMaterial({color:0x7d4f33, transparent:true, opacity:0, depthWrite:false});
+(function(){
+  var r = rng(909);
+  for (var i=0;i<9;i++){ var m = new THREE.Mesh(new THREE.CircleGeometry(0.09+r()*0.13, 24), spotMat); m.rotation.x = -Math.PI/2; m.scale.y = .7+r()*.5; m.position.set(lerp(-2.6,2.6,r()), H_EPI+0.022, lerp(-1.7,1.7,r())); m.renderOrder = 11; epi.add(m); }
+})();
+
+/* ---------- face map: a porcelain mannequin sculpted from a sphere ---------- */
+var face = new THREE.Group(); face.visible = false; face.scale.setScalar(1.6); face.position.set(0, 0.55, 0); scene.add(face);
+var FA = .69, FB = 1.0, FC = .86;
+function g2(u,v,cu,cv,su,sv){ var a=(u-cu)/su, b=(v-cv)/sv; return Math.exp(-(a*a+b*b)); }
+function fTaper(y){ var t = clamp((0.15-y)/1.15,0,1); return 1-0.43*Math.pow(t,1.6); }
+function lashV(au){ return .158+1.5*(au-.27)*(au-.27); }
+function browV(au){ return .352-1.2*(au-.24)*(au-.24); }
+function lashW(au,v){ var d=(v-lashV(au))/.013; return Math.exp(-d*d)*ss(.15,.19,au)*(1-ss(.35,.39,au)); }
+function browW(au,v){ var d=(v-browV(au))/.02; return Math.exp(-d*d)*ss(.06,.12,au)*(1-ss(.4,.47,au)); }
+function relief(u,v){
+  var au = Math.abs(u), d = 0;
+  /* nose */
+  d += 0.09*g2(u,v,0,0.08,0.045,0.2) + 0.19*g2(u,v,0,-0.14,0.07,0.075) + 0.07*g2(au,v,0.095,-0.175,0.045,0.04) - 0.04*g2(u,v,0,-0.255,0.1,0.03);
+  /* eyes: socket, closed lid, lash crease, brow ridge */
+  d += -0.105*g2(au,v,0.27,0.21,0.15,0.085) + 0.06*g2(au,v,0.27,0.195,0.095,0.045) - 0.018*lashW(au,v);
+  d += 0.06*g2(au,v,0.26,0.335,0.17,0.042) + 0.02*g2(u,v,0,0.6,0.4,0.25);
+  /* cheeks */
+  d += 0.05*g2(au,v,0.4,-0.02,0.16,0.14);
+  /* mouth */
+  d += 0.03*g2(u,v,0,-0.41,0.22,0.12) + 0.062*g2(u,v,0,-0.372,0.115,0.028) - 0.014*g2(u,v,0,-0.345,0.03,0.02) + 0.07*g2(u,v,0,-0.452,0.095,0.035) - 0.045*g2(u,v,0,-0.41,0.15,0.013) - 0.02*g2(au,v,0.155,-0.41,0.03,0.03) - 0.014*g2(u,v,0,-0.29,0.025,0.05);
+  /* chin and temples */
+  d += -0.03*g2(u,v,0,-0.55,0.14,0.035) + 0.085*g2(u,v,0,-0.75,0.16,0.12);
+  d += -0.03*g2(au,v,0.6,0.3,0.1,0.18);
+  return d;
+}
+function facePoint(x, y, off){
+  var xx = x/(FA*fTaper(y)), yy = y/FB, dz = Math.sqrt(Math.max(0, 1-xx*xx-yy*yy));
+  return new V3(x, y, FC*dz+relief(x,y)*ss(0,.45,dz)+(off||0.03));
+}
+(function(){
+  var geo = new THREE.SphereGeometry(1, 320, 260), p = geo.attributes.position, col = new Float32Array(p.count*3);
+  var lip = [.80,.56,.52], dark = [.30,.22,.18], brow = [.50,.40,.34];
+  for (var i=0;i<p.count;i++){
+    var dx=p.getX(i), dy=p.getY(i), dz=p.getZ(i), y=FB*dy, x=FA*dx*fTaper(y), z=FC*dz*(dz<0?1.14:1), au=Math.abs(x);
+    z += relief(x,y)*ss(0,.45,dz);
+    p.setXYZ(i,x,y,z);
+    var r=1, g=1, bl=1;
+    if (dz > 0.2){
+      var wl = clamp(1.5*Math.max(g2(x,y,0,-0.375,0.105,0.024), g2(x,y,0,-0.45,0.085,0.03))-.25, 0, .8);
+      var we = .85*lashW(au,y), wb = .45*browW(au,y);
+      r = lerp(lerp(lerp(1,lip[0],wl),brow[0],wb),dark[0],we); g = lerp(lerp(lerp(1,lip[1],wl),brow[1],wb),dark[1],we); bl = lerp(lerp(lerp(1,lip[2],wl),brow[2],wb),dark[2],we);
+    }
+    col[i*3]=r; col[i*3+1]=g; col[i*3+2]=bl;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+  geo.computeVertexNormals();
+  var porcelain = new THREE.MeshPhysicalMaterial({color:0xdcc9b6, roughness:.6, clearcoat:.18, clearcoatRoughness:.5, envMapIntensity:.45});
+  var skinMat = porcelain.clone(); skinMat.vertexColors = true;
+  face.add(new THREE.Mesh(geo, skinMat));
+  [-1,1].forEach(function(sg){ var e = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 18), porcelain); e.scale.set(.05,.19,.11); e.position.set(sg*.655,.06,-.06); e.rotation.y = sg*.25; face.add(e); });
+  var neck = new THREE.Mesh(new THREE.CylinderGeometry(.3,.4,1.3,48), porcelain); neck.position.set(0,-1.2,-.16); face.add(neck);
+  var base = new THREE.Mesh(new THREE.CylinderGeometry(.62,.62,.06,64), gold); base.position.set(0,-1.86,-.16); face.add(base);
+})();
+var zoneGlow = glow(0xffd28a, .55); face.add(zoneGlow);
+
+/* ---------- language ---------- */
+var lang = 'en';
+var KA = {
+  eyebrow:'კანის ატლასი · ინტერაქტიული', title:'ზედაპირის <em>მიღმა</em>',
+  intro:'ატრიალეთ მოდელი და გაადიდეთ გორგოლაჭით. გახსენით ნიშნული სტრუქტურის შესასწავლად ან ჩართეთ პროცედურა ქვემოთ.',
+  explode:'დაშლილი ხედი', xray:'რენტგენის ხედი', sound:'ფონური მუსიკა', reset:'საწყისი ხედი', cta:'კონსულტაციის დაჯავშნა',
+  m_laser:'ლაზერული ეპილაცია', m_laser_s:'სელექციური ფოტოთერმოლიზი', m_ha:'ჰიალურონის ბიორევიტალიზაცია', m_ha_s:'დერმის დატენიანება', m_rf:'RF ლიფტინგი და კოლაგენი', m_rf_s:'თერმული რემოდელირება',
+  c_eyebrow:'წინასწარი ჩაწერით', c_title:'პირადი კონსულტაცია',
+  c_body:'ოცდაათი წუთი სპეციალისტთან: კანის შეფასება, მკურნალობის გეგმა და რჩევები პროცედურის შემდგომი მოვლისთვის.',
+  c_note:'ჯავშანი ჯერ არ არის დაკავშირებული. მიაბით ეს ღილაკი კლინიკის ჯავშნის გვერდს.',
+  note:'საილუსტრაციო მოდელი. ციფრები და დრო გამარტივებულია და არ წარმოადგენს კლინიკურ რეკომენდაციას.',
+  fallback:'ამ გვერდს სჭირდება WebGL, რომელიც ამ ბრაუზერში მიუწვდომელია.',
+  v_treat:'პროცედურები', v_age:'კანის ასაკი', v_face:'სახის რუკა', t_help:'რა შველის',
+  a_years:'წელი', a_col:'კოლაგენი', a_hyd:'ტენი', a_life:'ცხოვრების წესი', a_sun:'მზე SPF-ის გარეშე', a_smoke:'მოწევა', a_sleep:'უძილობა',
+  f_hint:'აირჩიეთ ზონა, რომელიც გაწუხებთ'
+};
+var EN = {};
+var PIN_KA = {
+  epi:{label:'ეპიდერმისი', eyebrow:'შრე 01 · 0.05–1.5 მმ', title:'ეპიდერმისი',
+    body:'კანის გარე ბარიერი. კერატინოციტები ბაზალური შრიდან ზემოთ ადის და დაახლოებით ოთხ კვირაში რქოვან შრედ იქცევა. ის ინარჩუნებს ტენს, აკავებს გამაღიზიანებლებს და შეიცავს მელანინს, ამიტომ ლაზერი ყოველი იმპულსის წინ მას აგრილებს.'},
+  collagen:{label:'კოლაგენის ბოჭკოები', eyebrow:'დერმა · I და III ტიპი', title:'კოლაგენი და ელასტინი', go:'ნახეთ RF ლიფტინგი',
+    body:'კოლაგენი კანს სიმტკიცეს აძლევს, ელასტინი კი დრეკადობას. ფიბრობლასტები მათ ნელა აახლებენ და ასაკთან ერთად ეს პროცესი სუსტდება, ამიტომ ბოჭკოები მოშვებული და ტალღოვანი ხდება. რადიოსიხშირული სითბო არსებულ ბოჭკოებს ჭიმავს და ახლის წარმოქმნას ასტიმულირებს.'},
+  follicle:{label:'თმის ფოლიკული', eyebrow:'ბოლქვი 2–4 მმ სიღრმეზე', title:'თმის ფოლიკული', go:'ნახეთ ლაზერული ეპილაცია',
+    body:'თმა იზრდება ბოლქვიდან, რომელსაც ქვემოდან დერმული დვრილი კვებავს. აქ თავმოყრილი მელანინი შთანთქავს 755–1064 ნმ ტალღის სიგრძის ლაზერის სინათლეს და სითბოდ გარდაქმნის. სწორედ ასე აღწევს ეპილაცია ფოლიკულამდე ისე, რომ ირგვლივ კანი არ ზიანდება.'},
+  water:{label:'დერმის დატენიანება', eyebrow:'დერმული მატრიქსი · ჰიალურონის მჟავა', title:'დერმის დატენიანება', go:'ნახეთ ბიორევიტალიზაცია',
+    body:'ბოჭკოებს შორის არსებული ჰიალურონის მჟავა საკუთარ წონაზე ბევრად მეტ წყალს იკავებს და დერმას სისავსესა და დრეკადობას უნარჩუნებს. ბიორევიტალიზაციის დროს აქ ახალი ჰიალურონის მჟავა შეჰყავთ ამ მარაგის აღსადგენად.'},
+  subcutis:{label:'კანქვეშა ქსოვილი', eyebrow:'შრე 03 · ჰიპოდერმა', title:'კანქვეშა ცხიმოვანი ქსოვილი',
+    body:'ცხიმოვანი უჯრედების წილაკები, რომლებიც ბოჭკოვანი ძგიდეებით არის გამოყოფილი. ეს შრე არბილებს დარტყმებს, ინარჩუნებს სითბოს და სახეს მოცულობას აძლევს. აქ ნაჩვენები პროცედურები მის ზემოთ მდებარე შრეებზე მოქმედებს.'},
+  forehead:{label:'შუბლი', eyebrow:'სახის ზედა ნაწილი · შუბლის კუნთი', title:'შუბლის ნაოჭები', go:'კონსულტაციის დაჯავშნა',
+    body:'ჰორიზონტალური ხაზები ჩნდება იქ, სადაც შუბლის კუნთი წარბებს სწევს, დღეში ათასობითჯერ. როცა კანი თხელდება და კოლაგენს კარგავს, ნაკეცები მოსვენებულ სახეზეც რჩება.',
+    helps:['ბოტულინის ტოქსინი ადუნებს კუნთს','ბიორევიტალიზაცია აუმჯობესებს კანის ხარისხს','ყოველდღიური SPF ანელებს ახალი ხაზების გაჩენას']},
+  frown:{label:'წარბებს შორის', eyebrow:'წარბებს შორის · შემჭმუხნავი კუნთები', title:'წარბთაშორისი ნაოჭები', go:'კონსულტაციის დაჯავშნა',
+    body:'ვერტიკალურ ხაზებს ქმნის კუნთები, რომლებიც წარბებს ერთმანეთისკენ ქაჩავს, როცა ვფიქრობთ ან თვალს ვჭუტავთ. განმეორებითი დაკეცვა მათ კანში აღბეჭდავს.',
+    helps:['ბოტულინის ტოქსინი ასუსტებს კუნთის დაჭიმვას','ჰიალურონის ფილერი ღრმა ხაზებისთვის, რომლებიც მოსვენებისასაც ჩანს']},
+  crow:{label:'თვალის კუთხე', eyebrow:'თვალის გარე კუთხე · თვალის ირგვლივი კუნთი', title:'თვალის კუთხის ნაოჭები', go:'კონსულტაციის დაჯავშნა',
+    body:'თვალის გვერდით კანი სახეზე ერთ-ერთი ყველაზე თხელია და თვალის ირგვლივი კუნთი მას ყოველ ღიმილზე კეცავს. მზის ზემოქმედება ამ ხაზებს უფრო ადრე აჩენს.',
+    helps:['ბოტულინის ტოქსინი მცირე დოზებით','ბიორევიტალიზაცია თხელი, მშრალი კანისთვის','SPF და მზის სათვალე']},
+  undereye:{label:'თვალის ქვეშ', eyebrow:'ცრემლის ღარი · თხელი კანი, მცირე ცხიმი', title:'თვალის ქვედა ჩაღრმავება', go:'კონსულტაციის დაჯავშნა',
+    body:'ასაკთან ერთად თვალის ქვეშ ცხიმი და ძვალი იკლებს და ჩაღრმავება ჩნდება. თხელი კანიდან სისხლძარღვები გამოსჭვივის, რაც მუქ წრეებად აღიქმება.',
+    helps:['ჰიალურონის ფილერი, მხოლოდ შერჩეულ შემთხვევებში','ბიორევიტალიზაცია ან მეზოთერაპია','ყოველთვის საჭიროა ექიმის დათვალიერება']},
+  nasolabial:{label:'ცხვირ-ტუჩის ნაოჭი', eyebrow:'სახის შუა ნაწილი · მოცულობის გადანაცვლება', title:'ცხვირ-ტუჩის ნაოჭები', go:'კონსულტაციის დაჯავშნა',
+    body:'ნაოჭი ღრმავდება, როცა ლოყის ცხიმოვანი ბალიშები მოცულობას კარგავს და ქვემოთ ჩამოდის, ხოლო მათზე კანი დუნდება. ეს უფრო სახის შუა ნაწილის ცვლილების ნიშანია, ვიდრე ცალკე ხაზი.',
+    helps:['ჰიალურონის ფილერი ლოყის საყრდენის აღსადგენად','RF ლიფტინგი კანის გასამკვრივებლად','კოლაგენის მასტიმულირებელი პროცედურები']},
+  lips:{label:'ტუჩები', eyebrow:'პირის ირგვლივ · მოცულობა და ტენი', title:'ტუჩები', go:'კონსულტაციის დაჯავშნა',
+    body:'დროთა განმავლობაში ტუჩები კარგავს მოცულობას და კონტურს, პირის ირგვლივ კი წვრილი ვერტიკალური ხაზები ჩნდება. ტუჩის კანს თითქმის არ აქვს ცხიმოვანი ჯირკვლები, ამიტომ უფრო სწრაფად შრება.',
+    helps:['ჰიალურონის ფილერი ფორმისა და ტენისთვის','ბიორევიტალიზაცია პირის ირგვლივ']},
+  jaw:{label:'ყბის ხაზი', eyebrow:'სახის ქვედა ნაწილი · კანის მოდუნება', title:'ყბის ხაზი', go:'კონსულტაციის დაჯავშნა',
+    body:'კოლაგენისა და ელასტინის კლებასთან ერთად ყბის გასწვრივ კანი და ცხიმი ქვემოთ ჩამოდის და კონტური ბუნდოვანდება. ცვლილება თანდათანობითია და ხშირად პირველად ფოტოებზე შეიმჩნევა.',
+    helps:['RF ლიფტინგი დერმის დასაჭიმად','ჰიალურონის ფილერი კონტურის აღსადგენად','კანის მოდუნების შეფასება ადგილზე']}
+};
+function pinText(p, f){ if (lang === 'ka') return PIN_KA[p.key][f]; return f === 'go' ? p.go[1] : p[f]; }
+var view = 'treat';
+
+/* ---------- annotations ---------- */
+var PINS = [
+  {key:'epi', label:'Epidermis', parent:epi, at:new V3(-1.7,.54,-.9), off:new V3(-3.0,3.4,4.6), xray:false, eyebrow:'Layer 01 · 0.05 to 1.5 mm', title:'Epidermis',
+   body:'The outer barrier. Keratinocytes rise from the basal layer and flatten into the stratum corneum over about four weeks. It holds water in, keeps irritants out and carries melanin, which is why lasers cool it before each pulse.'},
+  {key:'collagen', label:'Collagen fibres', parent:der, at:new V3(-2.1,.95,2.0), off:new V3(-2.2,1.0,5.6), xray:true, eyebrow:'Dermis · Types I and III', title:'Collagen & Elastin', go:['rf','See RF lifting'],
+   body:'Collagen gives skin its tensile strength; elastin lets it spring back. Fibroblasts renew both slowly and output falls with age, so the fibres loosen and wave. Radiofrequency heat tightens existing fibres and prompts new ones.'},
+  {key:'follicle', label:'Hair follicle', parent:der, at:new V3(.95,.3,.55), off:new V3(3.4,1.2,5.4), xray:true, eyebrow:'Appendage · Bulb 2 to 4 mm deep', title:'Hair Follicle', go:['laser','See laser epilation'],
+   body:'Each hair grows from the bulb, fed by the dermal papilla beneath it. Melanin concentrated here absorbs laser light between 755 and 1064 nm and turns it into heat. That is how epilation reaches the follicle and spares the skin around it.'},
+  {key:'water', label:'Dermal hydration', parent:der, at:new V3(2.0,1.22,1.8), off:new V3(2.6,1.2,5.2), xray:true, eyebrow:'Dermal matrix · Hyaluronic acid', title:'Dermal Hydration', go:['ha','See biorevitalization'],
+   body:'Hyaluronic acid in the space between fibres binds many times its own weight in water, keeping the dermis full and springy. Biorevitalization places fresh hyaluronic acid here to restore that reservoir.'},
+  {key:'subcutis', label:'Subcutis', parent:hyp, at:new V3(.4,.6,2.0), off:new V3(-.5,.3,6.5), xray:false, eyebrow:'Layer 03 · Hypodermis', title:'Subcutis',
+   body:'Lobules of fat cells held between fibrous septa. This layer cushions, insulates and gives the face its volume. The treatments shown here act in the layers above it.'}
+];
+var BOOK = ['consult','Book a consultation'];
+[
+  {key:'forehead', x:0, y:.58, label:'Forehead', eyebrow:'Upper face · Frontalis muscle', title:'Forehead lines',
+   body:'Horizontal lines form where the frontalis muscle lifts the brows, thousands of times a day. As skin thins and loses collagen, the creases stay visible at rest.',
+   helps:['Botulinum toxin relaxes the muscle','Biorevitalization improves skin quality','Daily SPF slows further lines']},
+  {key:'frown', x:0, y:.37, label:'Frown lines', eyebrow:'Between the brows · Corrugator and procerus', title:'Frown lines',
+   body:'The vertical lines come from the muscles that draw the brows together when we concentrate or squint. Repeated folding etches them into the skin.',
+   helps:['Botulinum toxin softens the pull','Hyaluronic filler for deep lines that remain at rest']},
+  {key:'crow', x:.43, y:.2, label:"Crow's feet", eyebrow:'Outer eye · Orbicularis oculi', title:"Crow's feet",
+   body:'The skin beside the eye is among the thinnest on the face, and the circular eye muscle folds it with every smile. Sun exposure makes these lines arrive earlier.',
+   helps:['Botulinum toxin in small doses','Biorevitalization for thin, dry skin','SPF and sunglasses']},
+  {key:'undereye', x:-.27, y:.08, label:'Under-eye', eyebrow:'Tear trough · Thin skin, little fat', title:'Under-eye hollows',
+   body:'A hollow appears as the fat and bone beneath the eye recede with age. Thin skin lets vessels show through, which reads as dark circles.',
+   helps:['Hyaluronic filler in selected cases','Biorevitalization or mesotherapy','Always assessed in person first']},
+  {key:'nasolabial', x:.21, y:-.24, label:'Nasolabial fold', eyebrow:'Midface · Volume shift', title:'Nasolabial folds',
+   body:'The fold deepens when cheek fat pads lose volume and slide downward, while the skin over them loosens. It is a sign of midface change more than a line in itself.',
+   helps:['Hyaluronic filler to restore cheek support','RF lifting to firm the skin','Collagen-stimulating treatments']},
+  {key:'lips', x:-.03, y:-.41, label:'Lips', eyebrow:'Perioral area · Volume and hydration', title:'Lips',
+   body:'Lips lose volume and definition over time, and fine vertical lines form around the mouth. Lip skin has almost no oil glands, so it dries faster than the rest of the face.',
+   helps:['Hyaluronic filler for shape and hydration','Biorevitalization around the mouth']},
+  {key:'jaw', x:-.4, y:-.62, label:'Jawline', eyebrow:'Lower face · Laxity', title:'Jawline and jowls',
+   body:'As collagen and elastin decline, skin and fat along the jaw descend and blur its contour. The change is gradual and often noticed first in photographs.',
+   helps:['RF lifting to tighten the dermis','Hyaluronic filler to redefine the contour','Assessment of skin laxity in person']}
+].forEach(function(z){
+  z.view = 'face'; z.parent = face; z.at = facePoint(z.x, z.y, .035); z.xray = false; z.go = BOOK;
+  z.off = new V3(z.x*1.2+(z.x<0?-.4:.4), .1, 4.3);
+  PINS.push(z);
+});
+var pinsEl = $('pins'), tip = $('tip'), activePin = null, autoXray = false, hl = {epi:0, collagen:0, follicle:0, water:0, subcutis:0};
+PINS.forEach(function(p){
+  if (hl[p.key] === undefined) hl[p.key] = 0;
+  p.anchor = new THREE.Object3D(); p.anchor.position.copy(p.at); p.parent.add(p.anchor);
+  var b = document.createElement('button'); b.className = 'pin'; b.setAttribute('aria-label', 'About: '+p.label);
+  b.innerHTML = '<span class="dot"></span><span class="lab">'+p.label+'</span>';
+  b.addEventListener('click', function(){ if (activePin === p) closePin(); else openPin(p); });
+  pinsEl.appendChild(b); p.el = b;
+});
+var tween = null, tmpV = new V3();
+function flyTo(pos, target){ tween = {p0:camera.position.clone(), p1:pos, t0:controls.target.clone(), t1:target, start:performance.now()}; }
+controls.addEventListener('start', function(){ tween = null; });
+function fillTip(p){
+  $('tipEyebrow').textContent = pinText(p,'eyebrow'); $('tipTitle').textContent = pinText(p,'title'); $('tipBody').textContent = pinText(p,'body');
+  var go = $('tipGo'); if (p.go){ go.hidden = false; go.textContent = pinText(p,'go'); go.onclick = function(e){ e.stopPropagation(); goTarget(p.go[0]); }; } else go.hidden = true;
+  var list = $('tipList'), helps = p.helps ? pinText(p,'helps') : null;
+  list.hidden = $('tipHelp').hidden = !helps; list.innerHTML = '';
+  if (helps) helps.forEach(function(h){ var li = document.createElement('li'); li.textContent = h; list.appendChild(li); });
+  Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.setAttribute('aria-pressed', c.dataset.key === p.key); });
+}
+function goTarget(t){
+  if (t === 'consult'){ consult.classList.add('open'); btnCta.setAttribute('aria-expanded', true); return; }
+  closePin(); setView('treat'); setMode(t); setT(0); play(true);
+}
+function openPin(p){
+  if (activePin) activePin.el.classList.remove('on');
+  activePin = p; p.el.classList.add('on');
+  fillTip(p);
+  tip.classList.add('open');
+  if (p.xray && !xrayOn){ setXray(true); autoXray = true; }
+  block.updateMatrixWorld(true);
+  var w = p.anchor.getWorldPosition(new V3());
+  flyTo(w.clone().addScaledVector(p.off, 1.8), w);
+}
+function closePin(){
+  if (!activePin) return;
+  activePin.el.classList.remove('on'); activePin = null; tip.classList.remove('open');
+  Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.setAttribute('aria-pressed', false); });
+  if (autoXray){ autoXray = false; if (!(playing || T > 0)) setXray(false); }
+}
+$('tipClose').addEventListener('click', closePin);
+
+/* ---------- UI state ---------- */
+var explodeOn = false, xrayOn = false, eK = 0, xK = 0;
+var mode = 'laser', T = 0, playing = false, DUR = 16;
+var PHASES = {
+  laser:[[.15,'Contact cooling','A chilled sapphire tip rests over the follicle so the epidermis stays cool and protected.'],
+         [.75,'Selective pulses','Light travels down the shaft. Melanin in the bulb absorbs it and converts it to heat.'],
+         [1.01,'Follicle at rest','The heated bulb can no longer grow hair. Surrounding tissue stays cool and the shaft sheds within weeks.']],
+  ha:[[.64,'Micro-injections','Fine droplets of hyaluronic acid are placed in the upper dermis, a few millimetres apart.'],
+      [.85,'Water binding','Each droplet draws water toward it and spreads into a hydration reservoir.'],
+      [1.01,'Plump and bright','The dermis swells gently, fine lines soften and the surface reflects more light.']],
+  rf:[[.18,'Energy delivery','Radiofrequency waves pass through the epidermis and warm the dermis beneath.'],
+      [.6,'Collagen contraction','Heat makes loose, wavy fibres shorten and thicken.'],
+      [1.01,'New collagen','Over the following weeks fibroblasts lay down fresh collagen, forming a firmer, denser mesh.']]
+};
+var PHASES_KA = {
+  laser:[[.15,'კონტაქტური გაგრილება','გაცივებული საფირონის ბუნიკი ფოლიკულის თავზე ეხება კანს, რომ ეპიდერმისი გრილი და დაცული დარჩეს.'],
+         [.75,'სელექციური იმპულსები','სინათლე თმის ღერს მიჰყვება. ბოლქვში არსებული მელანინი მას შთანთქავს და სითბოდ გარდაქმნის.'],
+         [1.01,'ფოლიკული მოსვენებულია','გაცხელებული ბოლქვი თმას ვეღარ ზრდის. მიმდებარე ქსოვილი გრილი რჩება, ღერი კი რამდენიმე კვირაში ცვივა.']],
+  ha:[[.64,'მიკროინექციები','ჰიალურონის მჟავის წვრილი წვეთები თავსდება დერმის ზედა შრეში, ერთმანეთისგან რამდენიმე მილიმეტრში.'],
+      [.85,'წყლის შეკავშირება','თითოეული წვეთი წყალს იზიდავს და დატენიანების რეზერვუარად იშლება.'],
+      [1.01,'სავსე და კაშკაშა','დერმა ოდნავ ივსება, წვრილი ნაოჭები სწორდება და ზედაპირი მეტ სინათლეს ირეკლავს.']],
+  rf:[[.18,'ენერგიის მიწოდება','რადიოსიხშირული ტალღები გადის ეპიდერმისში და ათბობს მის ქვეშ მდებარე დერმას.'],
+      [.6,'კოლაგენის შეკუმშვა','სითბოს გავლენით მოშვებული, ტალღოვანი ბოჭკოები მოკლდება და სქელდება.'],
+      [1.01,'ახალი კოლაგენი','მომდევნო კვირებში ფიბრობლასტები ახალ კოლაგენს გამოიმუშავებენ და უფრო მკვრივი, მტკიცე ბადე ყალიბდება.']]
+};
+var btnExplode = $('btnExplode'), btnXray = $('btnXray'), seek = $('seek'), btnPlay = $('btnPlay');
+function setExplode(v){ explodeOn = v; btnExplode.setAttribute('aria-pressed', v); }
+function setXray(v){ xrayOn = v; btnXray.setAttribute('aria-pressed', v); }
+btnExplode.addEventListener('click', function(){ setExplode(!explodeOn); });
+btnXray.addEventListener('click', function(){ autoXray = false; setXray(!xrayOn); });
+$('btnReset').addEventListener('click', function(){ resetPanels(); closePin(); setExplode(false); var h = homePose(view); flyTo(h.pos, h.target); });
+var lastPhase = '', lastRead = '';
+function syncUI(){
+  var v = Math.round(T*1000); seek.value = v; seek.style.setProperty('--p', (T*100)+'%'); $('pct').textContent = Math.round(T*100)+'%';
+  var ph = (lang === 'ka' ? PHASES_KA : PHASES)[mode], i = 0; while (i < ph.length-1 && T >= ph[i][0]) i++;
+  var id = lang+mode+i; if (id !== lastPhase){ lastPhase = id; $('phNum').textContent = '0'+(i+1); $('phTitle').textContent = ph[i][1]; $('phText').textContent = ph[i][2]; }
+}
+function setRead(s){ if (s !== lastRead){ lastRead = s; $('phRead').textContent = s; } }
+function setT(v){ T = clamp(v,0,1); syncUI(); }
+function play(v){
+  playing = v;
+  if (v){ if (T >= 1) setT(0); if (!xrayOn){ setXray(true); autoXray = false; } }
+  btnPlay.setAttribute('aria-label', lang === 'ka' ? (v ? 'პაუზა' : 'დაკვრა') : (v ? 'Pause' : 'Play'));
+  $('icoPlay').innerHTML = v ? '<path d="M3 1.5h3v11H3zM8 1.5h3v11H8z"/>' : '<path d="M3 1.5v11l9-5.5z"/>';
+}
+function setMode(m){
+  mode = m; lastPhase = '';
+  Array.prototype.forEach.call(document.querySelectorAll('.mode'), function(b){ b.setAttribute('aria-pressed', b.dataset.mode === m); });
+  syncUI();
+}
+Array.prototype.forEach.call(document.querySelectorAll('.mode'), function(b){
+  b.addEventListener('click', function(){ if (mode !== b.dataset.mode){ setMode(b.dataset.mode); setT(0); } play(true); });
+});
+btnPlay.addEventListener('click', function(){ play(!playing); });
+seek.addEventListener('input', function(){ play(false); setT(seek.value/1000); if (T > 0 && !xrayOn) setXray(true); });
+var consult = $('consult'), btnCta = $('btnCta'), btnUi = $('btnUi');
+function setClean(c){ document.body.classList.toggle('clean', c); btnUi.setAttribute('aria-pressed', c); if (c){ closePin(); consult.classList.remove('open'); } }
+btnUi.addEventListener('click', function(){ setClean(!document.body.classList.contains('clean')); });
+Array.prototype.forEach.call(document.querySelectorAll('.min'), function(b){ b.addEventListener('click', function(){ document.body.classList.toggle('barmin'); }); });
+btnCta.addEventListener('click', function(e){ e.stopPropagation(); var o = !consult.classList.contains('open'); consult.classList.toggle('open', o); btnCta.setAttribute('aria-expanded', o); });
+document.addEventListener('click', function(e){ if (!consult.contains(e.target)){ consult.classList.remove('open'); btnCta.setAttribute('aria-expanded', false); } });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape'){ closePin(); consult.classList.remove('open'); setClean(false); }
+  else if ((e.key === 'h' || e.key === 'H') && !/INPUT|TEXTAREA/.test(e.target.tagName)) setClean(!document.body.classList.contains('clean'));
+});
+/* ---------- ambient sound: synthesised in the browser, starts only on a click ---------- */
+var audio = null, soundOn = false, bellTimer = null, btnSound = $('btnSound');
+function buildAudio(){
+  var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+  var ctx = new AC(), master = ctx.createGain(); master.gain.value = 0;
+  var comp = ctx.createDynamicsCompressor(); master.connect(comp); comp.connect(ctx.destination);
+  var wet = ctx.createGain(); wet.gain.value = .5;
+  [0.31, 0.47].forEach(function(dt){
+    var d = ctx.createDelay(1); d.delayTime.value = dt;
+    var fb = ctx.createGain(); fb.gain.value = .55;
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800;
+    wet.connect(d); d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(master);
+  });
+  var bus = ctx.createGain(); bus.connect(master); bus.connect(wet);
+  var filt = ctx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 700; filt.Q.value = .5; filt.connect(bus);
+  var lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = .05; lg.gain.value = 250; lfo.connect(lg); lg.connect(filt.frequency); lfo.start();
+  [110, 164.81, 220, 246.94, 277.18, 369.99].forEach(function(f, i){
+    [-4, 4].forEach(function(det){
+      var o = ctx.createOscillator(); o.type = i < 2 ? 'sine' : 'triangle'; o.frequency.value = f; o.detune.value = det+i;
+      var g = ctx.createGain(); g.gain.value = .045/(1+i*.25);
+      var l = ctx.createOscillator(), lgg = ctx.createGain(); l.frequency.value = .03+.017*i; lgg.gain.value = g.gain.value*.6; l.connect(lgg); lgg.connect(g.gain); l.start();
+      o.connect(g); g.connect(filt); o.start();
+    });
+  });
+  function bell(){
+    var notes = [554.37, 659.25, 739.99, 880, 987.77, 1108.73], f = notes[Math.floor(Math.random()*notes.length)], t = ctx.currentTime;
+    var o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(.05, t+.02); g.gain.exponentialRampToValueAtTime(.0001, t+3.5);
+    o.connect(g); g.connect(bus); o.start(t); o.stop(t+3.6);
+  }
+  return {ctx:ctx, master:master, bell:bell};
+}
+function bellLoop(){ if (!soundOn || !audio) return; audio.bell(); bellTimer = setTimeout(bellLoop, 2500+Math.random()*4000); }
+function setSound(v){
+  try {
+    if (v){
+      if (!audio) audio = buildAudio();
+      if (!audio) return;
+      audio.ctx.resume();
+      var t = audio.ctx.currentTime; audio.master.gain.cancelScheduledValues(t); audio.master.gain.setValueAtTime(audio.master.gain.value, t); audio.master.gain.linearRampToValueAtTime(.8, t+2.5);
+      soundOn = true; clearTimeout(bellTimer); bellTimer = setTimeout(bellLoop, 1800);
+    } else {
+      soundOn = false; clearTimeout(bellTimer);
+      if (audio){ var t2 = audio.ctx.currentTime; audio.master.gain.cancelScheduledValues(t2); audio.master.gain.setValueAtTime(audio.master.gain.value, t2); audio.master.gain.linearRampToValueAtTime(0, t2+1.2); setTimeout(function(){ if (!soundOn && audio) audio.ctx.suspend(); }, 1400); }
+    }
+  } catch(e){ soundOn = false; }
+  btnSound.setAttribute('aria-pressed', soundOn);
+}
+btnSound.addEventListener('click', function(){ setSound(!soundOn); });
+var i18nEls = document.querySelectorAll('[data-i18n]');
+Array.prototype.forEach.call(i18nEls, function(el){ EN[el.dataset.i18n] = el.innerHTML; });
+function applyLang(l, fromHash){
+  lang = l === 'ka' ? 'ka' : 'en';
+  document.documentElement.lang = lang;
+  btnUi.setAttribute('aria-label', lang === 'ka' ? 'პანელების დამალვა ან ჩვენება' : 'Hide or show panels');
+  var d = lang === 'ka' ? KA : EN;
+  Array.prototype.forEach.call(i18nEls, function(el){ el.innerHTML = d[el.dataset.i18n]; });
+  Array.prototype.forEach.call(document.querySelectorAll('.lang button'), function(b){ b.setAttribute('aria-pressed', b.dataset.lang === lang); });
+  PINS.forEach(function(p){ p.el.querySelector('.lab').textContent = pinText(p,'label'); p.el.setAttribute('aria-label', pinText(p,'label')); });
+  if (activePin) fillTip(activePin);
+  lastPhase = ''; lastRead = ''; syncUI(); updateAgeUI();
+  Array.prototype.forEach.call(document.querySelectorAll('#zoneChips .chip'), function(c){ c.textContent = pinText(c._pin,'label'); });
+  if (!fromHash) writeHash();
+}
+Array.prototype.forEach.call(document.querySelectorAll('.lang button'), function(b){ b.addEventListener('click', function(){ applyLang(b.dataset.lang); }); });
+function writeHash(){ try { location.hash = lang+(view === 'treat' ? '' : '-'+view); } catch(e){} }
+function readHash(){ var m = /^#?(ka|en)(?:-(age|face))?$/.exec(location.hash || ''); return m ? {lang:m[1], view:m[2] || 'treat'} : null; }
+window.addEventListener('hashchange', function(){ var h = readHash(); if (!h) return; if (h.lang !== lang) applyLang(h.lang, true); if (h.view !== view) setView(h.view, true); });
+
+/* ---------- scenes ---------- */
+function setView(v, fromHash){
+  closePin(); play(false);
+  view = v; document.body.dataset.view = v;
+  Array.prototype.forEach.call(document.querySelectorAll('.scene'), function(b){ b.setAttribute('aria-pressed', b.dataset.view === v); });
+  block.visible = v !== 'face'; face.visible = v === 'face';
+  controls.minAzimuthAngle = v === 'face' ? -1.7 : -Infinity; controls.maxAzimuthAngle = v === 'face' ? 1.7 : Infinity;
+  if (v !== 'treat'){ setExplode(false); if (v === 'age') setXray(false); }
+  var h = homePose(v); flyTo(h.pos, h.target);
+  if (!fromHash) writeHash();
+}
+Array.prototype.forEach.call(document.querySelectorAll('.scene'), function(b){ b.addEventListener('click', function(){ if (view !== b.dataset.view) setView(b.dataset.view); }); });
+
+/* skin age */
+var AGE_TXT = {
+  en:[[30,'In your twenties','Collagen is dense and well organised, the dermis holds water easily and the surface reflects light evenly. Daily SPF is the most effective habit at this stage.',null],
+      [40,'In your thirties','Collagen production slows by roughly one percent a year. Fine lines appear where the face moves most and the skin holds a little less water.',['ha','See biorevitalization']],
+      [50,'In your forties','Fibres loosen and lose their weave, elastin recoils more slowly and the fat layer begins to thin. Lines stay visible at rest.',['rf','See RF lifting']],
+      [60,'In your fifties','The dermis is noticeably thinner and drier. Collagen loss speeds up around menopause and volume shifts downward.',['consult','Book a consultation']],
+      [999,'Sixty and beyond','Skin is thinner, drier and slower to repair. Care centres on hydration, protection and gentle stimulation.',['consult','Book a consultation']]],
+  ka:[[30,'ოციანი წლები','კოლაგენი მკვრივი და მოწესრიგებულია, დერმა ადვილად ინარჩუნებს წყალს და ზედაპირი სინათლეს თანაბრად ირეკლავს. ამ ასაკში ყველაზე ეფექტური ჩვევა ყოველდღიური SPF-ია.',null],
+      [40,'ოცდაათიანი წლები','კოლაგენის გამომუშავება წელიწადში დაახლოებით ერთი პროცენტით ნელდება. წვრილი ხაზები ჩნდება იქ, სადაც სახე ყველაზე მეტად მოძრაობს, და კანი ოდნავ ნაკლებ წყალს ინარჩუნებს.',['ha','ნახეთ ბიორევიტალიზაცია']],
+      [50,'ორმოციანი წლები','ბოჭკოები დუნდება და წყობას კარგავს, ელასტინი უფრო ნელა უბრუნდება ფორმას და ცხიმოვანი შრე თხელდება. ხაზები მოსვენებულ სახეზეც ჩანს.',['rf','ნახეთ RF ლიფტინგი']],
+      [60,'ორმოცდაათიანი წლები','დერმა შესამჩნევად თხელი და მშრალია. მენოპაუზის პერიოდში კოლაგენის კარგვა ჩქარდება და მოცულობა ქვემოთ ინაცვლებს.',['consult','კონსულტაციის დაჯავშნა']],
+      [999,'სამოცი და მეტი','კანი უფრო თხელი და მშრალია და ნელა აღდგება. მოვლა ეფუძნება დატენიანებას, დაცვას და ნაზ სტიმულაციას.',['consult','კონსულტაციის დაჯავშნა']]]
+};
+var ageSeek = $('ageSeek'), age = 35, life = {sun:false, smoke:false, sleep:false}, ageS = {age:35, sun:0, smoke:0, sleep:0};
+function ageModel(a, su, sm, sl){
+  var col = a+8*su+7*sm+2*sl, hyd = a+3*su+4*sm+8*sl, wr = a+10*su+6*sm+3*sl;
+  return {ka:clamp((a-20)/45,0,1), kC:clamp((col-20)/50,0,1.25), kH:clamp((hyd-20)/50,0,1.25), kW:clamp((wr-20)/50,0,1.3), kE:clamp((a+12*su+6*sm-20)/50,0,1.25),
+          colPct:Math.round(clamp(100-Math.max(0,col-25),20,100)), hydPct:Math.round(clamp(100-.9*Math.max(0,hyd-20),20,100))};
+}
+function updateAgeUI(){
+  $('ageNum').textContent = age; ageSeek.style.setProperty('--p', ((age-20)/45*100)+'%');
+  var m = ageModel(age, +life.sun, +life.smoke, +life.sleep);
+  $('mCol').style.width = m.colPct+'%'; $('mColV').textContent = m.colPct+'%';
+  $('mHyd').style.width = m.hydPct+'%'; $('mHydV').textContent = m.hydPct+'%';
+  var rows = AGE_TXT[lang], i = 0; while (age >= rows[i][0]) i++;
+  $('ageTtl').textContent = rows[i][1]; $('ageTxt').textContent = rows[i][2];
+  var go = $('ageGo'), g = rows[i][3]; go.hidden = !g; if (g){ go.textContent = g[1]; go.onclick = function(e){ e.stopPropagation(); goTarget(g[0]); }; }
+}
+ageSeek.addEventListener('input', function(){ age = +ageSeek.value; updateAgeUI(); });
+[['lfSun','sun'],['lfSmoke','smoke'],['lfSleep','sleep']].forEach(function(c){ $(c[0]).addEventListener('click', function(){ life[c[1]] = !life[c[1]]; this.setAttribute('aria-pressed', life[c[1]]); updateAgeUI(); }); });
+
+/* face map chips */
+PINS.forEach(function(p){ if (p.view !== 'face') return; var c = document.createElement('button'); c.className = 'chip'; c.dataset.key = p.key; c._pin = p; c.textContent = p.label; c.setAttribute('aria-pressed', false); c.addEventListener('click', function(){ if (activePin === p) closePin(); else openPin(p); }); $('zoneChips').appendChild(c); });
+
+var h0 = readHash();
+applyLang(h0 ? h0.lang : (/^ka/i.test(navigator.language || '') ? 'ka' : 'en'), true);
+if (h0 && h0.view !== 'treat'){ setView(h0.view, true); tween = null; var hp0 = homePose(view); camera.position.copy(hp0.pos); controls.target.copy(hp0.target); }
+
+/* ---------- draggable panels ---------- */
+var DRAG = {views:[document.querySelector('.views')], bar:Array.prototype.slice.call(document.querySelectorAll('.bar'))}, panelPos = {};
+function canDrag(){ return window.innerWidth > 820; }
+function placePanel(g){
+  var pos = panelPos[g];
+  DRAG[g].forEach(function(el){
+    if (!pos || !canDrag()){ ['position','left','top','right','bottom','transform','maxHeight'].forEach(function(k){ el.style[k] = ''; }); return; }
+    el.style.position = 'fixed'; el.style.left = pos.l+'px'; el.style.top = pos.t+'px'; el.style.right = 'auto'; el.style.bottom = 'auto'; el.style.transform = 'none';
+    if (g === 'views') el.style.maxHeight = 'calc(100% - 16px)';
+  });
+}
+function clampPanel(g){
+  var p = panelPos[g]; if (!p) return;
+  var el = DRAG[g].filter(function(e){ return getComputedStyle(e).display !== 'none'; })[0]; if (!el) return;
+  var r = el.getBoundingClientRect(), minT = g === 'bar' ? 18 : 8;
+  p.l = clamp(p.l, 8, Math.max(8, window.innerWidth-r.width-8)); p.t = clamp(p.t, minT, Math.max(minT, window.innerHeight-r.height-8));
+}
+function savePanels(){ try { localStorage.setItem('skinatlas.panels', JSON.stringify(panelPos)); } catch(e){} }
+function placeAll(){ Object.keys(DRAG).forEach(function(g){ placePanel(g); if (panelPos[g] && canDrag()){ clampPanel(g); placePanel(g); } }); }
+function resetPanels(){ panelPos = {}; savePanels(); placeAll(); }
+Object.keys(DRAG).forEach(function(g){
+  DRAG[g].forEach(function(el){
+    var grip = document.createElement('span'); grip.className = 'grip'; grip.setAttribute('aria-hidden','true'); el.appendChild(grip);
+    var st = null;
+    el.addEventListener('pointerdown', function(e){
+      if (!canDrag() || e.button > 0 || e.target.closest('button,input,a')) return;
+      var r = el.getBoundingClientRect(); st = {x:e.clientX, y:e.clientY, l:r.left, t:r.top, moved:false};
+      try { el.setPointerCapture(e.pointerId); } catch(_){}
+    });
+    el.addEventListener('pointermove', function(e){
+      if (!st) return;
+      var dx = e.clientX-st.x, dy = e.clientY-st.y;
+      if (!st.moved && Math.abs(dx)+Math.abs(dy) < 4) return;
+      st.moved = true; el.classList.add('dragging');
+      panelPos[g] = {l:st.l+dx, t:st.t+dy}; placePanel(g); clampPanel(g); placePanel(g);
+    });
+    function end(){ if (!st) return; if (st.moved) savePanels(); st = null; el.classList.remove('dragging'); }
+    el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  });
+});
+try { var savedPanels = JSON.parse(localStorage.getItem('skinatlas.panels') || 'null'); if (savedPanels && typeof savedPanels === 'object') panelPos = savedPanels; } catch(e){}
+placeAll();
+
+/* ---------- frame ---------- */
+var cYoung = new THREE.Color(0xf2c8b2), cOld = new THREE.Color(0xcda38b), cGrey = new THREE.Color(0xb4a69c), cHair0 = new THREE.Color(0x2c1d14), cHair1 = new THREE.Color(0xbcb7af), cRed0 = new THREE.Color(0xc4443c), cBlue0 = new THREE.Color(0x5c6db6), cDull = new THREE.Color(0x8d7f7a);
+var COL_N = 84, ELA_N = 44, FIB_IDX = 1020;
+var cA = new THREE.Color(), cEpi0 = new THREE.Color(0xe6b59c), cEpi1 = new THREE.Color(0xf6d3bf), cMel0 = new THREE.Color(0x3a2416), cMel1 = new THREE.Color(0x8a8078);
+var siteAmt = [0,0,0,0,0], last = performance.now(), time = 0;
+var NEEDLE_SITES = SITES.map(function(p){ return new V3(p.x, 0, p.z); });
+
+function frame(now){
+  requestAnimationFrame(frame);
+  var dt = Math.min(0.05, (now-last)/1000); last = now; time += dt;
+  if (playing){ T += dt/DUR; if (T >= 1){ T = 1; play(false); } syncUI(); }
+  var tv = view === 'treat' ? T : 0;
+  var L = mode==='laser' ? tv : 0, Hh = mode==='ha' ? tv : 0, R = mode==='rf' ? tv : 0;
+  var ease = 1-Math.exp(-dt*5);
+  eK += ((explodeOn?1:0)-eK)*ease; xK += ((xrayOn?1:0)-xK)*ease;
+  PINS.forEach(function(p){ hl[p.key] += ((activePin===p?1:0)-hl[p.key])*ease; });
+  var pulse = 0.65+0.35*Math.sin(time*3);
+
+  /* --- laser --- */
+  var a = ss(0,.12,L)*(1-ss(.88,1,L)), beamI = 0, pk = -1, heat = 0, dmg = ss(.75,1,L);
+  if (L > .15 && L < .75){ var u=(L-.15)/.6*4, k=Math.floor(u), f=u-k; if (f < .55){ beamI = Math.sin(Math.PI*f/.55); pk = f/.55; } heat = (k+ss(.05,.55,f))/4; }
+  else if (L >= .75) heat = 1-.85*dmg;
+  var flick = reduce ? 1 : .85+.15*Math.sin(time*42);
+  laser.visible = L > 0.001;
+  lHand.position.copy(along(H_LEN+0.2+2.4*(1-a))); lHand.scale.setScalar(Math.max(.001, ss(0,.03,L)*(1-ss(.97,1,L))));
+  beamMat.opacity = .42*beamI*flick; coreMat.opacity = .8*beamI*flick;
+  packet.material.opacity = pk >= 0 ? beamI : 0; if (pk >= 0) packet.position.copy(along(BEAM_TOP*(1-pk)));
+  bulbGlow.material.opacity = heat*.9; bulbGlow.scale.setScalar(.5+1.5*heat+(reduce?0:.06*Math.sin(time*9)));
+  bulbLight.intensity = heat*1.3;
+  coolMat.opacity = .5*a;
+  melMat.emissiveIntensity = heat*2.6; melMat.color.copy(cMel0).lerp(cMel1, dmg*.6);
+  melanin.scale.set(1-.3*dmg, 1.3*(1-.3*dmg), 1-.3*dmg);
+  hairMat.emissiveIntensity = .9*beamI+.5*heat*(1-dmg); hairMat.opacity = 1-.6*dmg;
+  hairIn.position.copy(along(H_LEN/2+0.01+.25*dmg));
+  hairOut.scale.set(1, L > 0 ? lerp(1,.09,ss(0,.08,L))*(1-.9*dmg) : 1, 1);
+  hairOut.position.copy(along(H_LEN+.25*dmg));
+
+  /* --- hyaluronic acid --- */
+  var plump = 0, placed = 0;
+  for (var i=0;i<5;i++){
+    var t0 = .04+.12*i, g = ss(t0+.06, t0+.1, Hh), x = ss(t0+.1, 1, Hh), G = gels[i];
+    plump += x/5; if (g > .5) placed++;
+    siteAmt[i] = g*ss(.08,.7,x);
+    var rc = .17*g*(1+.3*x)*(1-.35*ss(.7,1,x));
+    G.core.visible = g > 0.001; G.core.scale.setScalar(Math.max(.001, rc)); G.core.material.opacity = .55*(1-.4*x);
+    G.halo.visible = g > 0.001; G.halo.scale.setScalar(Math.max(.001, g*(.22+.6*x))); G.halo.material.uniforms.uOpacity.value = .55*g*(1-.35*x);
+    G.glow.material.opacity = .22*g*(1-.3*x); G.glow.scale.setScalar(.5+1.5*x);
+  }
+  /* --- radiofrequency --- */
+  var rfA = ss(0,.1,R)*(1-ss(.9,1,R)), E = ss(.08,.16,R)*(1-ss(.8,.9,R));
+  var tight = ss(.18,.72,R), neoK = ss(.55,.98,R), rfHeat = ss(.08,.32,R)*(1-ss(.8,1,R));
+
+  /* --- shared skin response --- */
+  var isAge = view === 'age', ag = null;
+  ageS.age += (age-ageS.age)*ease; ageS.sun += ((life.sun?1:0)-ageS.sun)*ease; ageS.smoke += ((life.smoke?1:0)-ageS.smoke)*ease; ageS.sleep += ((life.sleep?1:0)-ageS.sleep)*ease;
+  if (isAge) ag = ageModel(ageS.age, ageS.sun, ageS.smoke, ageS.sleep);
+  var sc = isAge ? 1-.2*ag.kC : 1+.085*plump+.03*tight;
+  var bright = Math.max(plump, .7*neoK);
+  setEpiSmooth(isAge ? 1-1.9*ag.kW : Math.max(.9*ss(.1,1,plump), .9*ss(.35,1,R)));
+  var es = isAge ? 1-.22*ag.ka : 1;
+  der.scale.y = sc; der.position.y = Y_DER;
+  hyp.scale.y = es; hyp.position.y = Y_DER-H_HYP*es-1.25*eK;
+  epi.scale.y = es; epi.position.y = Y_DER+H_DER*sc+1.25*eK;
+  var epiTop = epi.position.y+H_EPI*es;
+  spotMat.opacity = isAge ? clamp(ageS.sun*(.2+.45*ag.ka)+Math.max(0,ag.ka-.6)*.7, 0, .6)*lerp(1,.25,xK) : 0;
+  capRed.color.copy(cRed0).lerp(cDull, isAge ? .55*ageS.smoke : 0); capBlue.color.copy(cBlue0).lerp(cDull, isAge ? .45*ageS.smoke : 0);
+  hairMat.color.copy(cHair0).lerp(cHair1, isAge ? ss(.5,.95,ag.ka) : 0);
+
+  epiMat.opacity = lerp(.96,.13,xK); derMat.opacity = lerp(.58,.055,xK); hypMat.opacity = lerp(.5,.14,xK);
+  if (isAge) epiMat.color.copy(cYoung).lerp(cOld, clamp(ag.kW,0,1)).lerp(cGrey, .4*ageS.smoke); else epiMat.color.copy(cEpi0).lerp(cEpi1, bright);
+  epiMat.emissiveIntensity = .1*bright+.16*hl.epi*pulse;
+  derMat.emissiveIntensity = .08*bright+.1*rfHeat;
+  hypMat.emissive.setHex(0xffd28a); hypMat.emissiveIntensity = .3*hl.subcutis*pulse;
+  colMat.emissiveIntensity = .2*E*(reduce?1:.8+.2*Math.sin(time*5))+.09*tight+.3*hl.collagen*pulse;
+  elaMat.emissiveIntensity = .18*E+.07*tight+.25*hl.collagen*pulse;
+  sheathMat.emissiveIntensity = .7*hl.follicle*pulse; sheathMat.opacity = .42+.3*hl.follicle;
+  oMat.emissiveIntensity = .2+.4*hl.water*pulse+.2*plump;
+  var tg = isAge ? clamp(1-1.15*ag.kC,0,1) : tight; collagen.set(tg); elastin.set(tg);
+  collagen.geo.setDrawRange(0, Math.round(COL_N*(isAge ? clamp(1-.55*ag.kC,.3,1) : 1))*FIB_IDX);
+  elastin.geo.setDrawRange(0, Math.round(ELA_N*(isAge ? clamp(1-.6*ag.kE,.25,1) : 1))*FIB_IDX);
+  if (isAge){ var sa = clamp(1-2.2*ag.kH,0,1); for (var si=0; si<5; si++) siteAmt[si] = sa; }
+  neoMesh.visible = neoK > 0.001; neoMat.opacity = Math.min(1, neoK*1.5);
+  neo.geo.setDrawRange(0, Math.floor(neoCount*neoK/3)*3);
+  updateMols(time, siteAmt, hl.water, isAge ? 1.15-.75*ag.kH : 1);
+
+  /* needle */
+  needle.visible = Hh > 0.001 && Hh < .76;
+  if (needle.visible){
+    var ki = clamp(Math.floor((Hh-.04)/.12),0,4), nf = clamp((Hh-.04-.12*ki)/.12,0,1);
+    var from = NEEDLE_SITES[Math.max(0,ki-1)], to = NEEDLE_SITES[ki], mv = ss(0,.3,nf), depth = ss(.3,.5,nf)*(1-ss(.8,1,nf));
+    if (Hh >= .64){ mv = 1; depth = 0; }
+    needle.position.set(lerp(from.x,to.x,mv), lerp(epiTop+.8, Y_DER+1.25*sc+.12, depth)+2.5*ss(.64,.76,Hh), lerp(from.z,to.z,mv));
+    needle.scale.setScalar(Math.max(.001, ss(0,.03,Hh)*(1-ss(.68,.76,Hh))));
+  }
+  /* RF handpiece and waves */
+  rfHand.visible = R > 0.001;
+  var gl = .5-.5*Math.cos(Math.PI*2*clamp((R-.1)/.75,0,1)), rx = -1.7+3.0*gl, rz = -.75;
+  rfHand.position.set(rx, epiTop+.02+2.0*(1-rfA), rz); rfHand.scale.setScalar(Math.max(.001, ss(0,.03,R)*(1-ss(.97,1,R))));
+  waves.visible = E > 0.001; waves.position.set(rx, epiTop-.05, rz);
+  for (var w=0;w<5;w++){ var ph = ((reduce ? R*6 : time*.32)+w/5)%1; waveMeshes[w].scale.set(.3+ph*2.3, .3+ph*2.1, .3+ph*2.3); waveMeshes[w].material.uniforms.uOpacity.value = E*.5*Math.pow(1-ph,1.3); }
+  rfGlow.position.set(0,-.9,0); rfGlow.material.opacity = .16*E; rfLight.position.set(0,-1.0,0); rfLight.intensity = .7*E;
+
+  var ka = lang === 'ka';
+  if (mode === 'laser') setRead((ka ? 'ბოლქვი ≈ ' : 'Bulb ≈ ')+Math.round(37+33*heat)+' °C');
+  else if (mode === 'ha') setRead(ka ? placed+' / 5 რეზერვუარი' : placed+' of 5 reservoirs placed');
+  else setRead((ka ? 'დერმა ≈ ' : 'Dermis ≈ ')+Math.round(37+21*rfHeat)+' °C');
+
+  if (activePin && activePin.view === 'face'){ zoneGlow.position.copy(activePin.at); zoneGlow.position.z += .02; zoneGlow.material.opacity = .35+.25*pulse; } else zoneGlow.material.opacity = 0;
+
+  /* camera */
+  if (tween){ var q = clamp((now-tween.start)/1200,0,1), e2 = q<.5 ? 4*q*q*q : 1-Math.pow(-2*q+2,3)/2; camera.position.lerpVectors(tween.p0,tween.p1,e2); controls.target.lerpVectors(tween.t0,tween.t1,e2); if (q >= 1) tween = null; }
+  controls.update();
+  if (bloom) bloom.strength = .36+.2*Math.max(beamI, E*.5);
+  if (composer) composer.render(); else renderer.render(scene, camera);
+
+  /* pins */
+  var ww = window.innerWidth, wh = window.innerHeight;
+  for (var pi=0; pi<PINS.length; pi++){
+    var p = PINS[pi]; p.anchor.getWorldPosition(tmpV); tmpV.project(camera);
+    var px = (tmpV.x*.5+.5)*ww, py = (-tmpV.y*.5+.5)*wh;
+    p.el.style.display = (tmpV.z > 1 || (p.view === 'face') !== (view === 'face')) ? 'none' : '';
+    p.el.style.transform = 'translate('+px.toFixed(1)+'px,'+(py-11).toFixed(1)+'px)';
+    if (p === activePin && ww > 820){
+      var tw = 300, th = tip.offsetHeight, tx = px+26, ty = py-th/2;
+      if (tx+tw > ww-16) tx = px-tw-26;
+      tip.style.transform = 'translate('+clamp(tx,16,ww-tw-16).toFixed(1)+'px,'+clamp(ty,16,wh-th-16).toFixed(1)+'px)';
+    }
+  }
+}
+window.addEventListener('resize', function(){
+  var w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false); if (composer) composer.setSize(w, h);
+  placeAll();
+});
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
